@@ -309,7 +309,7 @@ export default function AddPost() {
           try {
             // const response = await axios.post('https://blogpage-theta.vercel.app/api/upload', formData, {
               // https://reactadminblog.vercel.app/Login
-            const response = await fetch('https://reactadminblog.vercel.app//api/upload', {
+            const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
               method: 'POST',
               body: formData,
             });
