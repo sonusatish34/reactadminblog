@@ -51,7 +51,7 @@ export default function AddPost() {
     try {
       // const response = await axios.post('https://blogpage-theta.vercel.app/api/upload', formData, {
 
-      const response = await axios.post('http://localhost:5000/upload', formData, {
+      const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -308,7 +308,8 @@ export default function AddPost() {
           // Send image file to backend (Node.js server)
           try {
             // const response = await axios.post('https://blogpage-theta.vercel.app/api/upload', formData, {
-            const response = await fetch('http://localhost:5000/uploadei', {
+              // https://reactadminblog.vercel.app/Login
+            const response = await fetch('https://reactadminblog.vercel.app//api/upload', {
               method: 'POST',
               body: formData,
             });
