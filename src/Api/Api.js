@@ -38,7 +38,7 @@ export  function AdminName(){
 
 export function Logout()
 {
-  sessionStorage.clear();
+  localStorage.clear();
 
   window.addEventListener("beforeunload", function (event) {
 

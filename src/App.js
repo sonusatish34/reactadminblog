@@ -3,6 +3,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import Login from "./Login/Login";
+import { Logout } from "./Logout/Logout";
 import Dashboard from "./Admin/Dashboard/Dashboard";
 import Posts from "./Admin/Posts/Posts";
 import Categories from "./Admin/Categories/Categories";
@@ -13,25 +14,35 @@ import Vio from "./Admin/Vio/TextEditor";
 import View from "./Admin/Posts/ViewPost";
 import UpdatePost from "./Admin/Posts/UpdatePost";
 import ViewMessage from "./Admin/Inbox/ViewMessage";
-import { Logout } from "./Api/Api";
+// import { Logout } from "./Api/Api";
 import NotFound from "./layouts/PageNotFound";
 import SnapShot from './SnapShot/SnapShot';
+import { useEffect, useState } from "react";
 
 function App() {
   // Check if the user is authenticated
-  const isAuthenticated = localStorage.getItem('authToken');
+  const [isAuthenticated,setIsAuthenticated] = useState(false);
+  useEffect(()=>{
+    if(localStorage.getItem('authToken'))
+    {
+      setIsAuthenticated(true)
+    }
+
+  },[])
   // console.log(isAuthenticated,"-----------a-------");
   
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/Login" element={<Login />} />
+        {/* <Route path="/Login" element={<Login />} /> */}
+        <Route path="/Login" element={isAuthenticated ? <Dashboard /> : <Login />} />
+
         <Route path="/Logout" element={<Logout />} />
         
         {/* Protected Routes */}
         <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/Login" />} />
-        <Route path="/Admin" element={ <Dashboard />} />
+        <Route path="/Admin" element={isAuthenticated ? <Dashboard /> : <Navigate to="/Login" />} />
         <Route path="/Admin/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/Login" />} />
         <Route path="/Admin/Posts" element={isAuthenticated ? <Posts /> : <Navigate to="/Login" />} />
         <Route path="/Admin/Post/New" element={isAuthenticated ? <Add /> : <Navigate to="/Login" />} />

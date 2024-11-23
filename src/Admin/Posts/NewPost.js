@@ -12,6 +12,9 @@ import { fireDb } from '../../firebase';
 
 export default function AddPost() {
   const [catgs, setCatgs] = useState('');
+  const [addCatgs, setAddCatgs] = useState(false);
+  const [newCategory, setNewCategory] = useState(''); // Stores the new category name
+
   useEffect(() => {
     const fetchCatgs = async () => {
       // setLoading(true);
@@ -19,13 +22,16 @@ export default function AddPost() {
       const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       // setPostsData(posts);
       setCatgs(catgs1)
-      console.log(catgs1, "----------11111111------");
+      // console.log(catgs1, "----------11111111------");
       setPostauthor(localStorage.getItem('AdminName'))
       // console.log(formData, "fd---000");
       // setLoading(false);
     };
     fetchCatgs()
+
   }, [])
+
+
   // console.log(catgs, "--catgs--");
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -43,7 +49,7 @@ export default function AddPost() {
 
     // console.log(formData, "------------fdd---");
     try {
-            // const response = await axios.post('https://blogpage-theta.vercel.app/api/upload', formData, {
+      // const response = await axios.post('https://blogpage-theta.vercel.app/api/upload', formData, {
 
       const response = await axios.post('http://localhost:5000/upload', formData, {
         headers: {
@@ -62,12 +68,13 @@ export default function AddPost() {
   const [formData, setFormData] = useState({
     id: '',
     title: '',
-    description: '',
+    cialt: '',
     content: '',
     coverimages: '',  // This will store the base64 image string
-    blogfor: '',
+    blogfor: 'LDC',
     categoryname: '',
     description: '',
+    cialt: '',
     slug: ''
   });
   // console.log(formData, '000000000');
@@ -78,59 +85,68 @@ export default function AddPost() {
   const [selectedCat, setSelectedCat] = useState('');
 
   useEffect(() => {
-    async function hu() {
+    async function hus() {
       const categoryRef = collection(fireDb, 'categories');
       const q = query(categoryRef, where('name', '==', 'dss'));
       const querySnapshot = await getDocs(q);
       // return querySnapshot.empty;
       console.log(querySnapshot.empty, "test ing cat");
     }
-    hu()
+    hus()
   }, [])
-  async function handleCategory() {
 
-    async function hu(catname) {
-      const categoryRef = collection(fireDb, 'categories');
-      const q = query(categoryRef, where('name', '==', catname));
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.empty;
-      console.log(querySnapshot.empty,"test ing cat");
 
-    }
-    const categoryExists = await hu(selectedCat);
-
-    if (!categoryExists) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Category Exists',
-        text: 'This category already exists in the database.',
-      });
-      return false; // Do not proceed to post submission
-    }
-
-    else {
-      try {
-        // Add new category to Firestore if it doesn't exist
-        await addDoc(collection(fireDb, 'categories'), {
-          name: selectedCat,
-          createdAt: Timestamp.now(),
-        });
-        console.log('Category added successfully!');
-        return true; // Proceed with post creation
-      } catch (error) {
-        console.error('Error adding category:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'There was an error adding the category.',
-        });
-        return false;
-      }
-    }
-
-  }
 
   const [currentKeyword, setCurrentKeyword] = useState(''); // Temporary state for current keyword
+  const handleCategorySubmit = async (e) => {
+    e.preventDefault();
+    if (!newCategory) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Category name is required',
+        text: 'Please enter a category name.',
+      });
+      return;
+    }
+
+    try {
+      const categoryRef = collection(fireDb, 'categories');
+      const q = query(categoryRef, where('name', '==', newCategory));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Category Exists',
+          text: 'This category already exists in the database.',
+        });
+        return;
+      }
+
+      // Add new category to Firestore
+      await addDoc(collection(fireDb, 'categories'), {
+        name: newCategory,
+        createdAt: Timestamp.now(),
+      });
+      console.log('Category added successfully!');
+
+      // Update the categories list and set the selected category
+      setCatgs((prevCatgs) => [...prevCatgs, { name: newCategory }]);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        categoryname: newCategory, // Automatically set the new category as selected
+      }));
+      setAddCatgs(false); // Close the dialog
+      setNewCategory(''); // Clear the input field
+    } catch (error) {
+      console.error('Error adding category:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'There was an error adding the category.',
+      });
+    }
+  };
 
   // Handle form changes
   const handleChange = (e) => {
@@ -138,44 +154,33 @@ export default function AddPost() {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
+      // categoryname: newCategory,
       [name]: value
     }));
-    
+
   };
-  console.log(formData,"formadastat on handle change ");
+  console.log(formData, "formadastat on handle change ");
+  console.log(selectedCat, "selected cat");
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    handleCategory();
-    // const categoryAdded = await addCategoryIfNotExists(selectedCat);
-    // if (!categoryAdded) {
-    //   return; // Exit early if category was not added or already exists
-    // }
     const newPost = {
       title: formData.title,
-      // page: formData.Page,
-      description:formData.description,
-      slug:formData.slug,
+      description: formData.description,
+      slug: formData.title.replaceAll(' ', '-').toLowerCase(),
       content: editorHtml,
       coverimages: uploadedImageUrl,
       blogfor: formData.blogfor,
-      categoryname: formData.categoryname,
+      categoryname: formData.categoryname,  // Ensure you're using formData.categoryname here
       createdAt: new Date().toISOString(),
+      cialt: formData.cialt,
+      timetake: calculateReadTime(editorHtml)
     };
-// id: '',
-//       title: '',
-//       description: '',
-//       content: '',
-//       coverimages: '',  // This will store the base64 image string
-//       blogfor: '',
-//       categoryname: '',
-//       description: '',
-//       slug: ''
+
     try {
-      // Save post in Firestore under blogdb -> blogs collection
-      const blogRef = collection(fireDb, "blogPost"); // Reference to blogs collection under blogdb
+      const blogRef = collection(fireDb, "blogPost");
       await addDoc(blogRef, {
         ...newPost,
         time: Timestamp.now(),
@@ -184,30 +189,31 @@ export default function AddPost() {
           month: "short",
           day: "2-digit",
           year: "numeric",
-        }),
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        })
       });
 
       Swal.fire({
         icon: 'success',
         title: 'Post Created',
-        html: `Title: ${formData.title}<br>Page: ${formData.Page}<br>Content: ${"editorData"}<br>Tags: ${formData.tags}`,
+        html: `Title: ${formData.title}`,
       });
 
-      // Clear the form
       setFormData({
         id: '',
         title: '',
         description: '',
         content: '',
-        coverimages: '',  // This will store the base64 image string
+        coverimages: '',
         blogfor: '',
-        categoryname: '',
-        description: '',
+        categoryname: '', // Ensure this is reset
+        cialt: '',
         slug: ''
       });
-      setEditorHtml('')
-      
-      // setEditorData('');
+      setEditorHtml('');
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -217,20 +223,7 @@ export default function AddPost() {
     }
   };
 
-  // useEffect(() => {
-  //   const fetchPosts = async () => {
-  //     // setLoading(true);
-  //     const querySnapshot = await getDocs(collection(fireDb, "blogPost"));
-  //     const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  //     // setPostsData(posts);
-  //     // console.log(posts, "----------11111111------");
-  //     setPostauthor(sessionStorage.getItem('AdminName'))
-  //     console.log(formData, "fd---000");
-  //     // setLoading(false);
-  //   };
 
-  //   fetchPosts();
-  // }, []);
 
   // Handle form clear
   const handleClear = () => {
@@ -249,14 +242,24 @@ export default function AddPost() {
   };
 
   const [editorHtml, setEditorHtml] = useState('');
+  const calculateReadTime = (text) => {
+    const words = text.split(/\s+/).filter((word) => word.length > 0); // Split by spaces
+    const wordCount = words.length;
+
+    const wordsPerMinute = 183; // Average reading speed
+    return Math.ceil(wordCount / wordsPerMinute);
+  };
   const quillRef = useRef(null); // Create a reference using useRef
   // console.log(editorHtml, "-------");
 
-  console.log(editorHtml,"ediur html");
-  
+  // console.log(wordCount,"wordCount");
+  // console.log(editorHtml, "ediur html");
+  // console.log(calculateReadTime(editorHtml), "----time");
+
   const modules = {
     toolbar: [
-      [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }, { 'size': ['small', 'normal', 'large', 'huge'] }], // Adding custom font sizes
+      [{ 'header': '1' }, { 'header': '2' }, { 'font': [] },
+      { 'size': ['small', 'normal', 'large', 'huge'] }], // Adding custom font sizes
       [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       ['bold', 'italic', 'underline', 'strike'],
       ['blockquote', 'code-block'],
@@ -266,6 +269,8 @@ export default function AddPost() {
       // Add font color and background color to the toolbar
       [{ 'color': [] }], // Color dropdown
       [{ 'background': [] }], // Background color dropdown
+      [{ 'align': 'center' }, { 'align': 'right' }, { 'align': 'left' }],
+
     ],
     // imageHandler: imageHandler,
   };
@@ -298,12 +303,12 @@ export default function AddPost() {
           // Create FormData to send the image to the server
           const formData = new FormData();
           formData.append('image', file);
-          console.log(formData, "formdsata in funcncn");
+          // console.log(formData, "formdsata in funcncn");
 
           // Send image file to backend (Node.js server)
           try {
             // const response = await axios.post('https://blogpage-theta.vercel.app/api/upload', formData, {
-            const response = await fetch('http://localhost:5000/upload', {
+            const response = await fetch('http://localhost:5000/uploadei', {
               method: 'POST',
               body: formData,
             });
@@ -349,10 +354,22 @@ export default function AddPost() {
             />
           </div>
           <div className="flex flex-col">
+            <label htmlFor="slug" className="text-lg">slug</label>
+            <input
+              type="text"
+              id="slug"
+              name="slug"
+              value={formData.title.replaceAll(' ', '-').toLowerCase()}
+              onChange={handleChange}
+              placeholder='optional'
+              className="border rounded-lg p-2"
+            />
+          </div>
+          {/* <div className="flex flex-col">
             <label htmlFor="Page" className="text-lg">Page URL</label>
 
             {formData.title?.replaceAll(' ', '-').toLowerCase()}
-          </div>
+          </div> */}
           <div className="flex flex-col">
             <label htmlFor="description" className="text-lg"> Meta Description</label>
             <input
@@ -365,18 +382,7 @@ export default function AddPost() {
               className="border rounded-lg p-2"
             />
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="slug" className="text-lg">slug</label>
-            <input
-              type="text"
-              id="slug"
-              name="slug"
-              value={formData.slug}
-              onChange={handleChange}
-              placeholder='optional'
-              className="border rounded-lg p-2"
-            />
-          </div>
+
           <div className="flex flex-col">
             <label htmlFor="content" className="text-lg">Content</label>
             <div>
@@ -390,22 +396,39 @@ export default function AddPost() {
               />
             </div>
           </div>
-          <div className="flex flex-col pt-4">
-            <label htmlFor="coverimages" className="text-lg">Cover Image</label>
-            <input
-              type="file"
-              id="coverimages"
-              name="coverimages"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="border rounded-lg p-2"
-            />
-            <img
-              src={`${uploadedImageUrl}`}  // Adjust URL for public access
-              alt="Cover Preview"
-              className="w-32 h-32 object-cover rounded"
-            />
+          <p>{calculateReadTime(editorHtml)} min read</p>
+          <div className="flex gap-4 pt-4">
+            <div className="flex flex-col">
+              <label htmlFor="coverimages" className="text-lg">Cover Image</label>
+              <input
+                type="file"
+                id="coverimages"
+                name="coverimages"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="border rounded-lg p-2"
+              />
+              <img
+                src={`${uploadedImageUrl}`}  // Adjust URL for public access
+                alt="Cover Preview"
+                className="w-32 h-32 object-cover rounded"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="cialt" className="text-lg">Cover image Alt text </label>
+              <input
+                type="text"
+                id="cialt"
+                name="cialt"
+                value={formData.cialt}
+                onChange={handleChange}
+                required
+                className="border rounded-lg p-2"
+              />
+            </div>
+
           </div>
+
           <div className="flex flex-col pt-4">
             <label htmlFor="blogfor" className="text-lg">Blog For</label>
             <select
@@ -415,23 +438,81 @@ export default function AddPost() {
               onChange={handleChange}
               className="border rounded-lg p-2"
             >
-              <option value="Dozzy">Dozzy</option>
               <option value="LDC">LDC</option>
+              <option value="Dozzy">Dozzy</option>
               <option value="SDC">SDC</option>
             </select>
           </div>
+          <p>--------------</p>
           <div className="flex flex-col pt-4">
+            <label htmlFor="categoryname" className="text-lg pb-5">Category Name</label>
+            <div className="flex items-center gap-2">
+              <select
+                id="categoryname"
+                name="categoryname"
+                value={formData.categoryname}  // Ensure this uses formData.categoryname
+                onChange={handleChange}
+                className="border rounded-lg p-2 w-64"
+              >
+                {catgs.length ? catgs.map((item, index) => (
+                  <option key={index} value={item.name}>{item.name}</option>
+                )) : null}
+              </select>
+
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setAddCatgs(true); // Open dialog
+                }}
+                className="rounded-md bg-gray-200 p-1 flex items-center"
+              >
+                + Add
+              </button>
+
+              {addCatgs && (
+                <div className="absolute bg-white border rounded-lg p-4 mt-2 shadow-lg">
+                  <h3 className="text-lg mb-4">Add New Category</h3>
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    placeholder="Enter category name"
+                    className="border rounded-lg p-2 w-64 mb-4"
+                  />
+                  <div className="flex gap-4">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault(); 
+                        setAddCatgs(false)}} // Close dialog
+                      className="bg-gray-300 p-2 rounded"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleCategorySubmit} // Add category
+                      className="bg-blue-500 text-white p-2 rounded"
+                    >
+                      Add Category
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <p>--------------</p>
+          {/* <div className="flex flex-col pt-4">
             <label htmlFor="categoryname" className="text-lg">Category Name</label>
             <input
               type="text"
               id="categoryname"
               name="categoryname"
-              value={formData.categoryname}
-              onChange={handleChange}
+              value={selectedCat}
+              onChange={(e)=>{setSelectedCat(e.target.value)}}
               required
               className="border rounded-lg p-2"
             />
-          </div>
+          </div> */}
           <div>
             {/* {catgs?.map((item, index) => (
               <p>{item.name}</p>
