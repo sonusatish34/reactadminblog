@@ -39,9 +39,9 @@ export default function AddPost() {
     const formData = new FormData();
     formData.append('coverimages', file);
     try {
-      // const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
+      const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
 
-      const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
+      // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
       // const response = await axios.post('http://localhost:5000/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -274,9 +274,9 @@ export default function AddPost() {
           formData.append('image', file);
 
           try {
-            // const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
+            const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
             // const response = await fetch('http://localhost:5000/uploadei', {
-              const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
+              // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
               method: 'POST',
               body: formData,
             });
