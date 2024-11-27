@@ -50,7 +50,7 @@ export default function AddPost() {
       });
       const convimg = response?.data?.fileUrl?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.')
       // Set the uploaded image URL from the response
-      setUploadedImageUrl(convimg);
+      setUploadedImageUrl(response?.data?.fileUrl);
     } catch (error) {
       console.error('Error uploading image:', error);
     }
@@ -392,8 +392,8 @@ export default function AddPost() {
                 className="border rounded-lg p-2"
               />
               <img
-                src={uploadedImageUrl}  // Adjust URL for public access
-                alt="Cover Preview"
+                src={"https://ldcars.blr1.cdn.digitaloceanspaces.com/ldcars_nextjs_images/blog_images/1732698927985_Dozzy%20Farmhouses_11zon.webp"}  // Adjust URL for public access
+                alt="Cover Previewsw"
                 className="w-32 h-32 object-cover rounded"
               />
             </div>
