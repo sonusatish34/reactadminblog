@@ -20,7 +20,7 @@ export default function AddPost() {
       const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setCatgs(catgs1)
       setPostauthor(localStorage.getItem('AdminName'))
-      
+
     };
     fetchCatgs()
 
@@ -38,12 +38,11 @@ export default function AddPost() {
     // Create FormData object to send the file as multipart/form-data
     const formData = new FormData();
     formData.append('coverimages', file);
-   
     try {
-      const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
+      // const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
 
-      // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
-      // const response = await axios.post('http://localhost:5000/upload', formData, {
+        // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
+        const response = await axios.post('http://localhost:5000/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -72,20 +71,8 @@ export default function AddPost() {
   const [editorData, setEditorData] = useState('');
 
 
-  const [selectedCat, setSelectedCat] = useState('');
 
-  useEffect(() => {
-    async function hus() {
-      const categoryRef = collection(fireDb, 'categories');
-      const q = query(categoryRef, where('name', '==', 'dss'));
-      const querySnapshot = await getDocs(q);
-    }
-    hus()
-  }, [])
-
-
-
-  const [currentKeyword, setCurrentKeyword] = useState(''); // Temporary state for current keyword
+ 
   const handleCategorySubmit = async (e) => {
     e.preventDefault();
     if (!newCategory) {
@@ -152,7 +139,6 @@ export default function AddPost() {
       }));
     }
   };
- 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -163,7 +149,7 @@ export default function AddPost() {
       content: editorHtml,
       coverimages: uploadedImageUrl,
       blogfor: formData.blogfor,
-      categoryname: formData.categoryname,  // Ensure you're using formData.categoryname here
+      categoryname: formData.categoryname, 
       createdAt: new Date().toISOString(),
       cialt: formData.cialt,
       timetake: calculateReadTime(editorHtml)
@@ -236,10 +222,10 @@ export default function AddPost() {
     const words = text.split(/\s+/).filter((word) => word.length > 0); // Split by spaces
     const wordCount = words.length;
 
-    const wordsPerMinute = 183; // Average reading speed
+    const wordsPerMinute = 183; 
     return Math.ceil(wordCount / wordsPerMinute);
   };
-  const quillRef = useRef(null); // Create a reference using useRef
+  const quillRef = useRef(null); 
 
 
   const modules = {
@@ -252,16 +238,13 @@ export default function AddPost() {
       ['link', 'image'], // Add the image button in the toolbar
       [{ 'align': [] }],
       ['clean'] // Add a clean button to clear the content
-      // Add font color and background color to the toolbar
       [{ 'color': [] }], // Color dropdown
       [{ 'background': [] }], // Background color dropdown
       [{ 'align': 'center' }, { 'align': 'right' }, { 'align': 'left' }],
 
     ],
-    // imageHandler: imageHandler,
   };
 
-  // Use the `formats` prop to specify the allowed formats in the editor
   const formats = [
     'header', 'font', 'size', 'list', 'bold', 'italic', 'underline', 'strike',
     'blockquote', 'code-block', 'link', 'image', 'align', 'color', 'background'
@@ -287,12 +270,13 @@ export default function AddPost() {
           const altText = prompt("Please enter alt text for the image:");
           const formData = new FormData();
           formData.append('image', file);
-          
+
           try {
 
-            const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
-      // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
-        method: 'POST',
+            // const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
+              const response = await fetch('http://localhost:5000/uploadei', {
+              // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
+              method: 'POST',
               body: formData,
             });
 
@@ -348,11 +332,6 @@ export default function AddPost() {
               className="border rounded-lg p-2"
             />
           </div>
-          {/* <div className="flex flex-col">
-            <label htmlFor="Page" className="text-lg">Page URL</label>
-
-            {formData.title?.replaceAll(' ', '-').toLowerCase()}
-          </div> */}
           <div className="flex flex-col">
             <label htmlFor="description" className="text-lg"> Meta Description</label>
             <input
@@ -392,7 +371,7 @@ export default function AddPost() {
                 className="border rounded-lg p-2"
               />
               <img
-                src={"https://ldcars.blr1.cdn.digitaloceanspaces.com/ldcars_nextjs_images/blog_images/1732698927985_Dozzy%20Farmhouses_11zon.webp"}  // Adjust URL for public access
+                src={uploadedImageUrl}  // Adjust URL for public access
                 alt="Cover Previewsw"
                 className="w-32 h-32 object-cover rounded"
               />
@@ -428,7 +407,7 @@ export default function AddPost() {
           </div>
           <p>--------------</p>
           <div className="flex flex-col pt-4">
-            <label htmlFor="categoryname" className="text-lg pb-5">Category Name Selected :<p className='flex gap-4'>{formData?.categoryname.map((catn, index) => {
+            <label htmlFor="categoryname" className="text-lg pb-5">Category Name Selected :<p className='flex gap-4'>{formData?.categoryname.length && formData?.categoryname?.map((catn, index) => {
               return <span className='text-blue-400'>{catn}</span>
             })}</p> </label>
             <div className="flex items-center gap-2">

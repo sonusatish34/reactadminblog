@@ -2,9 +2,7 @@
 
 const AWS = require('aws-sdk');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
-const cors = require('cors');
+;
 
 const s3 = new AWS.S3({
     endpoint: new AWS.Endpoint('https://blr1.digitaloceanspaces.com'),  // Your DigitalOcean Space endpoint
