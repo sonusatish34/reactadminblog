@@ -6,8 +6,8 @@ import { Navigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 
 function Login() {
-  const [email, setEmail] = useState("admin@gmail.com");
-  const [password, setPassword] = useState("admin");
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
   const [error, setError] = useState(null);
   const [redirect, setRedirect] = useState(false); // Changed initial state to false
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ function Login() {
         localStorage.setItem("AdminName", foundUser.name);
         setRedirect(true); // Set redirect to true
         setError(null); // Clear previous errors
+        window.location.reload(false);
       } else {
         setError("Invalid email or password.");
       }
@@ -35,7 +36,7 @@ function Login() {
       setError("An error occurred while verifying credentials.");
     }
     finally {
-      window.location.reload(false);
+      // window.location.reload(false);
     }
   };
 
@@ -64,6 +65,7 @@ function Login() {
               id="email"
               className="mt-1 p-2 border rounded w-full"
               value={email}
+              placeholder="enter email"
               onChange={(e) => setEmail(e.target.value)}
               required
             />
@@ -79,6 +81,7 @@ function Login() {
               id="password"
               className="mt-1 p-2 border rounded w-full"
               required
+              placeholder="enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />

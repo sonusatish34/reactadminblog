@@ -104,11 +104,11 @@ function Categories() {
         style={{ width: '900px' }}
         className="shadow-md px-1 space-x-8 mt-2 pt-2 pb-2 mb-2 justify-center gap-9 rounded-lg ml-10 bg-white"
       >
-        <div className="flex flex-row m-4">
+        <div className="flex flex-row gap-4 m-4">
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}  // Navigates to the previous page
-            className="bg-gray-300 p-2 rounded-md text-gray-800"
+            className="bg-gray-300 p-1 rounded-md text-red-600"
           >
             &larr; Back
           </button>
@@ -120,7 +120,7 @@ function Categories() {
             }}
             className="rounded-md bg-gray-200 p-1 flex items-center"
           >
-            + Add
+            + Add Category
           </button>
 
           {addCatgsDialog && (
@@ -154,15 +154,15 @@ function Categories() {
           )}
         </div>
 
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="w-[800px]  divide-y divide-gray-200">
           <thead>
             <tr>
               <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Name
               </th>
-              <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Description
-              </th>
+              </th> */}
               <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Delete
               </th>
@@ -171,11 +171,11 @@ function Categories() {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-gray-200 text-ce">
             {cList?.length && cList.map((category, index) => (
               <tr key={index}>
                 <td className="px-5 py-3  w-25 truncate w-40 block overflow-hidden overflow-ellipsis">{category?.name}</td>
-                <td className="px-5 py-3 max-w-sm truncate  ">{category?.id}</td>
+                {/* <td className="px-5 py-3 max-w-sm truncate  ">{category?.id}</td> */}
                 <td className="px-5 py-3 ">
                   <FontAwesomeIcon
                     onClick={() => handleDeleteCat(category?.id)}

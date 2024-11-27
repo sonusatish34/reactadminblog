@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AdminLayout from "../../layouts/AdminLayout";
 import { useState, useEffect } from 'react';
 import { collection, doc, getDoc, deleteDoc } from "firebase/firestore";
@@ -18,7 +18,7 @@ function View() {
 function Getpost({ postId }) {
   const [postData, setPostData] = useState({});
   const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate()
   useEffect(() => {
     const fetchPost = async () => {
       const postRef = doc(fireDb, "blogPost", postId);
@@ -31,7 +31,7 @@ function Getpost({ postId }) {
       }
       setLoading(false);
     };
-    
+
     fetchPost();
   }, [postId]);
 
@@ -70,10 +70,17 @@ function Getpost({ postId }) {
 
   return (
     <>
+      <button
+        onClick={() => navigate(-1)}  // Navigates to the previous page
+        className="bg-gray-300 p-2 rounded-md text-gray-800"
+      >
+        &larr; Back
+      </button>
       {loading ? (
         <Loading />
       ) : (
         <div className="shadow-md flex-row px-1 items-center mt-5 pl-5 pt-2 pb-2 mb-2 justify-center rounded-lg ml-10 bg-white">
+
           <h1 className="mt-2 mb-2 text-2xl font-semibold">Title: {postData?.title}</h1>
           <div className="w-2/3">
             <img src={postData?.picture} alt="" className="w-full h-auto" />
@@ -91,14 +98,14 @@ function Getpost({ postId }) {
             <span className="text-gray-600">Category: </span>{postData?.categoryname}
           </div>
           {/* <div className="mt-2 mb-2 max-w-2xl">{postData?.content}</div> */}
-          <div dangerouslySetInnerHTML={{__html:postData?.content}}></div>
+          <div dangerouslySetInnerHTML={{ __html: postData?.content }}></div>
 
           <p>hi</p>
-          {postData?.comments && postData?.comments.length === 0 ? 
+          {postData?.comments && postData?.comments.length === 0 ?
             <div className="mt-2 mb-2 max-w-2xl text-red-500 text-lg font-bold">
               No Comments on this post
             </div>
-          : 
+            :
             <>
               <div className="mt-2 mb-2 max-w-2xl">Comments:</div>
               <div style={{ width: '50rem' }}>

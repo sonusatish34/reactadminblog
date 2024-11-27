@@ -51,9 +51,7 @@ function Dashboard() {
       {
         console.log("some errors");
         setLoading(false)
-
       }
-    
   }, []);
   const [isLoading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState({

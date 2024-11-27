@@ -41,8 +41,8 @@ export default function AddPost() {
     try {
       // const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
 
-        // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
-        const response = await axios.post('http://localhost:5000/upload', formData, {
+      const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
+      // const response = await axios.post('http://localhost:5000/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -72,7 +72,7 @@ export default function AddPost() {
 
 
 
- 
+
   const handleCategorySubmit = async (e) => {
     e.preventDefault();
     if (!newCategory) {
@@ -139,23 +139,25 @@ export default function AddPost() {
       }));
     }
   };
+
+    
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newPost = {
       title: formData.title,
       description: formData.description,
-      slug: formData.title.replaceAll(' ', '-').toLowerCase(),
+      slug: formData.title.replaceAll(' ', '-').toLowerCase()+`-${Date.now()}`,
       content: editorHtml,
       coverimages: uploadedImageUrl,
       blogfor: formData.blogfor,
-      categoryname: formData.categoryname, 
+      categoryname: formData.categoryname,
       createdAt: new Date().toISOString(),
       cialt: formData.cialt,
       timetake: calculateReadTime(editorHtml)
     };
-
-    try {
+   
+    try { 
       const blogRef = collection(fireDb, "blogPost");
       await addDoc(blogRef, {
         ...newPost,
@@ -222,10 +224,10 @@ export default function AddPost() {
     const words = text.split(/\s+/).filter((word) => word.length > 0); // Split by spaces
     const wordCount = words.length;
 
-    const wordsPerMinute = 183; 
+    const wordsPerMinute = 183;
     return Math.ceil(wordCount / wordsPerMinute);
   };
-  const quillRef = useRef(null); 
+  const quillRef = useRef(null);
 
 
   const modules = {
@@ -272,10 +274,9 @@ export default function AddPost() {
           formData.append('image', file);
 
           try {
-
             // const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
-              const response = await fetch('http://localhost:5000/uploadei', {
-              // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
+            // const response = await fetch('http://localhost:5000/uploadei', {
+              const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
               method: 'POST',
               body: formData,
             });
@@ -326,7 +327,7 @@ export default function AddPost() {
               type="text"
               id="slug"
               name="slug"
-              value={formData.title.replaceAll(' ', '-').toLowerCase()}
+              value={formData.title.replaceAll(' ', '-').toLowerCase()+'-'+Date.now()}
               onChange={handleChange}
               placeholder='optional'
               className="border rounded-lg p-2"
@@ -347,7 +348,7 @@ export default function AddPost() {
 
           <div className="flex flex-col">
             <label htmlFor="content" className="text-lg">Content</label>
-            <div>
+            <div >
               <ReactQuill
                 value={editorHtml}
                 onChange={setEditorHtml}
@@ -355,10 +356,11 @@ export default function AddPost() {
                 formats={formats}
                 ref={quillRef}
                 placeholder="Write your content here..."
+                className='h-52'
               />
             </div>
           </div>
-          <p>{calculateReadTime(editorHtml)} min read</p>
+          <p className='text-end pr-4'>{calculateReadTime(editorHtml)} min read</p>
           <div className="flex gap-4 pt-4">
             <div className="flex flex-col">
               <label htmlFor="coverimages" className="text-lg">Cover Image</label>
@@ -405,7 +407,6 @@ export default function AddPost() {
               <option value="SDC">SDC</option>
             </select>
           </div>
-          <p>--------------</p>
           <div className="flex flex-col pt-4">
             <label htmlFor="categoryname" className="text-lg pb-5">Category Name Selected :<p className='flex gap-4'>{formData?.categoryname.length && formData?.categoryname?.map((catn, index) => {
               return <span className='text-blue-400'>{catn}</span>
@@ -463,31 +464,7 @@ export default function AddPost() {
               )}
             </div>
           </div>
-          <p>--------------</p>
-          {/* <div className="flex flex-col pt-4">
-            <label htmlFor="categoryname" className="text-lg">Category Name</label>
-            <input
-              type="text"
-              id="categoryname"
-              name="categoryname"
-              value={selectedCat}
-              onChange={(e)=>{setSelectedCat(e.target.value)}}
-              required
-              className="border rounded-lg p-2"
-            />
-          </div> */}
           <div>
-            {/* {catgs?.map((item, index) => (
-              <p>{item.name}</p>
-            ))} */}
-            {/* <p>Existing Categories</p>
-            <div className='flex gap-3'>
-              {catgs?.length ? catgs?.map((item, index) => (
-                <p key={index}>{item.name}</p> // use `item.id` as the key
-              )) : ''}
-            </div> */}
-
-            {/* <p>jikop</p> */}
           </div>
           <button
             type="submit"

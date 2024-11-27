@@ -6,13 +6,7 @@ function Domain() {
   const port = "http://127.0.0.1:8000/api";
   return port;
 }
-/* const authToken=null;
-export function SetAuthToken(getauthToken) {
-  //const authToken = localStorage.getItem('authToken');
-  // const authToken = authToken; 
-  authToken=getauthToken ;
-  
-} */
+
 //retrieve the token from local storage to use it as component
 export function AuthToken() {
   /* const authToken = localStorage.getItem('authToken'); */

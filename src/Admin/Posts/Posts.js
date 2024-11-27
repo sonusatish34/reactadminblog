@@ -5,15 +5,17 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import Loading from "../../layouts/Loading";
-import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, deleteDoc, doc } from "firebase/firestore";
 import { fireDb } from "../../firebase"; // Adjust this import according to your setup
 import { useNavigate } from "react-router-dom";
+
 function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const postsToDisplay = postsData.slice(startIndex, endIndex);
+
   const handleDelete = async (postId) => {
-    const stringifiedId = String(postId);  // Make sure postId is a string
+    const stringifiedId = String(postId);
     const postRef = doc(fireDb, "blogPost", stringifiedId);
 
     Swal.fire({
@@ -26,24 +28,17 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Delete the post from Firestore
           await deleteDoc(postRef);
-
-          // Remove the post from local state (postsData)
           const updatedPostsData = postsData.filter(post => String(post.id) !== stringifiedId);
-          setPostsData(updatedPostsData);  // Update the state with the filtered list
-
-          // Success feedback
+          setPostsData(updatedPostsData);
           Swal.fire('Deleted!', 'Your post has been deleted.', 'success');
         } catch (error) {
-          // Handle error
           Swal.fire('Error', 'There was an issue deleting the post.', 'error');
           console.error("Error deleting post:", error);
         }
       }
     });
   };
-
 
   return (
     <div className="container mx-auto p-4">
@@ -54,11 +49,9 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
             <tr>
               <th className="w-1/5 py-2">Title</th>
               <th className="w-1/5 py-2">Description</th>
-              {/* <th className="w-1/5 py-2">Description</th> */}
               <th className="w-1/5 py-2">Blog for</th>
               <th className="w-1/5 py-2">Category</th>
               <th className="w-1/5 py-2">Created At</th>
-              {/* <th className="w-1/5 py-2">Keywords</th> */}
               <th className="w-1/5 py-2">Actions</th>
             </tr>
           </thead>
@@ -67,11 +60,9 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
               <tr key={post.id} className=" border-b">
                 <td className="py-2">{post.title}</td>
                 <td className="py-2 ">{post.description}</td>
-                {/* <td className="py-2 truncate" dangerouslySetInnerHTML={{ __html: post.content }}></td> */}
                 <td className="py-2">{post.blogfor}</td>
                 <td className="py-2">{post.categoryname}</td>
                 <td className="py-2">{post.date}</td>
-                {/* <td className="py-2">{post.keywords}</td> */}
                 <td className="py-2 flex gap-4 px-2 justify-around">
                   <Link to={`/Admin/Posts/${post.id}`}>
                     <FontAwesomeIcon className="text-green-500" icon={faEye} />
@@ -101,12 +92,13 @@ function Posts() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedSort, setSelectedSort] = useState("newest");
-  const navigate =useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
-      const querySnapshot = await getDocs(collection(fireDb, "blogPost"));
+      const q = query(collection(fireDb, "blogPost"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
       const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setPostsData(posts);
       setLoading(false);
@@ -153,9 +145,9 @@ function Posts() {
       ) : (
         <>
           <div className="flex items-center justify-between mb-4">
-            <div>
+            <div className="flex gap-3">
               <button
-                onClick={() => navigate(-1)}  // Navigates to the previous page
+                onClick={() => navigate(-1)}
                 className="bg-gray-300 p-2 rounded-md text-gray-800"
               >
                 &larr; Back
