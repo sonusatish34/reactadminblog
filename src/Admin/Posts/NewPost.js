@@ -3,8 +3,6 @@ import Swal from 'sweetalert2';
 import CryptoJS from 'crypto-js';
 import AdminLayout from '../../layouts/AdminLayout';
 import { Timestamp, addDoc, collection, setDoc, getDocs, query, where, } from 'firebase/firestore';
-// import Vio from "./Admin/Vio/TextEditor"
-import Vio from "../../Admin/Vio/TextEditor"
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // import styles
 import axios from 'axios'; // for handling image upload
@@ -20,19 +18,14 @@ export default function AddPost() {
       // setLoading(true);
       const querySnapshot = await getDocs(collection(fireDb, "categories"));
       const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      // setPostsData(posts);
       setCatgs(catgs1)
-      // console.log(catgs1, "----------11111111------");
       setPostauthor(localStorage.getItem('AdminName'))
-      // console.log(formData, "fd---000");
-      // setLoading(false);
+      
     };
     fetchCatgs()
 
   }, [])
 
-
-  // console.log(catgs, "--catgs--");
 
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -45,18 +38,16 @@ export default function AddPost() {
     // Create FormData object to send the file as multipart/form-data
     const formData = new FormData();
     formData.append('coverimages', file);
-    // console.log(formData, "formData");
-
-    // console.log(formData, "------------fdd---");
+   
     try {
       // const response = await axios.post('https://blogpage-theta.vercel.app/api/upload', formData, {
 
-      const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
+      const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
+      // const response = await axios.post('http://localhost:5000/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(response, "response");
       const convimg = response?.data?.fileUrl?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.')
       // Set the uploaded image URL from the response
       setUploadedImageUrl(convimg);
@@ -72,12 +63,11 @@ export default function AddPost() {
     content: '',
     coverimages: '',  // This will store the base64 image string
     blogfor: 'LDC',
-    categoryname: '',
+    categoryname: [],
     description: '',
     cialt: '',
     slug: ''
   });
-  // console.log(formData, '000000000');
 
   const [editorData, setEditorData] = useState('');
 
@@ -89,8 +79,6 @@ export default function AddPost() {
       const categoryRef = collection(fireDb, 'categories');
       const q = query(categoryRef, where('name', '==', 'dss'));
       const querySnapshot = await getDocs(q);
-      // return querySnapshot.empty;
-      console.log(querySnapshot.empty, "test ing cat");
     }
     hus()
   }, [])
@@ -128,15 +116,15 @@ export default function AddPost() {
         name: newCategory,
         createdAt: Timestamp.now(),
       });
-      console.log('Category added successfully!');
+      alert('Category added successfully!');
 
       // Update the categories list and set the selected category
-      setCatgs((prevCatgs) => [...prevCatgs, { name: newCategory }]);
-      setFormData((prevFormData) => ({
+      setCatgs(prevCatgs => [...prevCatgs, { name: newCategory }]);
+      setFormData(prevFormData => ({
         ...prevFormData,
-        categoryname: newCategory, // Automatically set the new category as selected
+        categoryname: [...prevFormData.categoryname, newCategory],  // Add new category to selected categories
       }));
-      setAddCatgs(false); // Close the dialog
+      setAddCatgs(false); // Close dialog
       setNewCategory(''); // Clear the input field
     } catch (error) {
       console.error('Error adding category:', error);
@@ -148,21 +136,23 @@ export default function AddPost() {
     }
   };
 
-  // Handle form changes
   const handleChange = (e) => {
-    console.log("Selected Value:", e.target.value);
     const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      // categoryname: newCategory,
-      [name]: value
-    }));
-
+    if (name === 'categoryname') {
+      // Handle multi-selection for categories
+      const selectedCategories = Array.from(e.target.selectedOptions, option => option.value);
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        categoryname: selectedCategories
+      }));
+    } else {
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        [name]: value
+      }));
+    }
   };
-  console.log(formData, "formadastat on handle change ");
-  console.log(selectedCat, "selected cat");
-
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -250,11 +240,7 @@ export default function AddPost() {
     return Math.ceil(wordCount / wordsPerMinute);
   };
   const quillRef = useRef(null); // Create a reference using useRef
-  // console.log(editorHtml, "-------");
 
-  // console.log(wordCount,"wordCount");
-  // console.log(editorHtml, "ediur html");
-  // console.log(calculateReadTime(editorHtml), "----time");
 
   const modules = {
     toolbar: [
@@ -299,18 +285,14 @@ export default function AddPost() {
 
           const file = input.files[0];
           const altText = prompt("Please enter alt text for the image:");
-          // if (altText) setImageAltText(altText); // Store alt text
-          // Create FormData to send the image to the server
           const formData = new FormData();
           formData.append('image', file);
-          // console.log(formData, "formdsata in funcncn");
-
-          // Send image file to backend (Node.js server)
+          
           try {
-            // const response = await axios.post('https://blogpage-theta.vercel.app/api/upload', formData, {
-              // https://reactadminblog.vercel.app/Login
-            const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
-              method: 'POST',
+
+            // const response = await fetch('http://localhost:5000/uploadei', {
+      const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
+        method: 'POST',
               body: formData,
             });
 
@@ -410,7 +392,7 @@ export default function AddPost() {
                 className="border rounded-lg p-2"
               />
               <img
-                src={`${uploadedImageUrl}`}  // Adjust URL for public access
+                src={uploadedImageUrl}  // Adjust URL for public access
                 alt="Cover Preview"
                 className="w-32 h-32 object-cover rounded"
               />
@@ -446,21 +428,22 @@ export default function AddPost() {
           </div>
           <p>--------------</p>
           <div className="flex flex-col pt-4">
-            <label htmlFor="categoryname" className="text-lg pb-5">Category Name</label>
+            <label htmlFor="categoryname" className="text-lg pb-5">Category Name Selected :<p className='flex gap-4'>{formData?.categoryname.map((catn, index) => {
+              return <span className='text-blue-400'>{catn}</span>
+            })}</p> </label>
             <div className="flex items-center gap-2">
               <select
                 id="categoryname"
                 name="categoryname"
-                value={formData.categoryname}  // Ensure this uses formData.categoryname
+                multiple
+                value={formData.categoryname}
                 onChange={handleChange}
-                className="border rounded-lg p-2 w-64"
+                className="border rounded-lg p-2 w-64 h-32 flex gap-2"
               >
                 {catgs.length ? catgs.map((item, index) => (
-                  <option key={index} value={item.name}>{item.name}</option>
+                  <option className='text-black p-1 border-b-2 border-black' key={index} value={item.name}>{item.name}</option>
                 )) : null}
               </select>
-
-
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -470,7 +453,6 @@ export default function AddPost() {
               >
                 + Add
               </button>
-
               {addCatgs && (
                 <div className="absolute bg-white border rounded-lg p-4 mt-2 shadow-lg">
                   <h3 className="text-lg mb-4">Add New Category</h3>
@@ -484,8 +466,9 @@ export default function AddPost() {
                   <div className="flex gap-4">
                     <button
                       onClick={(e) => {
-                        e.preventDefault(); 
-                        setAddCatgs(false)}} // Close dialog
+                        e.preventDefault();
+                        setAddCatgs(false)
+                      }} // Close dialog
                       className="bg-gray-300 p-2 rounded"
                     >
                       Cancel
@@ -518,12 +501,12 @@ export default function AddPost() {
             {/* {catgs?.map((item, index) => (
               <p>{item.name}</p>
             ))} */}
-            <p>Existing Categories</p>
+            {/* <p>Existing Categories</p>
             <div className='flex gap-3'>
               {catgs?.length ? catgs?.map((item, index) => (
                 <p key={index}>{item.name}</p> // use `item.id` as the key
               )) : ''}
-            </div>
+            </div> */}
 
             {/* <p>jikop</p> */}
           </div>

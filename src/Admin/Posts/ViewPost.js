@@ -31,7 +31,6 @@ function Getpost({ postId }) {
       }
       setLoading(false);
     };
-    console.log("into i");
     
     fetchPost();
   }, [postId]);

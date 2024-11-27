@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import AdminLayout from '../../layouts/AdminLayout';
 import Domain from '../../Api/Api';
 import { AuthToken } from '../../Api/Api';
@@ -18,85 +17,8 @@ function ContactMessage({ message, onDelete }) {
   const [read, setRead] = useState(message.read);
 
 
-  const handleDelete = () => {
-    Swal.fire({
-      title: 'Are you sure you want to delete this contact message?',
-      icon: 'warning',
-      html: `
-        <p><b>Name</b>: ${message.name}</p>
-        <p><b>Email</b>: ${message.email}</p>
-        <p><b>Subject</b>: ${message.subject}</p>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Confirm',
-      cancelButtonText: 'Cancel',
-      showLoaderOnConfirm: true,
-      preConfirm: () => {
-        return axios
-          .delete(`${Domain()}/Contact/${message.id}`,{
-            headers: {
-              'Authorization': 'Bearer ' + AuthToken(), // Include the token here
-            }})
-          .then((response) => {
-            if (response.status === 200) {
-              return response.data;
-            } else {
-              throw new Error(response.data.message.error);
-            }
-          })
-          .catch((error) => {
-            Swal.showValidationMessage(
-              error.response.data.error ? error.response.data.error : error.response.data.message
-            );
-          });
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        onDelete(message.id);
-        Swal.fire('Message Deleted', 'The contact message has been deleted.', 'success');
-      }
-    });
-  };
-  const handleOpenMessage = (message) => {
-    /* const queryParams = new URLSearchParams();
-    queryParams.append('name', message.name);
-    queryParams.append('email', message.email);
-    queryParams.append('subject', message.subject);
 
-    // Construct the URL with query parameters
-    const url = `/Inbox/${message.id}?${queryParams.toString()}`;
-
-    // Use the Link component to navigate to the URL with query parameters
-    return <Link to={url}></Link>; */
-    setRead(true);
-    axios
-    .put(`${Domain()}/Contact/Read/${message.id}`, {
-      read: true,
-    },{
-      headers: {
-        'Authorization': 'Bearer ' + AuthToken(), // Include the token here
-      }}
-    )
-    .then((response) => {
-      // Handle the server response as needed
-      console.log(response.data)
-      // Update the message.read property
-      message.read = true;
-      setSelectedMessage(message);
-
-      
-    })
-    .catch((error) => {
-      // Handle errors
-      console.log(error)
-      
-    });
-    
-
-    /* Navigate(`/Inbox/${message.id}?name=${message.name}&email=${message.email}&subject=${message.subject}&date=${message.date}`); */
-
-  setSelectedMessage(message);
-  };
+  
   const closeMessage = () => {
     setSelectedMessage(null);
   };
@@ -108,7 +30,7 @@ function ContactMessage({ message, onDelete }) {
         message.read || read ? 'bg-white' : 'bg-gray-100'
 
       }`}
-      onClick={() => handleOpenMessage(message)} // Handle click event to open the message
+      onClick={() => {''}} // Handle click event to open the message
     >
       
       <td className="border p-2">{message.name}</td>
@@ -121,7 +43,7 @@ function ContactMessage({ message, onDelete }) {
         </Link>
       </td>
       <td className="border p-2">
-        <button onClick={handleDelete} className="text-indigo-500 hover:cursor-pointer">
+        <button onClick={"handleDelete"} className="text-indigo-500 hover:cursor-pointer">
            <FontAwesomeIcon icon={faTrash} />
         </button>
       </td>
@@ -135,22 +57,6 @@ function Inbox() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    axios
-      .get(`${Domain()}/Contact`,{
-        headers: {
-          'Authorization': 'Bearer ' + AuthToken(), // Include the token here
-        }})
-      .then((response) => {
-        setMessages(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching contact messages:', error);
-        setLoading(false);
-      });
-  }, []);
 
   const deleteMessage = (messageId) => {
     const updatedMessages = messages.filter((message) => message.id !== messageId);

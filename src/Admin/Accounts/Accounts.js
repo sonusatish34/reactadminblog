@@ -67,12 +67,12 @@ function UserAccountManager({ user, onUpdate, onDelete }) {
         <td className="border p-2">{user.email}</td>
         <td className="border p-2">{user.password}</td>
         <td className="border p-2">{user.created_at}</td>
-        <td className="border p-2">
+        {/* <td className="border p-2">
           <FontAwesomeIcon className="text-indigo-500" icon={faEye} />
-        </td>
-        <td className="border p-2">
+        </td> */}
+        {/* <td className="border p-2">
           <FontAwesomeIcon onClick={handleDelete} className="text-indigo-500 hover:cursor-pointer" icon={faTrash} />
-        </td>
+        </td> */}
         <td className="border p-2">
           <FontAwesomeIcon onClick={() => setUpdating(true)} className="text-indigo-500 hover:cursor-pointer" icon={faPen} />
         </td>
@@ -130,7 +130,6 @@ function Accounts() {
           id: doc.id,
           ...doc.data(),
         }));
-        console.log(usersList,"-----ul--------");
         
         setUsersData(usersList);
         setLoading(false);
@@ -148,16 +147,11 @@ function Accounts() {
     setUsersData(updatedUsers);
   };
 
-  // const deleteUser = (userId) => {
-  //   const updatedUsers = usersData.filter((user) => user.id !== userId);
-  //   setUsersData(updatedUsers);
-  // };
   const deleteUser = async (userId) => {
 
     try {
       // Reference to the 'users' collection and the document to delete using the userId (document ID)
       const userDocRef = doc(fireDb, 'users', userId);
-        console.log(userDocRef,"---------==========------------");
         
       // Delete the document from Firestore
       await deleteDoc(userDocRef);
@@ -283,8 +277,8 @@ function Accounts() {
                   <th className="border p-2 pl-3 pr-5">Email</th>
                   <th className="border p-2 pl-3 pr-5">Password</th>
                   <th className="border p-2 pl-3 pr-5">Join date</th>
-                  <th className="border p-2 pl-3 pr-5">View</th>
-                  <th className="border p-2 pl-3 pr-5">Delete</th>
+                  {/* <th className="border p-2 pl-3 pr-5">View</th> */}
+                  {/* <th className="border p-2 pl-3 pr-5">Delete</th> */}
                   <th className="border p-2 pl-3 pr-5">Modify</th>
                 </tr>
               </thead>

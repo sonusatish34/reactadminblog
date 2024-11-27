@@ -30,31 +30,30 @@ function Dashboard() {
   const [postcount,setPostcount] = useState('');
   const [catgscount,setCatgscount] = useState('');
     useEffect(() => {
-    const fetchPosts = async () => {
-      // setLoading(true);
-      const querySnapshot = await getDocs(collection(fireDb, "blogPost"));
-      const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      // setPostsData(posts);
-      setPostcount(posts?.length)
-      console.log(posts.length, "----------11111111------");
-      // setPostauthor(sessionStorage.getItem('AdminName'))
-      // console.log(formData, "fd---000");
-      // setLoading(false);
-    };
-    const fetchCatgs = async () => {
-      // setLoading(true);
-      const querySnapshot = await getDocs(collection(fireDb, "categories"));
-      const catgs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      // setPostsData(posts);
-      setCatgscount(catgs?.length)
-      // console.log(catgs, "----------11111111------");
-      // setPostauthor(sessionStorage.getItem('AdminName'))
-      // console.log(formData, "fd---000");
-      // setLoading(false);
-    };
+      try{
+        const fetchPosts = async () => {
+          const querySnapshot = await getDocs(collection(fireDb, "blogPost"));
+          const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setPostcount(posts?.length)
+         
+        };
+        const fetchCatgs = async () => {
+          const querySnapshot = await getDocs(collection(fireDb, "categories"));
+          const catgs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setCatgscount(catgs?.length)
+        };
+    
+        fetchPosts();
+        fetchCatgs();
+        setLoading(true)
+      }
+      catch(error)
+      {
+        console.log("some errors");
+        setLoading(false)
 
-    fetchPosts();
-    fetchCatgs();
+      }
+    
   }, []);
   const [isLoading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState({
@@ -71,32 +70,14 @@ function Dashboard() {
     MonthlyLikes: [],
   });
 
-  useEffect(() => {
-    axios.get(`${Domain()}/Dashboard`, {
-      headers: {
-        'Authorization': `Bearer ${AuthToken()}`,
-      },
-    })
-      .then(response => {
-        setDashboardData(response.data);
-        setLoading(true);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        setLoading(true); // Ensure loading state is updated even on error
-      });
-  }, []);
+
 
   const dashboardContent = isLoading ? (
     <div className="container mx-auto mt-8 px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <AnalyticsCard title="Total Posts" value={postcount} icon={faFileAlt} />
-        {/* <AnalyticsCard title="Total Comments" value={dashboardData.TotalComment} icon={faComments} /> */}
-        {/* <AnalyticsCard title="Likes Received" value={dashboardData.TotalLikes} icon={faHeart} /> */}
-        {/* <AnalyticsCard title="Total Visits" value={dashboardData.TotalVisits} icon={faEye} /> */}
         <AnalyticsCard title="Total Categories" value={catgscount} icon={faFolder} />
         <AnalyticsCard title="Total Users" value={dashboardData.TotalUsers} icon={faUser} />
-        {/* <AnalyticsCard title="Active Users" value={dashboardData.ActifUsers} icon={faUserCheck} /> */}
       </div>
       <Analytics
         Visits={dashboardData.MonthlyVisits}

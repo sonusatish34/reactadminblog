@@ -7,17 +7,15 @@ import Swal from "sweetalert2";
 import Loading from "../../layouts/Loading";
 import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { fireDb } from "../../firebase"; // Adjust this import according to your setup
-
+import { useNavigate } from "react-router-dom";
 function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const postsToDisplay = postsData.slice(startIndex, endIndex);
-  console.log(postsData,"------pd----------");
-  
   const handleDelete = async (postId) => {
     const stringifiedId = String(postId);  // Make sure postId is a string
     const postRef = doc(fireDb, "blogPost", stringifiedId);
-  
+
     Swal.fire({
       icon: 'warning',
       title: 'Are you sure you want to delete this post?',
@@ -30,11 +28,11 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
         try {
           // Delete the post from Firestore
           await deleteDoc(postRef);
-          
+
           // Remove the post from local state (postsData)
           const updatedPostsData = postsData.filter(post => String(post.id) !== stringifiedId);
           setPostsData(updatedPostsData);  // Update the state with the filtered list
-          
+
           // Success feedback
           Swal.fire('Deleted!', 'Your post has been deleted.', 'success');
         } catch (error) {
@@ -45,35 +43,35 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
       }
     });
   };
-  
+
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Posts</h1>
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full bg-white">
+        <table className="min-w-full bg-white text-center">
           <thead className="bg-gray-800 text-white">
             <tr>
-              <th className="w-1/5 py-2">Id</th>
               <th className="w-1/5 py-2">Title</th>
+              <th className="w-1/5 py-2">Description</th>
               {/* <th className="w-1/5 py-2">Description</th> */}
               <th className="w-1/5 py-2">Blog for</th>
               <th className="w-1/5 py-2">Category</th>
               <th className="w-1/5 py-2">Created At</th>
-              <th className="w-1/5 py-2">Keywords</th>
+              {/* <th className="w-1/5 py-2">Keywords</th> */}
               <th className="w-1/5 py-2">Actions</th>
             </tr>
           </thead>
           <tbody>
             {postsToDisplay.map((post) => (
-              <tr key={post.id} className="text-center border-b">
-                <td className="py-2 truncate">{post.id}</td>
-                <td className="py-2 truncate">{post.title}</td>
+              <tr key={post.id} className=" border-b">
+                <td className="py-2">{post.title}</td>
+                <td className="py-2 ">{post.description}</td>
                 {/* <td className="py-2 truncate" dangerouslySetInnerHTML={{ __html: post.content }}></td> */}
                 <td className="py-2">{post.blogfor}</td>
                 <td className="py-2">{post.categoryname}</td>
-                <td className="py-2">{post.createdAt}</td>
-                <td className="py-2">{post.keywords}</td>
+                <td className="py-2">{post.date}</td>
+                {/* <td className="py-2">{post.keywords}</td> */}
                 <td className="py-2 flex gap-4 px-2 justify-around">
                   <Link to={`/Admin/Posts/${post.id}`}>
                     <FontAwesomeIcon className="text-green-500" icon={faEye} />
@@ -103,6 +101,7 @@ function Posts() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedSort, setSelectedSort] = useState("newest");
+  const navigate =useNavigate();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -153,13 +152,21 @@ function Posts() {
         <Loading />
       ) : (
         <>
-          <div className="flex justify-between mb-4">
-            <Link
-              to="/Admin/Post/New"
-              className="bg-indigo-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-indigo-600"
-            >
-              <FontAwesomeIcon icon={faPlus} /> New Post
-            </Link>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <button
+                onClick={() => navigate(-1)}  // Navigates to the previous page
+                className="bg-gray-300 p-2 rounded-md text-gray-800"
+              >
+                &larr; Back
+              </button>
+              <Link
+                to="/Admin/Post/New"
+                className="bg-indigo-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-indigo-600"
+              >
+                <FontAwesomeIcon icon={faPlus} /> New Post
+              </Link>
+            </div>
             <div className="flex items-center bg-white border rounded-lg shadow-md px-4 py-2">
               <FontAwesomeIcon icon={faSearch} className="text-indigo-500 mr-2" />
               <input

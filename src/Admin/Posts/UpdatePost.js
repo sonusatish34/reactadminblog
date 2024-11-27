@@ -9,7 +9,6 @@ import { fireDb } from "../../firebase"; // Import Firebase DB
 
 function UpdatePost() {
   const { id } = useParams(); // Get the post ID from the URL params
-  console.log(id, "idooo");
   const navigate = useNavigate();
   const [post, setPost] = useState({
     title: "",
@@ -20,7 +19,6 @@ function UpdatePost() {
     categoryname: "",
     slug: "",
   });
-  console.log(post,"000000p");
   
   const [uploadedImageUrl, setUploadedImageUrl] = useState('');
 
@@ -59,7 +57,6 @@ function UpdatePost() {
 
     fetchCategories();
   }, []);
-  console.log();
   
   // Handle form changes
   const handleInputChange = (e) => {
@@ -73,7 +70,6 @@ function UpdatePost() {
     // Create FormData object to send the file as multipart/form-data
     const formData = new FormData();
     formData.append('coverimages', file);
-    // console.log(formData, "formData");
     try {
       // const response = await axios.post('https://blogpage-theta.vercel.app/api/upload', formData, {
 
@@ -82,7 +78,6 @@ function UpdatePost() {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(response, "response");
       const convimg = response?.data?.fileUrl?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.')
       // Set the uploaded image URL from the response
       setUploadedImageUrl(convimg);

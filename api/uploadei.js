@@ -6,13 +6,6 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 
-// Initialize the S3 client for DigitalOcean Spaces
-// const s3 = new AWS.S3({
-//   endpoint: new AWS.Endpoint('https://blr1.digitaloceanspaces.com'),
-//   accessKeyId: process.env.DIGITAL_OCEAN_ACCESS_KEY_ID,
-//   secretAccessKey: process.env.DIGITAL_OCEAN_SECRET_ACCESS_KEY,
-//   region: 'blr1',
-// });
 const s3 = new AWS.S3({
     endpoint: new AWS.Endpoint('https://blr1.digitaloceanspaces.com'),  // Your DigitalOcean Space endpoint
     accessKeyId: 'DO00EMW9VPKGYFANMCYQ',  // Your DigitalOcean Spaces Access Key ID
