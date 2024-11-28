@@ -80,6 +80,8 @@ function UpdatePost() {
         },
       });
       const convimg = response?.data?.imageUrl;
+      console.log(response,"resp");
+      
       setUploadedImageUrl(convimg); // Update image URL with the response URL
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -101,7 +103,7 @@ function UpdatePost() {
         title: post.title,
         description: post.description,
         content: post.content,
-        coverimages: uploadedImageUrl || post.coverimages, // Ensure the new image is used if updated
+        coverimages: uploadedImageUrl?uploadedImageUrl:post.coverimages, // Ensure the new image is used if updated
         blogfor: post.blogfor,
         categoryname: post.categoryname,
         slug: post.slug,
@@ -206,10 +208,12 @@ function UpdatePost() {
                 className="border rounded-lg p-2"
               />
               <img
-                src={uploadedImageUrl || post.coverimages} // Use the new image URL if uploaded
+                src={uploadedImageUrl?uploadedImageUrl: post.coverimages} // Use the new image URL if uploaded
                 alt="Cover Preview"
                 className="w-32 h-32 object-cover rounded"
               />
+              {console.log(uploadedImageUrl,"uploadedImageUrl")
+              }
             </div>
             <div className="flex flex-col">
               <label htmlFor="cialt" className="text-lg">Cover Image Alt Text</label>
