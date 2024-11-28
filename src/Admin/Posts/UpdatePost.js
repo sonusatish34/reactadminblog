@@ -73,12 +73,13 @@ function UpdatePost() {
     formData.append("coverimages", file);
 
     try {
-      const response = await axios.post("http://localhost:5000/upload", formData, {
+      const response = await fetch('https://reactadminblog.vercel.app/api/upload', {
+      // const response = await axios.post("http://localhost:5000/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      const convimg = response?.data?.fileUrl?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.');
+      const convimg = response?.data?.imageUrl;
       setUploadedImageUrl(convimg); // Update image URL with the response URL
     } catch (error) {
       console.error("Error uploading image:", error);
