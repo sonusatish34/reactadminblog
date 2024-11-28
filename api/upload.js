@@ -73,7 +73,7 @@ const upload = multer({ storage });
 
 module.exports = (req, res) => {
   console.log('Request method:', req.method);  // Log method type
-  if (req.method === 'POST') {
+  if (req.method === 'POST' || req.method === 'GET') {
     console.log('Attempting to upload file...');
     
     // Log incoming request to see if file is being sent
