@@ -47,12 +47,12 @@ export default function AddPost() {
           'Content-Type': 'multipart/form-data',
         },
       });
-      const convimg = response?.data?.fileUrl?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.')
+      
       // Set the uploaded image URL from the response
       console.log(response,"resp");
       
       setUploadedImageUrl(response?.data?.fileUrl);
-      console.log(uploadedImageUrl,"uploadedImageUrl");
+      
       
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -153,7 +153,7 @@ export default function AddPost() {
       description: formData.description,
       slug: formData.title.replaceAll(' ', '-').toLowerCase() + `-${Date.now()}`,
       content: editorHtml,
-      coverimages: uploadedImageUrl,
+      // coverimages: uploadedImageUrl,
       blogfor: formData.blogfor,
       categoryname: formData.categoryname,
       createdAt: new Date().toISOString(),
@@ -377,10 +377,11 @@ export default function AddPost() {
                 className="border rounded-lg p-2"
               />
               <img
-                src={uploadedImageUrl}  // Adjust URL for public access
+                src={uploadedImageUrl?uploadedImageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpMm1VeJIxKMmcbKYQkAziwQTJPm28ih2ICg&s'}  // Adjust URL for public access
                 alt="Cover Previewsw"
                 className="w-32 h-32 object-cover rounded"
               />
+              {console.log(uploadedImageUrl,"uploadedImageUrl")}
             </div>
             <div className="flex flex-col">
               <label htmlFor="cialt" className="text-lg">Cover image Alt text </label>
