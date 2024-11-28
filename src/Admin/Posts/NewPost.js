@@ -51,7 +51,7 @@ export default function AddPost() {
       // Set the uploaded image URL from the response
       console.log(response,"resp");
       
-      setUploadedImageUrl(response?.data?.fileUrl);
+      setUploadedImageUrl(response?.data?.imageUrl);
       
       
     } catch (error) {
@@ -153,7 +153,7 @@ export default function AddPost() {
       description: formData.description,
       slug: formData.title.replaceAll(' ', '-').toLowerCase() + `-${Date.now()}`,
       content: editorHtml,
-      // coverimages: uploadedImageUrl,
+      coverimages: uploadedImageUrl,
       blogfor: formData.blogfor,
       categoryname: formData.categoryname,
       createdAt: new Date().toISOString(),
