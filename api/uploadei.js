@@ -43,7 +43,7 @@ module.exports = (req, res) => {
 
         return res.json({
           success: true,
-          imageUrl: data.Location?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.'),
+          imageUrl: data.Location,
         });
       });
     });

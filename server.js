@@ -44,7 +44,7 @@ app.post('/uploadei', upload.single('image'), (req, res) => {
     // Respond with the URL of the uploaded image
     return res.json({
       success: true,
-      imageUrl: data.Location?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.'),  // URL of the uploaded file
+      imageUrl: data.Location,  // URL of the uploaded file
     });
   });
 });
