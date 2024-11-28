@@ -48,6 +48,7 @@ app.post('/uploadei', upload.single('image'), (req, res) => {
     });
   });
 });
+
 app.post('/upload', upload.single('coverimages'), (req, res) => {
     const file = req.file;
     if (!file) {
