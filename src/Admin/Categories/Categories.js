@@ -14,20 +14,22 @@ function Categories() {
   const [addCatgsDialog, setAddCatgsDialog] = useState(false);
   const [newCategory, setNewCategory] = useState(''); // Stores the new category name
   const [cList, setCList] = useState();
+  const [cWant, setCWant] = useState();
   const [operation, setOperation] = useState(1);
   
   // Use the navigate hook
   const navigate = useNavigate();
-
+  console.log(cWant,"cw");
+  
   useEffect(() => {
     const fetchCat = async () => {
-      const querySnapshot = await getDocs(collection(fireDb, "categories"));
+      const querySnapshot = await getDocs(collection(fireDb,`${cWant}`));
       const cs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setCList(cs);
     };
 
     fetchCat();
-  }, [operation]);
+  }, [cWant,operation]);
 
   const handleCategorySubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +43,7 @@ function Categories() {
     }
 
     try {
-      const categoryRef = collection(fireDb, 'categories');
+      const categoryRef = collection(fireDb, `${cWant?cWant:'categories'}`);
       const q = query(categoryRef, where('name', '==', newCategory));
       const querySnapshot = await getDocs(q);
 
@@ -54,8 +56,7 @@ function Categories() {
         return;
       }
 
-      // Add new category to Firestore
-      await addDoc(collection(fireDb, 'categories'), {
+      await addDoc(collection(fireDb, `${cWant?cWant:'categories'}`), {
         name: newCategory,
         createdAt: Timestamp.now(),
       });
@@ -72,10 +73,11 @@ function Categories() {
       });
     }
   };
-
-  const handleDeleteCat = async (postId) => {
+  console.log(cList,"cl");
+  
+  const handleDeleteCat = async (cWant, postId) => {
     const stringifiedId = String(postId);  // Make sure postId is a string
-    const postRef = doc(fireDb, "categories", stringifiedId);
+    const postRef = doc(fireDb, `${cWant}`, stringifiedId);
 
     Swal.fire({
       icon: 'warning',
@@ -105,9 +107,8 @@ function Categories() {
         className="shadow-md px-1 space-x-8 mt-2 pt-2 pb-2 mb-2 justify-center gap-9 rounded-lg ml-10 bg-white"
       >
         <div className="flex flex-row gap-4 m-4">
-          {/* Back Button */}
           <button
-            onClick={() => navigate(-1)}  // Navigates to the previous page
+            onClick={() => navigate(-1)}  
             className="bg-gray-300 p-1 rounded-md text-red-600"
           >
             &larr; Back
@@ -116,7 +117,7 @@ function Categories() {
           <button
             onClick={(e) => {
               e.preventDefault();
-              setAddCatgsDialog(true); // Open dialog
+              setAddCatgsDialog(true); 
             }}
             className="rounded-md bg-gray-200 p-1 flex items-center"
           >
@@ -138,13 +139,13 @@ function Categories() {
                   onClick={(e) => {
                     e.preventDefault();
                     setAddCatgsDialog(false);
-                  }} // Close dialog
+                  }} 
                   className="bg-gray-300 p-2 rounded"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={handleCategorySubmit} // Add category
+                  onClick={handleCategorySubmit} 
                   className="bg-blue-500 text-white p-2 rounded"
                 >
                   Add Category
@@ -153,42 +154,49 @@ function Categories() {
             </div>
           )}
         </div>
+          <div className='flex gap-2 pb-5'>
+            <button onClick={(e)=>{setCWant('catgfordozzy')}} className={`bg-gray-300 p-2 rounded ${cWant=='catgfordozzy'?'border-4 border-blue-500':''}`}>Categories For Dozzy</button>
+            <button onClick={(e)=>{setCWant('catgforldc')}} className={`bg-gray-300 p-2 rounded ${cWant=='catgforldc'?'border-4 border-blue-500':''}`} >Categories For LDC</button>
+          </div>
 
-        <table className="w-[800px]  divide-y divide-gray-200">
+        <table className="w-[800px]  divide-y divide-gray-200 pt-10">
           <thead>
             <tr>
               <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Name
               </th>
-              {/* <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Description
-              </th> */}
+              <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                CreatedAt
+              </th>
+             
               <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Delete
               </th>
-              <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Modify
-              </th>
+              </th> */}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-ce">
             {cList?.length && cList.map((category, index) => (
               <tr key={index}>
                 <td className="px-5 py-3  w-25 truncate w-40 block overflow-hidden overflow-ellipsis">{category?.name}</td>
-                {/* <td className="px-5 py-3 max-w-sm truncate  ">{category?.id}</td> */}
+                <td className="px-5 py-3 ">
+                <td className="px-5 py-3  w-25 truncate w-40 block overflow-hidden overflow-ellipsis">{category?.createdAt?.seconds}</td>
+                </td>
                 <td className="px-5 py-3 ">
                   <FontAwesomeIcon
-                    onClick={() => handleDeleteCat(category?.id)}
+                    onClick={() => handleDeleteCat(cWant,category?.id)}
                     className="text-indigo-500 cursor-pointer hover:text-indigo-700"
                     icon={faTrash}
                   />
                 </td>
-                <td className="px-6 py-4 ">
+                {/* <td className="px-6 py-4 ">
                   <FontAwesomeIcon
                     className="text-indigo-500 cursor-pointer hover:text-indigo-700"
                     icon={faPen}
                   />
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>

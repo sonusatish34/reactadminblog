@@ -75,14 +75,12 @@ module.exports = (req, res) => {
   console.log('Request method:', req.method);  // Log method type
   if (req.method === 'POST' || req.method === 'GET') {
     console.log('Attempting to upload file...');
-    
     // Log incoming request to see if file is being sent
     upload.single('coverimages')(req, res, (err) => {
       if (err) {
         console.error('Multer error:', err);
         return res.status(500).json({ success: false, error: err.message });
       }
-
       if (!req.file) {
         console.error('No file uploaded');
         return res.status(400).json({ success: false, error: 'No file uploaded' });
@@ -114,6 +112,7 @@ module.exports = (req, res) => {
         });
       });
     });
+    
   } else {
     console.log('Method Not Allowed');
     res.status(405).json({ success: false, error: 'Method Not Allowed' });

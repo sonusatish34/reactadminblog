@@ -13,18 +13,7 @@ export default function AddPost() {
   const [addCatgs, setAddCatgs] = useState(false);
   const [newCategory, setNewCategory] = useState(''); // Stores the new category name
 
-  useEffect(() => {
-    const fetchCatgs = async () => {
-      // setLoading(true);
-      const querySnapshot = await getDocs(collection(fireDb, "categories"));
-      const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setCatgs(catgs1)
-      setPostauthor(localStorage.getItem('AdminName'))
 
-    };
-    fetchCatgs()
-
-  }, [])
 
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -39,21 +28,21 @@ export default function AddPost() {
     const formData = new FormData();
     formData.append('coverimages', file);
     try {
-      const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
+      // const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
 
       // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
-      // const response = await axios.post('http://localhost:5000/upload', formData, {
+      const response = await axios.post('http://localhost:5000/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      
+
       // Set the uploaded image URL from the response
-      console.log(response,"resp");
-      
+      console.log(response, "resp");
+
       setUploadedImageUrl(response?.data?.imageUrl);
-      
-      
+
+
     } catch (error) {
       console.error('Error uploading image:', error);
     }
@@ -229,6 +218,7 @@ export default function AddPost() {
     const wordCount = words.length;
 
     const wordsPerMinute = 183;
+    if(wordCount == 0) return 0;
     return Math.ceil(wordCount / wordsPerMinute);
   };
   const quillRef = useRef(null);
@@ -278,9 +268,9 @@ export default function AddPost() {
           formData.append('image', file);
 
           try {
-            const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
-            // const response = await fetch('http://localhost:5000/uploadei', {
-            // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
+            // const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
+            const response = await fetch('http://localhost:5000/uploadei', {
+              // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
               method: 'POST',
               body: formData,
             });
@@ -307,7 +297,19 @@ export default function AddPost() {
         };
       });
   }, []);
+  console.log(formData.blogfor, "formData.blogfor");
+  useEffect(() => {
+    const fetchCatgs = async () => {
+      // setLoading(true);
+      const querySnapshot = await getDocs(collection(fireDb, `${formData.blogfor == "LDC" ? 'catgforldc' : 'catgfordozzy'}`));
+      const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCatgs(catgs1)
+      setPostauthor(localStorage.getItem('AdminName'))
 
+    };
+    fetchCatgs();
+
+  }, [formData.blogfor])
   return (
     <AdminLayout>
       <div style={{ width: '900px' }} className="shadow-md flex-row px-1 mt-5 items-center pt-2 pb-2 mb-2 justify-center rounded-lg ml-10 bg-white">
@@ -325,17 +327,9 @@ export default function AddPost() {
               className="border rounded-lg p-2"
             />
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="slug" className="text-lg">slug</label>
-            <input
-              type="text"
-              id="slug"
-              name="slug"
-              value={formData.title.replaceAll(' ', '-').toLowerCase() + '-' + Date.now()}
-              onChange={handleChange}
-              placeholder='optional'
-              className="border rounded-lg p-2"
-            />
+          <div>
+            <p className='text-sm text-blue-600'>slug: {formData.title.replaceAll(' ', '-').toLowerCase() + '-' + Date.now()}
+            </p>
           </div>
           <div className="flex flex-col">
             <label htmlFor="description" className="text-lg"> Meta Description</label>
@@ -348,6 +342,7 @@ export default function AddPost() {
               required
               className="border rounded-lg p-2"
             />
+            <p className='pt-3'> Character Count : {formData.description.replace(/\s+/g, '').length}</p>
           </div>
 
           <div className="flex flex-col">
@@ -377,11 +372,11 @@ export default function AddPost() {
                 className="border rounded-lg p-2"
               />
               <img
-                src={uploadedImageUrl?uploadedImageUrl:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpMm1VeJIxKMmcbKYQkAziwQTJPm28ih2ICg&s'}  // Adjust URL for public access
-                alt="Cover Previewsw"
-                className="w-32 h-32 object-cover rounded"
+                src={uploadedImageUrl ? uploadedImageUrl : 'null'}  // Adjust URL for public access
+                alt="Dummy image"
+                className="w-32 h-32 object-cover rounded pt-7"
               />
-              {console.log(uploadedImageUrl,"uploadedImageUrl")}
+              {console.log(uploadedImageUrl, "uploadedImageUrl")}
             </div>
             <div className="flex flex-col">
               <label htmlFor="cialt" className="text-lg">Cover image Alt text </label>
@@ -409,7 +404,6 @@ export default function AddPost() {
             >
               <option value="LDC">LDC</option>
               <option value="Dozzy">Dozzy</option>
-              <option value="SDC">SDC</option>
             </select>
           </div>
           <div className="flex flex-col pt-4">
@@ -417,19 +411,8 @@ export default function AddPost() {
               return <span className='text-blue-400'>{catn}</span>
             })}</p> </label>
             <div className="flex items-center gap-2">
-              <select
-                id="categoryname"
-                name="categoryname"
-                multiple
-                value={formData.categoryname}
-                onChange={handleChange}
-                className="border rounded-lg p-2 w-64 h-32 flex gap-2"
-              >
-                {catgs.length ? catgs.map((item, index) => (
-                  <option className='text-black p-1 border-b-2 border-black' key={index} value={item.name}>{item.name}</option>
-                )) : null}
-              </select>
-              <button
+
+              {/* <button
                 onClick={(e) => {
                   e.preventDefault();
                   setAddCatgs(true); // Open dialog
@@ -466,7 +449,28 @@ export default function AddPost() {
                     </button>
                   </div>
                 </div>
-              )}
+              )} */}
+            </div>
+            <div className="flex items-center gap-4 pl-4">
+              {/* <label htmlFor="categoryname" className="text-lg font-semibold text-gray-700">Select Categories</label> */}
+              <select
+                id="categoryname"
+                name="categoryname"
+                multiple
+                value={formData.categoryname}
+                onChange={handleChange}
+                className="border-2 border-gray-300 rounded-lg p-3 w-64 h-40 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none shadow-md"
+              >
+                {catgs.length ? catgs.map((item, index) => (
+                  <option
+                    className="text-black p-2 border-b-2 border-gray-200 hover:bg-blue-100 hover:text-blue-600 transition duration-150"
+                    key={index}
+                    value={item.name}
+                  >
+                    {item.name}
+                  </option>
+                )) : null}
+              </select>
             </div>
           </div>
           <div>
