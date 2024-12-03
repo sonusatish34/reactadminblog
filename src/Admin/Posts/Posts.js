@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import Loading from "../../layouts/Loading";
-import { collection, getDocs, orderBy, query, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, deleteDoc, doc,updateDoc,where } from "firebase/firestore";
 import { fireDb } from "../../firebase"; // Adjust this import according to your setup
 import { useNavigate } from "react-router-dom";
 
@@ -28,12 +28,43 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await deleteDoc(postRef);
+          // await deleteDoc(postRef);
+          await updateDoc(postRef, {
+            blog_state: "in-progress"
+          });
           const updatedPostsData = postsData.filter(post => String(post.id) !== stringifiedId);
           setPostsData(updatedPostsData);
           Swal.fire('Deleted!', 'Your post has been deleted.', 'success');
         } catch (error) {
           Swal.fire('Error', 'There was an issue deleting the post.', 'error');
+          console.error("Error deleting post:", error);
+        }
+      }
+    });
+  };
+  const handlePublish = async (postId) => {
+    const stringifiedId = String(postId);
+    const postRef = doc(fireDb, "blogPost", stringifiedId);
+
+    Swal.fire({
+      icon: 'warning',
+      title: 'Are you sure you want to publish this post?',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#d33',
+      cancelButtonText: 'Cancel',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // await deleteDoc(postRef);
+          await updateDoc(postRef, {
+            blog_state: "active"
+          });
+          const updatedPostsData = postsData.filter(post => String(post.id) !== stringifiedId);
+          setPostsData(updatedPostsData);
+          Swal.fire('Published!', 'Your post has been published.', 'success');
+        } catch (error) {
+          Swal.fire('Error', 'There was an issue publishing the post.', 'error');
           console.error("Error deleting post:", error);
         }
       }
@@ -49,8 +80,8 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
             <tr>
               <th className="w-1/5 py-2">Title</th>
               <th className="w-1/5 py-2">Description</th>
-              <th className="w-1/5 py-2">Blog for</th>
-              <th className="w-1/5 py-2">Category</th>
+              <th className="w-28 py-2">Blog for</th>
+              <th className="w-32 py-2">Category</th>
               <th className="w-1/5 py-2">Created At</th>
               <th className="w-1/5 py-2">Actions</th>
             </tr>
@@ -63,7 +94,8 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
                 <td className="py-2">{post.blogfor}</td>
                 <td className="py-2">{post.categoryname}</td>
                 <td className="py-2">{post.date}</td>
-                <td className="py-2 flex gap-4 px-2 justify-around">
+                <td className="py-2 flex flex-col gap-1 px-2 justify-around">
+                  <div className="py-2 flex gap-4 px-2 justify-around">
                   <Link to={`/Admin/Posts/${post.id}`}>
                     <FontAwesomeIcon className="text-green-500" icon={faEye} />
                   </Link>
@@ -75,6 +107,13 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
                   <Link to={`/Admin/Posts/UpdatePost/${post.id}`}>
                     <FontAwesomeIcon className="text-yellow-500" icon={faPen} />
                   </Link>
+                  <button className="p-1 bg-green-500 rounded" onClick={()=>{handlePublish(post.id)} }>
+                    {/* <FontAwesomeIcon className="text-yellow-500" icon={faPen} /> */}
+                    Publish
+                  </button>
+                  </div>
+                  <div><p className="px-1 bg-blue-400 w-fit rounded">{post?.blog_state?post?.blog_state:''}</p></div>
+                  
                 </td>
               </tr>
             ))}
@@ -97,10 +136,32 @@ function Posts() {
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
-      const q = query(collection(fireDb, "blogPost"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-      const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setPostsData(posts);
+
+      // Query for "active" blog posts
+      const qActive = query(
+        collection(fireDb, "blogPost"),
+        where("blog_state", "==", "active"),
+        orderBy("createdAt", "desc")
+
+      );
+      const querySnapshotActive = await getDocs(qActive);
+      const activePosts = querySnapshotActive.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Query for "in progress" blog posts
+      const qInProgress = query(
+        collection(fireDb, "blogPost"),
+        where("blog_state", "==", "in-progress"),
+        orderBy("createdAt", "desc")
+
+      );
+      const querySnapshotInProgress = await getDocs(qInProgress);
+      const inProgressPosts = querySnapshotInProgress.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Combine active and in-progress posts
+      const allPosts = [...activePosts, ...inProgressPosts];
+
+      // Update state
+      setPostsData(allPosts);
       setLoading(false);
     };
 

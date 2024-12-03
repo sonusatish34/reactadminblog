@@ -14,6 +14,25 @@ export default function AddPost() {
   const [addCatgs, setAddCatgs] = useState(false);
   const [newCategory, setNewCategory] = useState(''); // Stores the new category name
 
+  useEffect(() => {
+    const fetchCatgs = async () => {
+      // setLoading(true);
+      const querySnapshot = await getDocs(collection(fireDb, "categories"));
+      const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // setPostsData(posts);
+      setCatgs(catgs1)
+      // console.log(catgs1, "----------11111111------");
+      setPostauthor(localStorage.getItem('AdminName'))
+      // console.log(formData, "fd---000");
+      // setLoading(false);
+    };
+    fetchCatgs()
+
+  }, [])
+
+
+  // console.log(catgs, "--catgs--");
+
   const [selectedFile, setSelectedFile] = useState(null);
 
   const [uploadedImageUrl, setUploadedImageUrl] = useState('');
@@ -27,18 +46,17 @@ export default function AddPost() {
     formData1.append('coverimages', file);
     formData1.append('blogfor', formData.blogfor);
     try {
-      // const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
-        const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData1, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-      // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
-      // const response = await axios.post('http://localhost:5000/upload', formData1, {
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data',
-      //   },
-      // });
+      const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData1, {
+        // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData1, {
+        //   headers: {
+        //     'Content-Type': 'multipart/form-data',
+        //   },
+        // });
+        // const response = await axios.post('http://localhost:5000/upload', formData1, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       // Set the uploaded image URL from the response
       console.log(response, "resp");
@@ -63,58 +81,6 @@ export default function AddPost() {
 
   const [editorData, setEditorData] = useState('');
 
-
-
-
-  const handleCategorySubmit = async (e) => {
-    e.preventDefault();
-    if (!newCategory) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Category name is required',
-        text: 'Please enter a category name.',
-      });
-      return;
-    }
-
-    try {
-      const categoryRef = collection(fireDb, 'categories');
-      const q = query(categoryRef, where('name', '==', newCategory));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Category Exists',
-          text: 'This category already exists in the database.',
-        });
-        return;
-      }
-
-      // Add new category to Firestore
-      await addDoc(collection(fireDb, 'categories'), {
-        name: newCategory,
-        createdAt: Timestamp.now(),
-      });
-      alert('Category added successfully!');
-
-      // Update the categories list and set the selected category
-      setCatgs(prevCatgs => [...prevCatgs, { name: newCategory }]);
-      setFormData(prevFormData => ({
-        ...prevFormData,
-        categoryname: [...prevFormData.categoryname, newCategory],  // Add new category to selected categories
-      }));
-      setAddCatgs(false); // Close dialog
-      setNewCategory(''); // Clear the input field
-    } catch (error) {
-      console.error('Error adding category:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'There was an error adding the category.',
-      });
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -145,7 +111,8 @@ export default function AddPost() {
       categoryname: formData.categoryname,
       createdAt: new Date().toISOString(),
       cialt: formData.cialt,
-      timetake: calculateReadTime(editorHtml)
+      timetake: calculateReadTime(editorHtml),
+      blog_state: 'in-progress'
     };
 
     try {
@@ -268,18 +235,22 @@ export default function AddPost() {
           formData2.append('blogfor', formData.blogfor);
 
           try {
-            const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
-              // const response = await fetch('http://localhost:5000/uploadei', {
-              // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
+            // const response = await fetch('https://seoblog.longdrivecars.com/api/uploadei', {
+            // const response = await fetch('http://localhost:5000/uploadei', {
+            // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
+            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
+
               method: 'POST',
               body: formData2,
             });
-            
+
             const data = await response.json();
-            console.log(response,"respp");
-            console.log(data,"dataa");
+            console.log(response, "respp");
+            console.log(data, "dataa");
 
             if (data.success) {
+              console.log("into if");
+
               // Insert the image URL into Quill editor
               const editor = quillRef.current.getEditor();
               const range = editor.getSelection(true);
@@ -289,7 +260,6 @@ export default function AddPost() {
               if (imageElement) {
                 imageElement.setAttribute('alt', altText);
               }
-
             } else {
               console.error('Upload failed:', data.error);
             }
@@ -306,16 +276,29 @@ export default function AddPost() {
       const querySnapshot = await getDocs(collection(fireDb, `${formData.blogfor == "LDC" ? 'catgforldc' : 'catgfordozzy'}`));
       const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setCatgs(catgs1)
-      setPostauthor(localStorage.getItem('AdminName'))
+      // setPostauthor(localStorage.getItem('AdminName'))
     };
     fetchCatgs();
-    if(formData.blogfor=='LDC' || formData.blogfor =='Dozzy')
-      {
-        setEnableImg(true);
-      }
-    
+
   }, [formData.blogfor])
 
+  useEffect(() => {
+    if (formData.blogfor == '' || formData.blogfor == 'none') {
+      setEnableImg(true);
+    }
+    else {
+      setEnableImg(false);
+    }
+  }, [])
+  useEffect(() => {
+    if (formData.blogfor == '' || formData.blogfor == 'none') {
+      setEnableImg(true);
+    }
+    else {
+      setEnableImg(false);
+    }
+  }, [formData.blogfor])
+  console.log(enableimg, "enableimg");
 
   return (
     <AdminLayout>
@@ -331,14 +314,14 @@ export default function AddPost() {
               onChange={handleChange}
               className="border rounded-lg p-2"
             >
-              <option value="-">select from below</option>
+              <option value="none">select from below</option>
               <option value="LDC">LDC</option>
               <option value="Dozzy">Dozzy</option>
             </select>
           </div>
           <div className="flex flex-col pt-4">
-            <label htmlFor="categoryname" className="text-lg pb-5">Category Name Selected :<p className='flex gap-4'>{formData?.categoryname.length && formData?.categoryname?.map((catn, index) => {
-              return <span className='text-blue-400'>{catn}</span>
+            <label htmlFor="categoryname" className="text-lg pb-5">Category Name Selected :<p className='flex gap-4'>{formData?.categoryname?.length && formData?.categoryname?.map((catn, index) => {
+              return <span key={index} className='text-blue-400'>{catn}</span>
             })}</p> </label>
             <div className="flex items-center gap-2">
             </div>
@@ -393,22 +376,6 @@ export default function AddPost() {
             />
             <p className='pt-3'> Character Count : {formData.description.replace(/\s+/g, '').length}</p>
           </div>
-
-          <div className="flex flex-col">
-            <label htmlFor="content" className="text-lg">Content</label>
-            <div >
-              <ReactQuill
-                value={editorHtml}
-                onChange={setEditorHtml}
-                modules={modules}
-                formats={formats}
-                ref={quillRef}
-                placeholder="Write your content here..."
-                className='h-52'
-                readOnly={!enableimg}              />
-            </div>
-          </div>
-          <p className='text-end pr-4'>{calculateReadTime(editorHtml)} min read</p>
           <div className="flex gap-4 pt-4">
             <div className="flex flex-col">
               <label htmlFor="coverimages" className="text-lg">Cover Image</label>
@@ -419,14 +386,14 @@ export default function AddPost() {
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="border rounded-lg p-2"
-                disabled={!enableimg}
+                disabled={enableimg}
               />
               <img
-                src={uploadedImageUrl ? uploadedImageUrl : 'null'}  // Adjust URL for public access
-                alt="Dummy image"
-                className="w-32 h-32 object-cover rounded pt-7"
+                src={uploadedImageUrl}  // Adjust URL for public access
+                alt="Cover Preview"
+                className="w-32 h-32 object-cover rounded"
               />
-              {console.log(uploadedImageUrl, "uploadedImageUrl")}
+              {/* {console.log(uploadedImageUrl, "uploadedImageUrl")} */}
             </div>
             <div className="flex flex-col">
               <label htmlFor="cialt" className="text-lg">Cover image Alt text </label>
@@ -442,6 +409,23 @@ export default function AddPost() {
             </div>
 
           </div>
+          <div className="flex flex-col">
+            <label htmlFor="content" className="text-lg">Content</label>
+            <div >
+              <ReactQuill
+                value={editorHtml}
+                onChange={setEditorHtml}
+                modules={modules}
+                formats={formats}
+                ref={quillRef}
+                placeholder="Write your content here..."
+                readOnly={enableimg}
+                className='h-80'
+              />
+            </div>
+          </div>
+          <p className='text-end pr-4'>{calculateReadTime(editorHtml)} min read</p>
+
           <div>
           </div>
           <button

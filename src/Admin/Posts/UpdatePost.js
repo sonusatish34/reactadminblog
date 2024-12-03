@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { doc, updateDoc } from "firebase/firestore";
-import { getDoc, collection, getDocs } from "firebase/firestore";
-import axios from "axios"; // for handling image upload
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import { getDoc, collection, getDocs } from "firebase/firestore";
+import axios from "axios"; // for handling image upload
 import { fireDb } from "../../firebase"; // Import Firebase DB
 import AdminLayout from "../../layouts/AdminLayout";
 
@@ -74,6 +74,8 @@ function UpdatePost() {
 
     try {
       const response = await fetch('https://reactadminblog.vercel.app/api/upload', {
+      // const response = await fetch('https://seoblog.longdrivecars.com/api/upload', {
+        
       // const response = await axios.post("http://localhost:5000/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
