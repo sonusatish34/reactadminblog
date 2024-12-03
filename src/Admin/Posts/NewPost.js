@@ -42,7 +42,7 @@ export default function AddPost() {
 
       // Set the uploaded image URL from the response
       console.log(response, "resp");
-      setUploadedImageUrl(response?.data?.fileUrl);
+      setUploadedImageUrl(response?.data?.imageUrl);
     } catch (error) {
       console.error('Error uploading image:', error);
     }
@@ -274,8 +274,10 @@ export default function AddPost() {
               method: 'POST',
               body: formData2,
             });
-
+            
             const data = await response.json();
+            console.log(response,"respp");
+            console.log(data,"dataa");
 
             if (data.success) {
               // Insert the image URL into Quill editor
