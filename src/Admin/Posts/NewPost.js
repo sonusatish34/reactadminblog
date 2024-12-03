@@ -264,7 +264,7 @@ export default function AddPost() {
           const altText = prompt("Please enter alt text for the image:");
 
           const formData2 = new FormData();
-          formData2.append('coverimages', file);
+          formData2.append('image', file);
           formData2.append('blogfor', formData.blogfor);
 
           try {
