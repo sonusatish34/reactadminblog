@@ -244,8 +244,8 @@ export default function AddPost() {
               body: formData2,
             });
 
-            const data = await response.json();
             console.log(response, "respp");
+            const data = response.data;  // Access the response data directly
             console.log(data, "dataa");
 
             if (data.success) {
