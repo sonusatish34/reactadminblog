@@ -9,12 +9,10 @@ import axios from 'axios'; // for handling image upload
 import { fireDb } from '../../firebase';
 
 export default function AddPost() {
+  const [enableimg, setEnableImg] = useState(false);
   const [catgs, setCatgs] = useState('');
   const [addCatgs, setAddCatgs] = useState(false);
   const [newCategory, setNewCategory] = useState(''); // Stores the new category name
-
-
-
 
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -25,24 +23,26 @@ export default function AddPost() {
     setSelectedFile(file);
 
     // Create FormData object to send the file as multipart/form-data
-    const formData = new FormData();
-    formData.append('coverimages', file);
+    const formData1 = new FormData();
+    formData1.append('coverimages', file);
+    formData1.append('blogfor', formData.blogfor);
     try {
-      const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
-
+      // const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData, {
+        const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData1, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
       // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData, {
-      // const response = await axios.post('http://localhost:5000/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // const response = await axios.post('http://localhost:5000/upload', formData1, {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data',
+      //   },
+      // });
 
       // Set the uploaded image URL from the response
       console.log(response, "resp");
-
-      setUploadedImageUrl(response?.data?.imageUrl);
-
-
+      setUploadedImageUrl(response?.data?.fileUrl);
     } catch (error) {
       console.error('Error uploading image:', error);
     }
@@ -54,7 +54,7 @@ export default function AddPost() {
     cialt: '',
     content: '',
     coverimages: '',  // This will store the base64 image string
-    blogfor: 'LDC',
+    blogfor: '',
     categoryname: [],
     description: '',
     cialt: '',
@@ -132,8 +132,6 @@ export default function AddPost() {
       }));
     }
   };
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -218,7 +216,7 @@ export default function AddPost() {
     const wordCount = words.length;
 
     const wordsPerMinute = 183;
-    if(wordCount == 0) return 0;
+    if (wordCount == 0) return 0;
     return Math.ceil(wordCount / wordsPerMinute);
   };
   const quillRef = useRef(null);
@@ -264,15 +262,17 @@ export default function AddPost() {
 
           const file = input.files[0];
           const altText = prompt("Please enter alt text for the image:");
-          const formData = new FormData();
-          formData.append('image', file);
+
+          const formData2 = new FormData();
+          formData2.append('coverimages', file);
+          formData2.append('blogfor', formData.blogfor);
 
           try {
             const response = await fetch('https://reactadminblog.vercel.app/api/uploadei', {
-            // const response = await fetch('http://localhost:5000/uploadei', {
+              // const response = await fetch('http://localhost:5000/uploadei', {
               // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
               method: 'POST',
-              body: formData,
+              body: formData2,
             });
 
             const data = await response.json();
@@ -305,16 +305,63 @@ export default function AddPost() {
       const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setCatgs(catgs1)
       setPostauthor(localStorage.getItem('AdminName'))
-
     };
     fetchCatgs();
-
+    if(formData.blogfor=='LDC' || formData.blogfor =='Dozzy')
+      {
+        setEnableImg(true);
+      }
+    
   }, [formData.blogfor])
+
+
   return (
     <AdminLayout>
       <div style={{ width: '900px' }} className="shadow-md flex-row px-1 mt-5 items-center pt-2 pb-2 mb-2 justify-center rounded-lg ml-10 bg-white">
         <h2 className="text-2xl font-semibold mb-4 text-center hover:text-indigo-500">Add New Post</h2>
         <form onSubmit={handleSubmit} className="space-y-4 w-full p-1">
+          <div className="flex flex-col pt-4">
+            <label htmlFor="blogfor" className="text-lg">Blog For</label>
+            <select
+              id="blogfor"
+              name="blogfor"
+              value={formData.blogfor}
+              onChange={handleChange}
+              className="border rounded-lg p-2"
+            >
+              <option value="-">select from below</option>
+              <option value="LDC">LDC</option>
+              <option value="Dozzy">Dozzy</option>
+            </select>
+          </div>
+          <div className="flex flex-col pt-4">
+            <label htmlFor="categoryname" className="text-lg pb-5">Category Name Selected :<p className='flex gap-4'>{formData?.categoryname.length && formData?.categoryname?.map((catn, index) => {
+              return <span className='text-blue-400'>{catn}</span>
+            })}</p> </label>
+            <div className="flex items-center gap-2">
+            </div>
+            <div className="flex items-center gap-4">
+              {/* <label htmlFor="categoryname" className="text-lg font-semibold text-gray-700">Select Categories</label> */}
+              <select
+                id="categoryname"
+                name="categoryname"
+                multiple
+                value={formData.categoryname}
+                onChange={handleChange}
+                className="border-2 border-gray-300 rounded-lg p-3 w-64 h-40 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none shadow-md"
+              >
+                {catgs.length ? catgs.map((item, index) => (
+                  <option
+                    className="text-black p-2 border-b-2 border-gray-200 hover:bg-blue-100 hover:text-blue-600 transition duration-150"
+                    key={index}
+                    value={item.name}
+                  >
+                    {item.name}
+                  </option>
+                )) : null}
+              </select>
+            </div>
+          </div>
           <div className="flex flex-col">
             <label htmlFor="title" className="text-lg">Title</label>
             <input
@@ -356,7 +403,7 @@ export default function AddPost() {
                 ref={quillRef}
                 placeholder="Write your content here..."
                 className='h-52'
-              />
+                readOnly={!enableimg}              />
             </div>
           </div>
           <p className='text-end pr-4'>{calculateReadTime(editorHtml)} min read</p>
@@ -370,6 +417,7 @@ export default function AddPost() {
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="border rounded-lg p-2"
+                disabled={!enableimg}
               />
               <img
                 src={uploadedImageUrl ? uploadedImageUrl : 'null'}  // Adjust URL for public access
@@ -391,87 +439,6 @@ export default function AddPost() {
               />
             </div>
 
-          </div>
-
-          <div className="flex flex-col pt-4">
-            <label htmlFor="blogfor" className="text-lg">Blog For</label>
-            <select
-              id="blogfor"
-              name="blogfor"
-              value={formData.blogfor}
-              onChange={handleChange}
-              className="border rounded-lg p-2"
-            >
-              <option value="LDC">LDC</option>
-              <option value="Dozzy">Dozzy</option>
-            </select>
-          </div>
-          <div className="flex flex-col pt-4">
-            <label htmlFor="categoryname" className="text-lg pb-5">Category Name Selected :<p className='flex gap-4'>{formData?.categoryname.length && formData?.categoryname?.map((catn, index) => {
-              return <span className='text-blue-400'>{catn}</span>
-            })}</p> </label>
-            <div className="flex items-center gap-2">
-
-              {/* <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setAddCatgs(true); // Open dialog
-                }}
-                className="rounded-md bg-gray-200 p-1 flex items-center"
-              >
-                + Add
-              </button>
-              {addCatgs && (
-                <div className="absolute bg-white border rounded-lg p-4 mt-2 shadow-lg">
-                  <h3 className="text-lg mb-4">Add New Category</h3>
-                  <input
-                    type="text"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="Enter category name"
-                    className="border rounded-lg p-2 w-64 mb-4"
-                  />
-                  <div className="flex gap-4">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setAddCatgs(false)
-                      }} // Close dialog
-                      className="bg-gray-300 p-2 rounded"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleCategorySubmit} // Add category
-                      className="bg-blue-500 text-white p-2 rounded"
-                    >
-                      Add Category
-                    </button>
-                  </div>
-                </div>
-              )} */}
-            </div>
-            <div className="flex items-center gap-4 pl-4">
-              {/* <label htmlFor="categoryname" className="text-lg font-semibold text-gray-700">Select Categories</label> */}
-              <select
-                id="categoryname"
-                name="categoryname"
-                multiple
-                value={formData.categoryname}
-                onChange={handleChange}
-                className="border-2 border-gray-300 rounded-lg p-3 w-64 h-40 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none shadow-md"
-              >
-                {catgs.length ? catgs.map((item, index) => (
-                  <option
-                    className="text-black p-2 border-b-2 border-gray-200 hover:bg-blue-100 hover:text-blue-600 transition duration-150"
-                    key={index}
-                    value={item.name}
-                  >
-                    {item.name}
-                  </option>
-                )) : null}
-              </select>
-            </div>
           </div>
           <div>
           </div>

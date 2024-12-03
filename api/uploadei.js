@@ -27,10 +27,13 @@ module.exports = (req, res) => {
 
       const fileContent = req.file.buffer;
       const fileName = `${Date.now()}_${req.file.originalname}`;
+      const blogfor = req.body.blogfor;
+      const timestamp = new Date().getTime();
 
       const params = {
         Bucket: 'ldcars',
-        Key: `ldcars_nextjs_images/blog_images/${fileName}`,
+        // Key: `ldcars_nextjs_images/blog_images/${fileName}`,
+        Key: `ldcars_nextjs_images/blog_images/${blogfor}/${timestamp}-${fileName}`,  // Adjust the folder structure if needed
         Body: fileContent,
         ContentType: req.file.mimetype,
         ACL: 'public-read',
@@ -43,7 +46,7 @@ module.exports = (req, res) => {
 
         return res.json({
           success: true,
-          imageUrl: data.Location,
+          imageUrl: data.Location?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.'),
         });
       });
     });

@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from "../../layouts/AdminLayout";
-import Domain from '../../Api/Api';
-import { AuthToken } from '../../Api/Api';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileAlt, faComments, faHeart, faEye, faUserCheck, faUser, faFolder } from "@fortawesome/free-solid-svg-icons";
-import { Line } from 'react-chartjs-2';
-import { CategoryScale } from "chart.js";
-import Chart from 'chart.js/auto';
-import Loading from '../../layouts/Loading';
-import axios from 'axios';
 import { fireDb } from '../../firebase';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileAlt, faFolder, faUser } from "@fortawesome/free-solid-svg-icons";
+import Loading from '../../layouts/Loading';
+import { getDocs, collection } from 'firebase/firestore';
 /* AnalyticsCard component */
-import { Timestamp, addDoc, collection, setDoc, getDocs, query, where, } from 'firebase/firestore';
-
 function AnalyticsCard({ title, value, icon }) {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 flex items-center space-x-4">
@@ -27,204 +20,52 @@ function AnalyticsCard({ title, value, icon }) {
 
 /* Dashboard component */
 function Dashboard() {
-  const [postcount,setPostcount] = useState('');
-  const [catgscount,setCatgscount] = useState('');
-    useEffect(() => {
-      try{
+  const [postcount, setPostcount] = useState(0);
+  const [catgscount, setCatgscount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true); // Set loading to true when fetching starts
+
+      try {
         const fetchPosts = async () => {
           const querySnapshot = await getDocs(collection(fireDb, "blogPost"));
           const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setPostcount(posts?.length)
-         
+          setPostcount(posts?.length);
         };
+
         const fetchCatgs = async () => {
           const querySnapshot = await getDocs(collection(fireDb, "categories"));
           const catgs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setCatgscount(catgs?.length)
+          setCatgscount(catgs?.length);
         };
-    
-        fetchPosts();
-        fetchCatgs();
-        setLoading(true)
-      }
-      catch(error)
-      {
-        console.log("some errors");
-        setLoading(false)
-      }
-  }, []);
-  const [isLoading, setLoading] = useState(false);
-  const [dashboardData, setDashboardData] = useState({
-    TotalPosts: 0,
-    TotalComment: 0,
-    TotalLikes: 0,
-    TotalVisits: 0,
-    TotalCategories: 0,
-    TotalUsers: 0,
-    ActifUsers: 0,
-    MonthlyVisits: [],
-    MonthlyPosts: [],
-    MonthlyComments: [],
-    MonthlyLikes: [],
-  });
 
+        await Promise.all([fetchPosts(), fetchCatgs()]); // Ensure both are fetched before stopping loading
 
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false); // Set loading to false once both data fetching is complete
+      }
+    };
+
+    fetchData();
+  }, []); // Empty dependency array ensures this effect runs only once when the component mounts
 
   const dashboardContent = isLoading ? (
+    <Loading />
+  ) : (
     <div className="container mx-auto mt-8 px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <AnalyticsCard title="Total Posts" value={postcount} icon={faFileAlt} />
         <AnalyticsCard title="Total Categories" value={catgscount} icon={faFolder} />
-        <AnalyticsCard title="Total Users" value={dashboardData.TotalUsers} icon={faUser} />
+        <AnalyticsCard title="Total Users" value={0} icon={faUser} />
       </div>
-      <Analytics
-        Visits={dashboardData.MonthlyVisits}
-        Posts={dashboardData.MonthlyPosts}
-        Comments={dashboardData.MonthlyComments}
-      />
     </div>
-  ) : (
-    <Loading />
   );
 
-  return (
-    <AdminLayout Content={dashboardContent} />
-  );
-}
-
-/* Analytics component */
-function Analytics({ Visits, Posts, Comments }) {
-  if (Visits.length === 0) {
-    return (
-      <div className="bg-white rounded-lg shadow-md p-4 mt-5">
-        <h2 className="text-2xl font-semibold mb-4">Analytics Dashboard</h2>
-        <p>No data available. Please check back later.</p>
-      </div>
-    );
-  }
-
-  const orderedMonths = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const postCounts = new Array(12).fill(0);
-  const TotalComment = new Array(12).fill(0);
-
-  Posts.forEach(item => {
-    const monthIndex = orderedMonths.indexOf(item.month);
-    if (monthIndex !== -1) {
-      postCounts[monthIndex] = item.post_count;
-    }
-  });
-
-  Comments.forEach(item => {
-    const monthIndex = orderedMonths.indexOf(item.month);
-    if (monthIndex !== -1) {
-      TotalComment[monthIndex] = item.comment_count;
-    }
-  });
-
-  const VisitsChart = {
-    labels: orderedMonths,
-    datasets: [
-      {
-        label: 'Visits',
-        data: Visits.map(item => item.visit_count),
-        borderColor: 'rgba(255, 159, 0, 1)',  // Darker yellow
-        borderWidth: 2,
-        fill: false,
-      },
-      {
-        label: 'Visits',
-        type: 'bar',
-        data: Visits.map(item => item.visit_count),
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 2,
-        fill: false,
-      },
-    ],
-  };
-  
-  const PostsChart = {
-    labels: orderedMonths,
-    datasets: [
-      {
-        label: 'Posts',
-        data: postCounts,
-        borderColor: 'rgba(54, 162, 235, 1)',  // Darker blue
-        borderWidth: 2,
-        fill: false,
-      },
-      {
-        label: 'Posts',
-        type: 'bar',
-        data: postCounts,
-        borderColor: 'rgba(255, 99, 132, 1)',
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        borderWidth: 2,
-        fill: false,
-      },
-    ],
-  };
-  
-  const CommentsChart = {
-    labels: orderedMonths,
-    datasets: [
-      {
-        label: 'Comments',
-        data: TotalComment,
-        borderColor: 'rgba(153, 102, 255, 1)',  // Darker purple
-        borderWidth: 2,
-        fill: false,
-      },
-      {
-        label: 'Comments',
-        type: 'bar',
-        data: TotalComment,
-        borderColor: 'rgba(54, 162, 235, 1)',
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-        borderWidth: 2,
-        fill: false,
-      },
-    ],
-  };
-  
-
-  const chartOptions = {
-    scales: {
-      x: {
-        type: 'category',
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        beginAtZero: true,
-        grid: {
-          borderDash: [5, 5],
-        },
-      },
-    },
-  };
-
-  return (
-    <>
-      <div className="bg-white rounded-lg shadow-md my-5 p-2">
-        <h2 className="text-2xl font-semibold mb-4">Visits Chart</h2>
-        <Line data={VisitsChart} options={chartOptions} />
-      </div>
-      <div className="bg-white rounded-lg shadow-md my-5 p-2">
-        <h2 className="text-2xl font-semibold mb-4">Posts Chart</h2>
-        <Line data={PostsChart} options={chartOptions} />
-      </div>
-      <div className="bg-white rounded-lg shadow-md my-5 p-2">
-        <h2 className="text-2xl font-semibold mb-4">Comments Chart</h2>
-        <Line data={CommentsChart} options={chartOptions} />
-      </div>
-    </>
-  );
+  return <AdminLayout Content={dashboardContent} />;
 }
 
 export default Dashboard;

@@ -27,7 +27,7 @@ function Login() {
         localStorage.setItem("AdminName", foundUser.name);
         setRedirect(true); // Set redirect to true
         setError(null); // Clear previous errors
-        window.location.reload(false);
+        // window.location.reload(false);
       } else {
         setError("Invalid email or password.");
       }
