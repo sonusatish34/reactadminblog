@@ -36,7 +36,7 @@ function Login() {
       setError("An error occurred while verifying credentials.");
     }
     finally {
-      // window.location.reload(false);
+      window.location.reload(false);
     }
   };
 
