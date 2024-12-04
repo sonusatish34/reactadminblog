@@ -141,7 +141,7 @@ function Posts() {
       const qActive = query(
         collection(fireDb, "blogPost"),
         where("blog_state", "==", "active"),
-        orderBy("createdAt", "desc")
+        // orderBy("createdAt", "desc")
 
       );
       const querySnapshotActive = await getDocs(qActive);
@@ -151,7 +151,7 @@ function Posts() {
       const qInProgress = query(
         collection(fireDb, "blogPost"),
         where("blog_state", "==", "in-progress"),
-        orderBy("createdAt", "desc")
+        // orderBy("createdAt", "desc")
 
       );
       const querySnapshotInProgress = await getDocs(qInProgress);
