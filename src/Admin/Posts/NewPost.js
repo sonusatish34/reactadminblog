@@ -246,8 +246,9 @@ export default function AddPost() {
             // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
             const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei',formData2, {
 
-              method: 'POST',
-              body: formData2,
+              headers: {
+                'Content-Type': 'multipart/form-data',
+            },
             });
 
             console.log(response, "respp");
