@@ -244,7 +244,7 @@ export default function AddPost() {
             // const response = await fetch('https://seoblog.longdrivecars.com/api/uploadei', {
             // const response = await fetch('http://localhost:5000/uploadei',{
             // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
-            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', {
+            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei',formData2, {
 
               method: 'POST',
               body: formData2,
