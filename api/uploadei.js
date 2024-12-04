@@ -24,13 +24,15 @@ module.exports = (req, res) => {
       if (!req.file) {
         return res.status(400).json({ success: false, error: 'No file uploaded' });
       }
+      console.log('Request Body:', req.body); 
 
       const fileContent = req.file.buffer;
       const fileName = req.file.originalname;
       const blogfor = req.body.blogfor;
       const timestamp = new Date().getTime();
       console.log(blogfor,"in server,js");
-      
+       // Ensure blogfor is here
+
       const params = {
         Bucket: 'ldcars',
         // Key: `ldcars_nextjs_images/blog_images/${fileName}`,
