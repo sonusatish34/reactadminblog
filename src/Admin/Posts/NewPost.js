@@ -39,32 +39,38 @@ export default function AddPost() {
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
+
+    // Check if the file is of type 'image/webp'
+    if (file && file.type !== 'image/webp') {
+        alert('Please upload a .webp image.');
+        return; // Exit the function if the file is not a .webp image
+    }
+
     setSelectedFile(file);
 
     // Create FormData object to send the file as multipart/form-data
     const formData1 = new FormData();
     formData1.append('coverimages', file);
     formData1.append('blogfor', formData.blogfor);
-    try {
-      const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData1, {
-        // const response = await axios.post('https://seoblog.longdrivecars.com/api/upload', formData1, {
-        //   headers: {
-        //     'Content-Type': 'multipart/form-data',
-        //   },
-        // });
-        // const response = await axios.post('http://localhost:5000/upload', formData1, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
 
-      // Set the uploaded image URL from the response
-      console.log(response, "resp");
-      setUploadedImageUrl(response?.data?.imageUrl);
+    try {
+        const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData1, {
+                    // const response = await fetch('http://localhost:5000/uploadei', {
+
+        // const response = await axios.post('http://localhost:5000/upload', formData1, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        // Set the uploaded image URL from the response
+        console.log(response, "resp");
+        setUploadedImageUrl(response?.data?.imageUrl);
     } catch (error) {
-      console.error('Error uploading image:', error);
+        console.error('Error uploading image:', error);
     }
-  };
+};
+
   const [postauthor, setPostauthor] = useState('')
   const [formData, setFormData] = useState({
     id: '',
@@ -236,9 +242,9 @@ export default function AddPost() {
 
           try {
             // const response = await fetch('https://seoblog.longdrivecars.com/api/uploadei', {
-            // const response = await fetch('http://localhost:5000/uploadei', {
+            // const response = await fetch('http://localhost:5000/uploadei',{
             // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
-            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
+            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', {
 
               method: 'POST',
               body: formData2,

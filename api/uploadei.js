@@ -29,7 +29,8 @@ module.exports = (req, res) => {
       const fileName = req.file.originalname;
       const blogfor = req.body.blogfor;
       const timestamp = new Date().getTime();
-
+      console.log(blogfor,"in server,js");
+      
       const params = {
         Bucket: 'ldcars',
         // Key: `ldcars_nextjs_images/blog_images/${fileName}`,
@@ -47,6 +48,7 @@ module.exports = (req, res) => {
         return res.json({
           success: true,
           imageUrl: data.Location?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.'),
+          blogfor:blogfor,
         });
       });
     });

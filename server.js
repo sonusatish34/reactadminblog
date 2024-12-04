@@ -22,13 +22,16 @@ app.post('/uploadei', upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, error: 'No file uploaded' });
   }
-
+  const blogfor = req.body.blogfor;
   const fileContent = req.file.buffer;  // File is in memory (buffer)
   const fileName = `${Date.now()}_${req.file.originalname}`;  // Generate a unique file name
-
+  const timestamp = new Date().getTime();
+  console.log(blogfor,"blof gor cosnoel");
+  
   const params = {
     Bucket: 'ldcars',  // Your Space name
-    Key: `ldcars_nextjs_images/blog_images/${fileName}`,  // Path where the file will be stored
+    Key: `ldcars_nextjs_images/blog_images/${blogfor}/${timestamp}-${req.file.originalname}`,  // Adjust the folder structure if needed.
+
     Body: fileContent,
     ContentType: req.file.mimetype,  // Mime type of the uploaded file
     ACL: 'public-read',  // Make file publicly accessible
@@ -45,6 +48,7 @@ app.post('/uploadei', upload.single('image'), (req, res) => {
     return res.json({
       success: true,
       imageUrl: data.Location,  // URL of the uploaded file
+      blogfor:blogfor,
     });
   });
 });
