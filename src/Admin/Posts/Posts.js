@@ -50,7 +50,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
       icon: 'warning',
       title: 'Are you sure you want to publish this post?',
       showCancelButton: true,
-      confirmButtonText: 'Delete',
+      confirmButtonText: 'Publish',
       confirmButtonColor: '#d33',
       cancelButtonText: 'Cancel',
     }).then(async (result) => {

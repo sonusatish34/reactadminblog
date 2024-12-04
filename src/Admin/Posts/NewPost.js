@@ -14,21 +14,6 @@ export default function AddPost() {
   const [addCatgs, setAddCatgs] = useState(false);
   const [newCategory, setNewCategory] = useState(''); // Stores the new category name
 
-  useEffect(() => {
-    const fetchCatgs = async () => {
-      // setLoading(true);
-      const querySnapshot = await getDocs(collection(fireDb, "categories"));
-      const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      // setPostsData(posts);
-      setCatgs(catgs1)
-      // console.log(catgs1, "----------11111111------");
-      setPostauthor(localStorage.getItem('AdminName'))
-      // console.log(formData, "fd---000");
-      // setLoading(false);
-    };
-    fetchCatgs()
-
-  }, [])
 
 
   // console.log(catgs, "--catgs--");
@@ -42,8 +27,8 @@ export default function AddPost() {
 
     // Check if the file is of type 'image/webp'
     if (file && file.type !== 'image/webp') {
-        alert('Please upload a .webp image.');
-        return; // Exit the function if the file is not a .webp image
+      alert('Please upload a .webp image.');
+      return; // Exit the function if the file is not a .webp image
     }
 
     setSelectedFile(file);
@@ -54,22 +39,22 @@ export default function AddPost() {
     formData1.append('blogfor', formData.blogfor);
 
     try {
-        const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData1, {
-                    // const response = await fetch('http://localhost:5000/uploadei', {
+      const response = await axios.post('https://reactadminblog.vercel.app/api/upload', formData1, {
+        // const response = await fetch('http://localhost:5000/uploadei', {
 
         // const response = await axios.post('http://localhost:5000/upload', formData1, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-        // Set the uploaded image URL from the response
-        console.log(response, "resp");
-        setUploadedImageUrl(response?.data?.imageUrl);
+      // Set the uploaded image URL from the response
+      console.log(response, "resp");
+      setUploadedImageUrl(response?.data?.imageUrl);
     } catch (error) {
-        console.error('Error uploading image:', error);
+      console.error('Error uploading image:', error);
     }
-};
+  };
 
   const [postauthor, setPostauthor] = useState('')
   const [formData, setFormData] = useState({
@@ -110,7 +95,7 @@ export default function AddPost() {
     const newPost = {
       title: formData.title,
       description: formData.description,
-      slug: formData.title.replaceAll(' ', '-').toLowerCase() + `-${Date.now()}`,
+      slug: formData.slug.replaceAll(' ', '-').toLowerCase(),
       content: editorHtml,
       coverimages: uploadedImageUrl,
       blogfor: formData.blogfor,
@@ -244,11 +229,11 @@ export default function AddPost() {
             // const response = await fetch('https://seoblog.longdrivecars.com/api/uploadei', {
             // const response = await fetch('http://localhost:5000/uploadei',{
             // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
-            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei',formData2, {
+            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
 
               headers: {
                 'Content-Type': 'multipart/form-data',
-            },
+              },
             });
 
             console.log(response, "respp");
@@ -280,7 +265,7 @@ export default function AddPost() {
   useEffect(() => {
     const fetchCatgs = async () => {
       // setLoading(true);
-      const querySnapshot = await getDocs(collection(fireDb, `${formData.blogfor == "LDC" ? 'catgforldc' : 'catgfordozzy'}`));
+      const querySnapshot = await getDocs(collection(fireDb, `${formData.blogfor == "LDC" ? 'catgforldc' : formData.blogfor == "Dozzy" ? 'catgfordozzy' : 'none'}`));
       const catgs1 = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setCatgs(catgs1)
       // setPostauthor(localStorage.getItem('AdminName'))
@@ -366,8 +351,20 @@ export default function AddPost() {
               className="border rounded-lg p-2"
             />
           </div>
+          <div className="flex flex-col">
+            <label htmlFor="slug" className="text-lg">slug</label>
+            <input
+              type="text"
+              id="slug"
+              name="slug"
+              value={formData.slug}
+              onChange={handleChange}
+              required
+              className="border rounded-lg p-2"
+            />
+          </div>
           <div>
-            <p className='text-sm text-blue-600'>slug: {formData.title.replaceAll(' ', '-').toLowerCase() + '-' + Date.now()}
+            <p className='text-sm text-blue-600'>slug: {formData.slug.replaceAll(' ', '-').toLowerCase()}
             </p>
           </div>
           <div className="flex flex-col">
@@ -431,10 +428,10 @@ export default function AddPost() {
               />
             </div>
           </div>
-          <p className='text-end pr-4'>{calculateReadTime(editorHtml)} min read</p>
 
           <div>
           </div>
+          <p className='text-end pr-4'>{calculateReadTime(editorHtml)} min read</p>
           <button
             type="submit"
             className="bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-600 transition duration-300"

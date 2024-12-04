@@ -77,6 +77,32 @@ app.post('/upload', upload.single('coverimages'), (req, res) => {
     });
   });
 
+
+  app.get('/list-images', (req, res) => {
+    // Define the parameters for listing the objects in the space
+    const params = {
+      Bucket: 'ldcars',  // Your Space name
+      Prefix: 'ldcars_nextjs_images/blog_images/',  // Optional: Adjust the folder path if needed
+    };
+  
+    // Use the S3 client to list the objects
+    s3.listObjectsV2(params, (err, data) => {
+      if (err) {
+        console.error('Error listing objects:', err);
+        return res.status(500).json({ success: false, error: 'Error listing objects' });
+      }
+  
+      // Extract the image URLs from the response
+      const imageUrls = data.Contents.map(item => `https://blr1.digitaloceanspaces.com/${item.Key}`);
+      
+      // Return the list of image URLs
+      res.json({
+        success: true,
+        images: imageUrls,
+      });
+    });
+  });
+  
 // Start the Express server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
