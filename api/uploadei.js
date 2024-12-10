@@ -28,7 +28,7 @@ module.exports = (req, res) => {
 
       const fileContent = req.file.buffer;
       const fileName = req.file.originalname;
-      const blogfor = req.blogfor;
+      const blogfor = req.body.blogfor;
       const timestamp = new Date().getTime();
       console.log(blogfor,"in server,js");
        // Ensure blogfor is here
@@ -36,7 +36,7 @@ module.exports = (req, res) => {
       const params = {
         Bucket: 'ldcars',
         // Key: `ldcars_nextjs_images/blog_images/${fileName}`,
-        Key: `ldcars_nextjs_images/blog_images/${blogfor}/${timestamp}-${fileName}`,  // Adjust the folder structure if needed
+        Key: `ldcars_nextjs_images/blog_images/${blogfor?`${blogfor}/`:''}${timestamp}-${fileName}`,  // Adjust the folder structure if needed
         Body: fileContent,
         ContentType: req.file.mimetype,
         ACL: 'public-read',
