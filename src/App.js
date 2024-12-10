@@ -10,6 +10,7 @@ import Add from "./Admin/Posts/NewPost";
 import View from "./Admin/Posts/ViewPost";
 import UpdatePost from "./Admin/Posts/UpdatePost";
 import NotFound from "./layouts/PageNotFound";
+import DeletedPosts from "./Admin/Posts/deleteposts";
 
 function App() {
   // const [authToken, setauthToken] = useState(false);
@@ -65,6 +66,8 @@ function App() {
           path="/Admin/Accounts"
           element={authToken ? <Accounts /> : <Navigate to="/Login" />}
         />
+         <Route path="/Admin/DeletedPosts" element={<DeletedPosts />} />
+
 
         {/* Catch all route for 404 */}
         <Route path="*" element={<NotFound />} />
