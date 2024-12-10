@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faFileAlt, faFolder, faInbox, faUser, faCog, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { faHome,faPlus, faFileAlt,faTrash, faFolder, faInbox, faUser, faCog, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "react-router-dom";
 
 function SideBar() {
@@ -17,14 +17,15 @@ function SideBar() {
   const links = [
     { to: "/Admin/Dashboard", icon: faHome, label: "Dashboard" },
     { to: "/Admin/Accounts", icon: faUser, label: "Accounts" },
-    { to: "/Admin/Post/New", icon: faFileAlt, label: "Create Post" },
+    { to: "/Admin/Post/New", icon: faPlus, label: "Create Post" },
     { to: "/Admin/Posts", icon: faFileAlt, label: "All Posts" },
-    { to: "/Admin/Categories", icon: faFileAlt, label: "Categories" },
-    { to: "/Admin/DeletedPosts", icon: faFileAlt, label: "DeletedPosts" },
+    { to: "/Admin/Categories", icon: faFolder, label: "Categories" },
+    { to: "/Admin/DeletedPosts", icon: faTrash, label: "Deleted Posts" },
   //  { to: "/Admin/Categories", icon: faFolder, label: "Categories" },
     // { to: "/Admin/Inbox", icon: faInbox, label: "Inbox" }, 
     // { to: "/Admin/Settings", icon: faCog, label: "Settings" },
     // { to: "/Logout", icon: faSignOutAlt, label: "Logout" },
+
   ];
 
   return (
