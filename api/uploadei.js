@@ -28,7 +28,7 @@ module.exports = (req, res) => {
 
       const fileContent = req.file.buffer;
       const fileName = req.file.originalname;
-      const blogfor = req.body.blogfor;
+      const blogfor = req.blogfor;
       const timestamp = new Date().getTime();
       console.log(blogfor,"in server,js");
        // Ensure blogfor is here

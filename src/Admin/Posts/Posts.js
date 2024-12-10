@@ -135,7 +135,6 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
                     </option>
                   ))}
                 </select>
-
               </th>
               <th className="w-1/5 py-2">Created At</th>
               <th className="w-1/5 py-2">Actions</th>
