@@ -25,7 +25,7 @@ module.exports = (req, res) => {
       }
 
       const fileContent = req.file.buffer;
-      const fileName = req.file.originalname;
+      const fileName = req.file.originalname.replaceAll(' ', '-').toLowerCase();
       const blogfor = req.body.blogfor;
       const timestamp = new Date().getTime();
 

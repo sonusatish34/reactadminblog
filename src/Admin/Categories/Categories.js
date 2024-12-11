@@ -67,6 +67,15 @@ function Categories() {
           minute: "2-digit",
           second: "2-digit",
           hour12: true,
+        }),
+        date: new Date().toLocaleString("en-US", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
         })
       });
       alert('Category added successfully!');
@@ -187,11 +196,13 @@ function Categories() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-ce">
+            {console.log(cList,"ljijio")
+            }
             {cList?.length && cList.map((category, index) => (
               <tr key={index}>
-                <td className="px-5 py-3  w-25 truncate w-40 block overflow-hidden overflow-ellipsis">{category?.name}</td>
+                <td className="px-5 py-3  w-25 truncate w-60 block overflow-hidden overflow-ellipsis">{category?.name}</td>
                 <td className="px-5 py-3 ">
-                <td className="px-5 py-3  w-25 truncate w-40 block overflow-hidden overflow-ellipsis">{category?.createdAt?.seconds}</td>
+                <td className="px-5 py-3  w-25 truncate w-60 block overflow-hidden overflow-ellipsis">{category?.createdAt?.seconds?category?.createdAt?.seconds:category?.createdAt}</td>
                 </td>
                 <td className="px-5 py-3 ">
                   <FontAwesomeIcon
