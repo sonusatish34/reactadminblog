@@ -15,8 +15,10 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
   const postsToDisplay = postsData.slice(startIndex, endIndex);
 
   const uniqueBlogForOptions = Array.from(new Set(postsData.map((post) => post.blogfor)));
-  const uniqueCategoryOptions = Array.from(new Set(postsData.map((post) => post.categoryname)));
-
+  // const uniqueCategoryOptions = Array.from(new Set(postsData.map((post) => post.categoryname)));
+  const allCategories = postsData.flatMap(item => item.categoryname);
+  const uniqueCategoryOptions = [...new Set(allCategories)];
+  console.log(uniqueCategoryOptions,"uniqueCategoryOptions");
   const [selectedBlogFor, setSelectedBlogFor] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 

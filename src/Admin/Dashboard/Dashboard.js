@@ -6,15 +6,15 @@ import { faFileAlt, faFolder, faUser } from "@fortawesome/free-solid-svg-icons";
 import Loading from '../../layouts/Loading';
 import { getDocs, collection } from 'firebase/firestore';
 /* AnalyticsCard component */
-function AnalyticsCard({ title, value, icon }) {
+function AnalyticsCard({ title, value, icon, link }) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 flex items-center space-x-4">
+    <a href={link} className="bg-white rounded-lg shadow-md p-4 flex items-center space-x-4 hover:scale-105">
       <FontAwesomeIcon icon={icon} className="text-4xl text-indigo-500" />
       <div>
         <h3 className="text-lg font-semibold">{title}</h3>
         <p className="text-3xl font-bold mt-2">{value}</p>
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -58,9 +58,9 @@ function Dashboard() {
   ) : (
     <div className="container mx-auto mt-8 px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <AnalyticsCard title="Total Posts" value={postcount} icon={faFileAlt} />
-        <AnalyticsCard title="Total Categories" value={catgscount} icon={faFolder} />
-        <AnalyticsCard title="Total Users" value={0} icon={faUser} />
+        <AnalyticsCard  title="Total Posts" value={postcount} icon={faFileAlt} link="/Admin/Posts" />
+        <AnalyticsCard title="Total Categories" value={catgscount} icon={faFolder} link="/Admin/Categories" />
+        <AnalyticsCard title="Total Users" value={0} icon={faUser} link="/Admin/Accounts"/>
       </div>
     </div>
   );
