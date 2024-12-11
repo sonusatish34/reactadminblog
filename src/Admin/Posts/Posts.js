@@ -1,6 +1,6 @@
 import AdminLayout from "../../layouts/AdminLayout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSearch, faFilter, faEye, faTrash, faPen, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faSearch, faFilter, faEye, faTrash, faPen, faTimes, faUpload, faPenToSquare, faListCheck, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -18,14 +18,14 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
   // const uniqueCategoryOptions = Array.from(new Set(postsData.map((post) => post.categoryname)));
   const allCategories = postsData.flatMap(item => item.categoryname);
   const uniqueCategoryOptions = [...new Set(allCategories)];
-  console.log(uniqueCategoryOptions,"uniqueCategoryOptions");
+  console.log(uniqueCategoryOptions, "uniqueCategoryOptions");
   const [selectedBlogFor, setSelectedBlogFor] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const handleDelete = async (postId) => {
     const stringifiedId = String(postId);
     const postRef = doc(fireDb, "blogPost", stringifiedId);
-  
+
     Swal.fire({
       icon: "warning",
       title: "Are you sure you want to delete this post?",
@@ -51,7 +51,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
       }
     });
   };
-  
+
 
   const handlePublish = async (postId) => {
     const stringifiedId = String(postId);
@@ -148,14 +148,15 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
               filteredPosts.map((post) => (
                 <tr key={post.id} className="border-b">
                   <td className="py-2">{post.title}</td>
-                  <td className="py-2">{post.description}</td>
+                  {/* <td className="py-2">{post.description}</td> */}
+                  <td className="py-2">{post?.description && post?.description.slice(0, 100)}...</td>
                   <td className="py-2">{post.blogfor}</td>
                   <td className="py-2">{post.categoryname}</td>
                   <td className="py-2">{post.date}</td>
-                  <td className="py-2 flex flex-col gap-1 px-2 justify-around">
+                  <td className="py-1 flex flex-col gap-1 px-1 justify-around">
                     <div className="py-2 flex gap-4 px-2 justify-around">
                       <Link to={`/Admin/Posts/${post.id}`}>
-                        <FontAwesomeIcon className="text-green-500" icon={faEye} />
+                        <FontAwesomeIcon className="" icon={faEye} />
                       </Link>
                       <FontAwesomeIcon
                         onClick={() => handleDelete(post.id)}
@@ -163,20 +164,41 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
                         icon={faTrash}
                       />
                       <Link to={`/Admin/Posts/UpdatePost/${post.id}`}>
-                        <FontAwesomeIcon className="text-yellow-500" icon={faPen} />
+                        <FontAwesomeIcon className="text-yellow-400" icon={faPenToSquare} />
                       </Link>
-                      <button
-                        className="p-1 bg-green-500 rounded"
-                        onClick={() => handlePublish(post.id)}
-                      >
-                        Publish
-                      </button>
+                      <div>
+                        {post?.blog_state == 'in-progress' && (
+                          <button
+                            className="hover:"
+                            onClick={() => handlePublish(post.id)}
+                            title="Ready to Publish" // Tooltip text on hover
+                          >
+                            <FontAwesomeIcon style={{ fontSize: '20px' }}
+                              className="text-blue-600" icon={faUpload} />
+                          </button>
+                        )}
+                        {post?.blog_state == 'active' && (
+                          <button
+                            className="hover:"
+                            onClick={() => handlePublish(post.id)}
+                            title="Published" // Tooltip text on hover
+                          >
+                            <FontAwesomeIcon size={40} className="text-green-600" icon={faCircleCheck} />
+                          </button>
+                        )}
+                        {/* {post?.blog_state == 'active' && <button
+                          className=" rounded"
+                        >
+                          <FontAwesomeIcon size={40} className="text-green-600" icon={faCircleCheck} />
+
+                        </button>} */}
+                      </div>
                     </div>
-                    <div>
+                    {/* <div>
                       <p className="px-1 bg-blue-400 w-fit rounded">
                         {post?.blog_state ? post?.blog_state : ""}
                       </p>
-                    </div>
+                    </div> */}
                   </td>
                 </tr>
               ))

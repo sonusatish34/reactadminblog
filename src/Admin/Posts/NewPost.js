@@ -6,13 +6,15 @@ import { Timestamp, addDoc, collection, setDoc, getDocs, query, where, } from 'f
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // import styles
 import axios from 'axios'; // for handling image upload
-import { fireDb } from '../../firebase';
+import Loading from '../../layouts/Loading';
 
+import { fireDb } from '../../firebase';
 export default function AddPost() {
   const [enableimg, setEnableImg] = useState(false);
   const [catgs, setCatgs] = useState('');
   const [addCatgs, setAddCatgs] = useState(false);
   const [newCategory, setNewCategory] = useState(''); // Stores the new category name
+  const [loading, setLoading] = useState(false);
 
 
 
@@ -107,6 +109,7 @@ export default function AddPost() {
     };
 
     try {
+      setLoading(true)
       const blogRef = collection(fireDb, "blogPost");
       await addDoc(blogRef, {
         ...newPost,
@@ -141,6 +144,7 @@ export default function AddPost() {
         slug: ''
       });
       setEditorHtml('');
+      setLoading(false)
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -212,29 +216,29 @@ export default function AddPost() {
         input.setAttribute('type', 'file');
         input.setAttribute('accept', 'image/*');
         input.click();
-  
+
         input.onchange = async () => {
           if (!input.files || !input.files.length || !input.files[0]) return;
-  
+
           const file = input.files[0];
           const altText = prompt("Please enter alt text for the image:");
-  
+
           const formData2 = new FormData();
           formData2.append('image', file);
           formData2.append('blogfor', formData.blogfor);
-  
+
           console.log("FormData blogfor:", formData.blogfor);  // Debugging line
-  
+
           try {
             const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
               headers: {
                 'Content-Type': 'multipart/form-data',
               },
             });
-  
+
             console.log(response, "response from image upload");
             const data = response.data;
-  
+
             if (data.success) {
               console.log("Image uploaded successfully");
 
@@ -242,7 +246,7 @@ export default function AddPost() {
               const editor = quillRef.current.getEditor();
               const range = editor.getSelection(true);
               editor.insertEmbed(range.index, 'image', data.imageUrl);
-  
+
               const imageElement = editor.container.querySelector('img');
               if (imageElement) {
                 imageElement.setAttribute('alt', altText);
@@ -256,7 +260,7 @@ export default function AddPost() {
         };
       });
   }, []);
-  
+
 
   console.log(formData.blogfor, "formData.blogfor");
   useEffect(() => {
@@ -291,9 +295,9 @@ export default function AddPost() {
 
   return (
     <AdminLayout>
-      <div style={{ width: '900px' }} className="shadow-md flex-row px-1 mt-5 items-center pt-2 pb-2 mb-2 justify-center rounded-lg ml-10 bg-white">
+      {<div style={{ width: '900px' }} className="shadow-md flex-row px-1 mt-5 items-center pt-2 pb-2 mb-2 justify-center rounded-lg ml-10 bg-white">
         <h2 className="text-2xl font-semibold mb-4 text-center hover:text-indigo-500">Add New Post</h2>
-        <form onSubmit={handleSubmit} className="space-y-4 w-full p-1">
+        {<form onSubmit={handleSubmit} className="space-y-4 w-full p-1">
           <div className="flex flex-col pt-4">
             <label htmlFor="blogfor" className="text-lg">Blog For</label>
             <select
@@ -442,8 +446,14 @@ export default function AddPost() {
           >
             Clear
           </button>
-        </form>
-      </div>
+          <button
+            type="button"
+            className=""
+          >
+            {loading && <div className='pl-7'><p className='text-blue-500 capitalize text-xl bg-blue-50 p-2 rounded-md'>uploading please wait..</p></div> }
+          </button>
+        </form>}
+      </div>}
     </AdminLayout>
   );
 }
