@@ -58,7 +58,16 @@ function Categories() {
 
       await addDoc(collection(fireDb, `${cWant?cWant:'categories'}`), {
         name: newCategory,
-        createdAt: Timestamp.now(),
+        // createdAt: formattedDateTime,
+        createdAt: new Date().toLocaleString("en-US", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        })
       });
       alert('Category added successfully!');
       setOperation(operation + 1);
