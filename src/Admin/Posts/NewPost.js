@@ -202,8 +202,6 @@ export default function AddPost() {
     'blockquote', 'code-block', 'link', 'image', 'align', 'color', 'background'
   ];
 
-
-
   useEffect(() => {
     // @ts-ignore
     quillRef.current
@@ -214,40 +212,37 @@ export default function AddPost() {
         input.setAttribute('type', 'file');
         input.setAttribute('accept', 'image/*');
         input.click();
-
+  
         input.onchange = async () => {
           if (!input.files || !input.files.length || !input.files[0]) return;
-
+  
           const file = input.files[0];
           const altText = prompt("Please enter alt text for the image:");
-
+  
           const formData2 = new FormData();
           formData2.append('image', file);
           formData2.append('blogfor', formData.blogfor);
-
+  
+          console.log("FormData blogfor:", formData.blogfor);  // Debugging line
+  
           try {
-            // const response = await fetch('https://seoblog.longdrivecars.com/api/uploadei', {
-            // const response = await fetch('http://localhost:5000/uploadei',{
-            // const response = await axios.post('https://seoblog.longdrivecars.com/api/uploadei', formData, {
             const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
-
               headers: {
                 'Content-Type': 'multipart/form-data',
               },
             });
-
-            console.log(response, "respp");
-            const data = response.data;  // Access the response data directly
-            console.log(data, "dataa");
-
+  
+            console.log(response, "response from image upload");
+            const data = response.data;
+  
             if (data.success) {
-              console.log("into if");
+              console.log("Image uploaded successfully");
 
               // Insert the image URL into Quill editor
               const editor = quillRef.current.getEditor();
               const range = editor.getSelection(true);
               editor.insertEmbed(range.index, 'image', data.imageUrl);
-
+  
               const imageElement = editor.container.querySelector('img');
               if (imageElement) {
                 imageElement.setAttribute('alt', altText);
@@ -261,6 +256,8 @@ export default function AddPost() {
         };
       });
   }, []);
+  
+
   console.log(formData.blogfor, "formData.blogfor");
   useEffect(() => {
     const fetchCatgs = async () => {

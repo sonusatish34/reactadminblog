@@ -12,9 +12,6 @@ const firebaseConfig = {
   // storageBucket: "myblog-20a5b.firebasestorage.app",
   // messagingSenderId: "72839760896",
   // appId: "1:72839760896:web:946803b8efd18b83581ce5",
-
-  // new db
-
   apiKey: "AIzaSyDcyVasMykMUUKdh-vB19Wjk2Op5rVOqsE",
   authDomain: "seoblog-30557.firebaseapp.com",
   projectId: "seoblog-30557",
