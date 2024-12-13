@@ -236,7 +236,7 @@ export default function AddPost() {
             body: formData,
           });
 
-          const data = await response.json();
+          const data = response.data;
 
           if (data.success) {
             // Insert the image URL into Quill editor
