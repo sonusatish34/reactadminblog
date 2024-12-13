@@ -22,6 +22,7 @@ function AnalyticsCard({ title, value, icon, link }) {
 function Dashboard() {
   const [postcount, setPostcount] = useState(0);
   const [catgscount, setCatgscount] = useState(0);
+  const [usersCount, setUsersCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true
 
   useEffect(() => {
@@ -33,12 +34,18 @@ function Dashboard() {
           const querySnapshot = await getDocs(collection(fireDb, "blogPost"));
           const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           setPostcount(posts?.length);
+          const querySnapshotusers = await getDocs(collection(fireDb, "users"));
+          const users = querySnapshotusers.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setUsersCount(users?.length);
         };
 
         const fetchCatgs = async () => {
-          const querySnapshot = await getDocs(collection(fireDb, "categories"));
+          const querySnapshot = await getDocs(collection(fireDb, "catgfordozzy"));
           const catgs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setCatgscount(catgs?.length);
+          const querySnapshot2 = await getDocs(collection(fireDb, "catgforldc"));
+          const catgs2 = querySnapshot2.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          // setCatgscount(catgs2?.length);
+          setCatgscount(catgs?.length + catgs2?.length);
         };
 
         await Promise.all([fetchPosts(), fetchCatgs()]); // Ensure both are fetched before stopping loading
@@ -60,7 +67,7 @@ function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <AnalyticsCard  title="Total Posts" value={postcount} icon={faFileAlt} link="/Admin/Posts" />
         <AnalyticsCard title="Total Categories" value={catgscount} icon={faFolder} link="/Admin/Categories" />
-        <AnalyticsCard title="Total Users" value={0} icon={faUser} link="/Admin/Accounts"/>
+        <AnalyticsCard title="Total Users" value={usersCount} icon={faUser} link="/Admin/Accounts"/>
       </div>
     </div>
   );

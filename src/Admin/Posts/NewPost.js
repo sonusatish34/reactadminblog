@@ -3,10 +3,11 @@ import Swal from 'sweetalert2';
 import CryptoJS from 'crypto-js';
 import AdminLayout from '../../layouts/AdminLayout';
 import { Timestamp, addDoc, collection, setDoc, getDocs, query, where, } from 'firebase/firestore';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // import styles
 import axios from 'axios'; // for handling image upload
 import Loading from '../../layouts/Loading';
+import imageResize from 'quill-image-resize-module-react';
 
 import { fireDb } from '../../firebase';
 export default function AddPost() {
@@ -181,88 +182,111 @@ export default function AddPost() {
     if (wordCount == 0) return 0;
     return Math.ceil(wordCount / wordsPerMinute);
   };
+
+
   const quillRef = useRef(null);
+  Quill.register('modules/imageResize', imageResize);
 
 
   const modules = {
     toolbar: [
-      [{ 'header': '1' }, { 'header': '2' }, { 'font': [] },
-      { 'size': ['small', 'normal', 'large', 'huge'] }], // Adding custom font sizes
+      [{ 'header': '1' }, { 'header': '2' }], // Adding custom font sizes
       [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
+      ['blockquote'],
       ['link', 'image'], // Add the image button in the toolbar
       [{ 'align': [] }],
-      ['clean'] // Add a clean button to clear the content
       [{ 'color': [] }], // Color dropdown
       [{ 'background': [] }], // Background color dropdown
       [{ 'align': 'center' }, { 'align': 'right' }, { 'align': 'left' }],
-
     ],
+    imageResize: {
+      modules: ["Resize", "DisplaySize"],
+    },
   };
 
   const formats = [
-    'header', 'font', 'size', 'list', 'bold', 'italic', 'underline', 'strike',
-    'blockquote', 'code-block', 'link', 'image', 'align', 'color', 'background'
+    'header', 'size', 'list', 'bold', 'italic', 'underline', 'strike',
+    'blockquote', 'link', 'image', 'align', 'color', 'background'
   ];
 
   useEffect(() => {
-    // @ts-ignore
-    quillRef.current
-      .getEditor()
-      .getModule('toolbar')
-      .addHandler('image', () => {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
-        input.click();
+  quillRef.current
+    .getEditor()
+    .getModule('toolbar')
+    .addHandler('image', () => {
+      const input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', 'image/*');
+      input.click();
 
-        input.onchange = async () => {
-          if (!input.files || !input.files.length || !input.files[0]) return;
+      input.onchange = async () => {
+        if (!input.files || !input.files.length || !input.files[0]) return;
 
-          const file = input.files[0];
-          const altText = prompt("Please enter alt text for the image:");
+        const file = input.files[0];
+        const altText = prompt("Please enter alt text for the image:");
+        const formData = new FormData();
+        formData.append('image', file);
 
-          const formData2 = new FormData();
-          formData2.append('image', file);
-          formData2.append('blogfor', formData.blogfor);
+        try {
+          const response = await fetch('http://localhost:5000/uploadei', {
+            method: 'POST',
+            body: formData,
+          });
 
-          console.log("FormData blogfor:", formData.blogfor);  // Debugging line
+          const data = await response.json();
 
-          try {
-            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-              },
-            });
+          if (data.success) {
+            // Insert the image URL into Quill editor
+            const editor = quillRef.current.getEditor();
+            const range = editor.getSelection(true);
 
-            console.log(response, "response from image upload");
-            const data = response.data;
+            // Create a container div for the image and the text
+            const container = document.createElement('div');
+            container.style.display = 'flex'; // Use flex to lay out image and text side by side
+            container.style.alignItems = 'flex-start'; // Align items to the top (important for flex layout)
+            container.style.height = '300px'; // Set the container height to match the image height
+            container.style.marginBottom = '10px'; // Optional: margin at the bottom of the container
 
-            if (data.success) {
-              console.log("Image uploaded successfully");
+            // Create the image element
+            const imageElement = document.createElement('img');
+            imageElement.src = data.imageUrl;
+            imageElement.alt = altText;
+            imageElement.style.width = '300px';
+            imageElement.style.height = '300px'; // Make the image 300px high
 
-              // Insert the image URL into Quill editor
-              const editor = quillRef.current.getEditor();
-              const range = editor.getSelection(true);
-              editor.insertEmbed(range.index, 'image', data.imageUrl);
+            // Create the text element
+            const textElement = document.createElement('span');
+            textElement.contentEditable = true;
+            textElement.innerText = "Add your text here...";  // Placeholder text
+            textElement.style.flex = '1'; // Allow the text to take up the remaining space in the container
+            textElement.style.lineHeight = '300px'; // Set line height to match the image height
+            textElement.style.padding = '0 10px';  // Optional: add some horizontal padding to the text
 
-              const imageElement = editor.container.querySelector('img');
-              if (imageElement) {
-                imageElement.setAttribute('alt', altText);
-              }
-            } else {
-              console.error('Upload failed:', data.error);
-            }
-          } catch (error) {
-            console.error('Error uploading image:', error);
+            // Append the image and text to the container
+            container.appendChild(imageElement);
+            container.appendChild(textElement);
+
+            // Now insert the container (div) as an embed in the Quill editor
+            editor.insertEmbed(range.index, 'image', data.imageUrl);
+
+            // Insert the container with the image and text into Quill’s editor root
+            editor.insertEmbed(range.index, 'text', container);  // This allows the container to be properly rendered by Quill
+          } else {
+            console.error('Upload failed:', data.error);
           }
-        };
-      });
-  }, []);
+        } catch (error) {
+          console.error('Error uploading image:', error);
+        }
+      };
+    });
+}, []);
 
+  
 
   console.log(formData.blogfor, "formData.blogfor");
+
+
   useEffect(() => {
     const fetchCatgs = async () => {
       // setLoading(true);
@@ -450,7 +474,7 @@ export default function AddPost() {
             type="button"
             className=""
           >
-            {loading && <div className='pl-7'><p className='text-blue-500 capitalize text-xl bg-blue-50 p-2 rounded-md'>uploading please wait..</p></div> }
+            {loading && <div className='pl-7'><p className='text-blue-500 capitalize text-xl bg-blue-50 p-2 rounded-md'>uploading please wait..</p></div>}
           </button>
         </form>}
       </div>}

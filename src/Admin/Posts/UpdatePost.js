@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { doc, updateDoc } from "firebase/firestore";
@@ -51,7 +51,7 @@ function UpdatePost() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categoryRef = collection(fireDb, `${post.blogfor=='Dozzy'?'catgfordozzy':'catgforldc'}`);
+        const categoryRef = collection(fireDb, `${post.blogfor == 'Dozzy' ? 'catgfordozzy' : 'catgforldc'}`);
         const querySnapshot = await getDocs(categoryRef);
         const categories = querySnapshot.docs.map((doc) => doc.data());
         setCatgs(categories);
@@ -62,6 +62,9 @@ function UpdatePost() {
 
     fetchCategories();
   }, []);
+
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -124,6 +127,83 @@ function UpdatePost() {
 
   useEffect(() => {
     attachImageClickHandler();
+  }, []);
+  const quillRef = useRef(null);
+
+  const modules = {
+    toolbar: [
+      [{ 'header': '1' }, { 'header': '2' },], // Adding custom font sizes
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote',],
+      ['link', 'image'], // Add the image button in the toolbar
+      ['clean'] // Add a clean button to clear the content
+      [{ 'color': [] }], // Color dropdown
+      [{ 'background': [] }], // Background color dropdown
+      [{ 'align': 'center' }, { 'align': 'right' }, { 'align': 'left' }],
+
+    ],
+  };
+
+  const formats = [
+    'header', 'list', 'bold', 'italic', 'underline', 'strike',
+    'blockquote', 'link', 'image', 'align', 'color', 'background'
+  ];
+
+  useEffect(() => {
+    // @ts-ignore
+    quillRef.current
+      .getEditor()
+      .getModule('toolbar')
+      .addHandler('image', () => {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = async () => {
+          if (!input.files || !input.files.length || !input.files[0]) return;
+
+          const file = input.files[0];
+          const altText = prompt("Please enter alt text for the image:");
+
+          const formData2 = new FormData();
+          formData2.append('image', file);
+          formData2.append('blogfor', post.blogfor);
+
+          console.log("FormData blogfor:", post.blogfor);  // Debugging line
+
+          try {
+            // const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
+            const response = await fetch('http://localhost:5000/uploadei', formData2,{
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            });
+
+            console.log(response, "response from image upload");
+            const data = response.data;
+
+            if (data.success) {
+              console.log("Image uploaded successfully");
+
+              // Insert the image URL into Quill editor
+              const editor = quillRef.current.getEditor();
+              const range = editor.getSelection(true);
+              editor.insertEmbed(range.index, 'image', data.imageUrl);
+
+              const imageElement = editor.container.querySelector('img');
+              if (imageElement) {
+                imageElement.setAttribute('alt', altText);
+              }
+            } else {
+              console.error('Upload failed:', data.error);
+            }
+          } catch (error) {
+            console.error('Error uploading image:', error);
+          }
+        };
+      });
   }, []);
 
   const handleSubmit = async (e) => {
@@ -199,21 +279,14 @@ function UpdatePost() {
             <ReactQuill
               value={post.content}
               onChange={handleQuillChange}
-              modules={{
-                toolbar: [
-                  [{ header: "1" }, { header: "2" }, { font: [] }],
-                  [{ list: "ordered" }, { list: "bullet" }],
-                  ["bold", "italic", "underline", "strike", "blockquote"],
-                  [{ align: [] }],
-                  ["link", "image"],
-                  ["clean"],
-                ],
-              }}
+              modules={modules}
+              formats={formats}
+              ref={quillRef}
               className="w-full h-screen"
             />
           </div>
 
-          
+
           {/* Cover Image */}
           <div className="flex gap-4 pt-16">
             <div className="flex flex-col">
@@ -227,11 +300,11 @@ function UpdatePost() {
                 className="border rounded-lg p-2"
               />
               <img
-                src={uploadedImageUrl?uploadedImageUrl: post.coverimages} // Use the new image URL if uploaded
+                src={uploadedImageUrl ? uploadedImageUrl : post.coverimages} // Use the new image URL if uploaded
                 alt="Cover Preview"
                 className="w-32 h-32 object-cover rounded"
               />
-              {console.log(uploadedImageUrl,"uploadedImageUrl")
+              {console.log(uploadedImageUrl, "uploadedImageUrl")
               }
             </div>
             <div className="flex flex-col">
@@ -247,7 +320,6 @@ function UpdatePost() {
               />
             </div>
           </div>
-
           {/* Blog For */}
           <div className="mb-4">
             <label htmlFor="blogfor" className="block text-gray-700">Blog For</label>
@@ -267,20 +339,20 @@ function UpdatePost() {
           </div>
           <div className="mb-4">
             <label htmlFor="categoryname" className="block text-gray-700">Category</label>
-             <select
-               id="categoryname"
-               name="categoryname"
-               value={post.categoryname}
-               onChange={handleInputChange}
-               className="w-full p-2 border border-gray-300 rounded"
-             >
-               {catgs.map((catg, index) => (
-                 <option key={index} value={catg.name}>
-                   {catg.name}
-                 </option>
-               ))}
-             </select>
-           </div>
+            <select
+              id="categoryname"
+              name="categoryname"
+              value={post.categoryname}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded"
+            >
+              {catgs.map((catg, index) => (
+                <option key={index} value={catg.name}>
+                  {catg.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

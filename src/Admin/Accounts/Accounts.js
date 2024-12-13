@@ -37,10 +37,10 @@ function UserAccountManager({ user, onUpdate, onDelete }) {
 
   return (
     <>
-      <tr className="shadow-md items-center p-2 mb-2 justify-center gap-9 rounded-lg bg-white">
+      <tr className="shadow-md items-center p-2 mb-2 justify-center gap-9 rounded-lg bg-white text-center">
         <td className="border p-2">{user.name}</td>
         <td className="border p-2">{user.email}</td>
-        <td className="border p-2">{user.password}</td>
+        <td className="border p-2"> {'•••••••••••'}</td>
         <td className="border p-2">{user.created_at}</td>
         <td className="border p-2">
           <FontAwesomeIcon

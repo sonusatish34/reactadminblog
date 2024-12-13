@@ -188,3 +188,13 @@
   margin-left: 10px;
 }
 
+.ql-editor img {
+  display: inline-block; 
+  margin-right: 10px; /* Optional: Space between the image and text */
+}
+
+.ql-editor span {
+  display: inline-block;
+  vertical-align: middle; /* Align the text vertically to the center of the image */
+  max-width: calc(100% - 310px); /* Optional: Limit the text width if needed */
+}

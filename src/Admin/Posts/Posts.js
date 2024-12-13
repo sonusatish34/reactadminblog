@@ -13,7 +13,8 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const postsToDisplay = postsData.slice(startIndex, endIndex);
-
+  console.log(postsData,"postsData");
+  
   const uniqueBlogForOptions = Array.from(new Set(postsData.map((post) => post.blogfor)));
   // const uniqueCategoryOptions = Array.from(new Set(postsData.map((post) => post.categoryname)));
   const allCategories = postsData.flatMap(item => item.categoryname);
@@ -105,7 +106,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Posts</h1>
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full bg-white text-center">
+        <table className="min-w-full bg-white">
           <thead className="bg-gray-800 text-white">
             <tr>
               <th className="w-1/5 py-2">Title</th>
@@ -147,12 +148,12 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
             {filteredPosts.length > 0 ? (
               filteredPosts.map((post) => (
                 <tr key={post.id} className="border-b">
-                  <td className="py-2">{post.title}</td>
+                  <td className="p-2"><span>{post?.blog_state == 'active'?'*':''}</span><span>{post.title}</span></td>
                   {/* <td className="py-2">{post.description}</td> */}
-                  <td className="py-2">{post?.description && post?.description.slice(0, 100)}...</td>
-                  <td className="py-2">{post.blogfor}</td>
-                  <td className="py-2">{post.categoryname}</td>
-                  <td className="py-2">{post.date}</td>
+                  <td className="p-2">{post?.description && post?.description.slice(0, 100)}...</td>
+                  <td className="py-2 pl-4">{post.blogfor}</td>
+                  <td className="py-2 pl-4">{post.categoryname}</td>
+                  <td className="py-2 pl-4">{post.date}</td>
                   <td className="py-1 flex flex-col gap-1 px-1 justify-around">
                     <div className="py-2 flex gap-4 px-2 justify-around">
                       <Link to={`/Admin/Posts/${post.id}`}>
@@ -218,7 +219,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
 
 function Posts() {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 20;
   const [postsData, setPostsData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
