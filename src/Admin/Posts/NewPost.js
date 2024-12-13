@@ -225,11 +225,13 @@ export default function AddPost() {
 
         const file = input.files[0];
         const altText = prompt("Please enter alt text for the image:");
-        const formData = new FormData();
-        formData.append('image', file);
+        const formData1 = new FormData();
+        formData1.append('image', file);
 
         try {
-          const response = await fetch('http://localhost:5000/uploadei', {
+          // const response = await fetch('http://localhost:5000/uploadei', {
+            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData1, {
+
             method: 'POST',
             body: formData,
           });
