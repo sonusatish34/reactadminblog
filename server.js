@@ -24,14 +24,15 @@ app.post('/uploadei', upload.single('image'), (req, res) => {
   }
   const blogfor = req.body.blogfor;
   const fileContent = req.file.buffer;  // File is in memory (buffer)
-  const fileName = `${Date.now()}_${req.file.originalname}`;  // Generate a unique file name
+  // const fileName = `${Date.now()}_${req.file.originalname}`;  // Generate a unique file name
+  const fileName = req.file.originalname.replaceAll(' ', '_');
+
   const timestamp = new Date().getTime();
-  console.log(blogfor,"blof gor cosnoel");
-  
+  console.log(blogfor, "blof gor cosnoel");
+
   const params = {
     Bucket: 'ldcars',  // Your Space name
-    Key: `ldcars_nextjs_images/blog_images/${blogfor}/${timestamp}-${req.file.originalname}`,  // Adjust the folder structure if needed.
-
+    Key: `ldcars_nextjs_images/blog_images/${blogfor}/${timestamp}-${fileName}`,  // Adjust the folder structure if needed.
     Body: fileContent,
     ContentType: req.file.mimetype,  // Mime type of the uploaded file
     ACL: 'public-read',  // Make file publicly accessible
@@ -47,62 +48,65 @@ app.post('/uploadei', upload.single('image'), (req, res) => {
     // Respond with the URL of the uploaded image
     return res.json({
       success: true,
-      imageUrl: data.Location,  // URL of the uploaded file
-      blogfor:blogfor,
+      imageUrl: data.Location?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.'),
+      //       blogfor:blogfor,
     });
   });
 });
 app.post('/upload', upload.single('coverimages'), (req, res) => {
-    const file = req.file;
-    const blogfor = req.body.blogfor;
-    if (!file) {
-      return res.status(400).send('No file uploaded');
+  const file = req.file;
+  const blogfor = req.body.blogfor;
+  if (!file) {
+    return res.status(400).send('No file uploaded');
+  }
+  const timestamp = new Date().getTime();
+  const params = {
+    Bucket: 'ldcars',  // Your DigitalOcean Space name
+    Key: `ldcars_nextjs_images/blog_images/${blogfor}/${timestamp}-${file.originalname}`,  // Adjust the folder structure if needed
+    Body: file.buffer,  // Upload the file buffer
+    ContentType: file.mimetype,  // Automati/cally detects the MIME type
+    ACL: 'public-read',  // Make the file public
+  };
+
+  // Upload the file to DigitalOcean Spaces
+  s3.upload(params, (err, data) => {
+    if (err) {
+      return res.status(500).send('Error uploading file: ' + err);
     }
-    const timestamp = new Date().getTime();
-    const params = {
-      Bucket: 'ldcars',  // Your DigitalOcean Space name
-      Key: `ldcars_nextjs_images/blog_images/${blogfor}/${timestamp}-${file.originalname}`,  // Adjust the folder structure if needed
-      Body: file.buffer,  // Upload the file buffer
-      ContentType: file.mimetype,  // Automati/cally detects the MIME type
-      ACL: 'public-read',  // Make the file public
-    };
-  
-    // Upload the file to DigitalOcean Spaces
-    s3.upload(params, (err, data) => {
-      if (err) {
-        return res.status(500).send('Error uploading file: ' + err);
-      }
-      // Send the file URL as a response
-      res.status(200).send({ imageUrl: data.Location });
+    // Send the file URL as a response
+    res.status(200).send({
+      imageUrl: data.Location?.replace('https://ldcars.blr1.', 'https://ldcars.blr1.cdn.'),
+
     });
   });
+});
 
 
-  app.get('/list-images', (req, res) => {
-    // Define the parameters for listing the objects in the space
-    const params = {
-      Bucket: 'ldcars',  // Your Space name
-      Prefix: 'ldcars_nextjs_images/blog_images/',  // Optional: Adjust the folder path if needed
-    };
-  
-    // Use the S3 client to list the objects
-    s3.listObjectsV2(params, (err, data) => {
-      if (err) {
-        console.error('Error listing objects:', err);
-        return res.status(500).json({ success: false, error: 'Error listing objects' });
-      }
-  
-      // Extract the image URLs from the response
-      const imageUrls = data.Contents.map(item => `https://blr1.digitaloceanspaces.com/${item.Key}`);
-      
-      // Return the list of image URLs
-      res.json({
-        success: true,
-        images: imageUrls,
-      });
+app.get('/list-images', (req, res) => {
+  // Define the parameters for listing the objects in the space
+  const params = {
+    Bucket: 'ldcars',  // Your Space name
+    Prefix: 'ldcars_nextjs_images/blog_images/',  // Optional: Adjust the folder path if needed
+  };
+
+  // Use the S3 client to list the objects
+  s3.listObjectsV2(params, (err, data) => {
+    if (err) {
+      console.error('Error listing objects:', err);
+      return res.status(500).json({ success: false, error: 'Error listing objects' });
+    }
+
+    // Extract the image URLs from the response
+    const imageUrls = data.Contents.map(item => `https://blr1.digitaloceanspaces.com/${item.Key}`);
+
+    // Return the list of image URLs
+    res.json({
+      success: true,
+      images: imageUrls,
     });
   });
-  
+});
+
 // Start the Express server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

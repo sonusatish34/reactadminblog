@@ -53,6 +53,7 @@ export default function AddPost() {
           // const response = await axios.post(
           //   "http://localhost:5000/upload",
           //   formData1,
+          // {
           headers: {
             "Content-Type": "multipart/form-data",
           },

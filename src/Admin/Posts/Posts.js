@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import Loading from "../../layouts/Loading";
-import { collection, getDocs, query, doc, updateDoc, where } from "firebase/firestore";
+import { collection, getDocs, query, doc, updateDoc, where, orderBy } from "firebase/firestore";
 import { fireDb } from "../../firebase"; // Adjust this import according to your setup
 import { useNavigate } from "react-router-dom";
 
@@ -13,8 +13,8 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const postsToDisplay = postsData.slice(startIndex, endIndex);
-  console.log(postsData,"postsData");
-  
+  console.log(postsData, "postsData");
+
   const uniqueBlogForOptions = Array.from(new Set(postsData.map((post) => post.blogfor)));
   // const uniqueCategoryOptions = Array.from(new Set(postsData.map((post) => post.categoryname)));
   const allCategories = postsData.flatMap(item => item.categoryname);
@@ -52,7 +52,6 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
       }
     });
   };
-
 
   const handlePublish = async (postId) => {
     const stringifiedId = String(postId);
@@ -148,7 +147,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
             {filteredPosts.length > 0 ? (
               filteredPosts.map((post) => (
                 <tr key={post.id} className="border-b">
-                  <td className="p-2"><span>{post?.blog_state == 'active'?'*':''}</span><span>{post.title}</span></td>
+                  <td className="p-2"><span className="text-blue-600 text-xl">{post?.blog_state == 'active' ? '*' : ''}</span><span>{post.title}</span></td>
                   {/* <td className="py-2">{post.description}</td> */}
                   <td className="p-2">{post?.description && post?.description.slice(0, 100)}...</td>
                   <td className="py-2 pl-4">{post.blogfor}</td>
@@ -219,7 +218,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
 
 function Posts() {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const itemsPerPage = 10;
   const [postsData, setPostsData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -230,11 +229,11 @@ function Posts() {
     const fetchPosts = async () => {
       setLoading(true);
 
-      const qActive = query(collection(fireDb, "blogPost"), where("blog_state", "==", "active"));
+      const qActive = query(collection(fireDb, "blogPost"), where("blog_state", "==", "active"),orderBy("createdAt", "desc"));
       const querySnapshotActive = await getDocs(qActive);
       const activePosts = querySnapshotActive.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-      const qInProgress = query(collection(fireDb, "blogPost"), where("blog_state", "==", "in-progress"));
+      const qInProgress = query(collection(fireDb, "blogPost"), where("blog_state", "==", "in-progress"),orderBy("createdAt", "desc"));
       const querySnapshotInProgress = await getDocs(qInProgress);
       const inProgressPosts = querySnapshotInProgress.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
@@ -292,29 +291,81 @@ function Posts() {
                 &larr; Back
               </button>
               <Link
-                to="/Admin/Posts/Create"
+                to="/Admin/Post/New"
                 className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
               >
                 <FontAwesomeIcon icon={faPlus} /> Add Post
               </Link>
             </div>
             <div className="flex items-center gap-2">
-              <input
-                className="p-2 border rounded-md"
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              <FontAwesomeIcon icon={faSearch} />
+              <div>
+                <input
+                  className="p-2 border rounded-md"
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+                <FontAwesomeIcon className="relative right-8" icon={faSearch} />
+              </div>
+
+              <div className="flex items-center bg-white border rounded-lg shadow-md px-4 py-2 w-72 ">
+                <FontAwesomeIcon icon={faFilter} className="text-indigo-500 mr-2" />
+                <select
+                  value={selectedSort}
+                  onChange={(e) => setSelectedSort(e.target.value)}
+                  className="outline-none bg-transparent"
+                >
+                  <option value="default">Default</option>
+                  <option value="newest">Newest</option>
+                  <option value="oldest">Oldest</option>
+                  <option value="likes">Likes</option>
+                  <option value="comments">Comments</option>
+                </select>
+                <button
+                  onClick={handleFilter}
+                  className="ml-2 bg-indigo-500 text-white px-4 py-1 rounded-lg hover:bg-indigo-600"
+                >
+                  Filter
+                </button>
+              </div>
             </div>
+            {/* {searchQuery && (
+              <FontAwesomeIcon
+                icon={faTimes}
+                onClick={() => setSearchQuery("")}
+                className="text-gray-400 ml-2 cursor-pointer"
+              />
+            )} */}
           </div>
+
           <PostsData
             postsData={filteredPosts}
             currentPage={currentPage}
             itemsPerPage={itemsPerPage}
             setPostsData={setPostsData}
           />
+          <div className="flex items-center justify-center mt-4">
+            {totalPages > 1 && currentPage > 1 && (
+              <button
+                onClick={() => setCurrentPage(currentPage - 1)}
+                className="mr-2 bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400"
+              >
+                Previous
+              </button>
+            )}
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            {totalPages > 1 && currentPage < totalPages && (
+              <button
+                onClick={() => setCurrentPage(currentPage + 1)}
+                className="ml-2 bg-gray-300 text-gray-800 p-2 rounded-lg hover:bg-gray-400"
+              >
+                Next
+              </button>
+            )}
+          </div>
         </>
       )}
     </div>

@@ -66,9 +66,28 @@ function UpdatePost() {
 
 
 
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setPost((prevPost) => ({ ...prevPost, [name]: value }));
+  // };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setPost((prevPost) => ({ ...prevPost, [name]: value }));
+    if (name === "categoryname") {
+      // Handle multi-selection for categories
+      const selectedCategories = Array.from(
+        e.target.selectedOptions,
+        (option) => option.value
+      );
+      setPost((prevFormData) => ({
+        ...prevFormData,
+        categoryname: selectedCategories,
+      }));
+    } else {
+      setPost((prevFormData) => ({
+        ...prevFormData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleImageUpload = async (event) => {
@@ -342,6 +361,7 @@ function UpdatePost() {
             <select
               id="categoryname"
               name="categoryname"
+              multiple
               value={post.categoryname}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"

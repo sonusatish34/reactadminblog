@@ -25,7 +25,7 @@ module.exports = (req, res) => {
       }
 
       const fileContent = req.file.buffer;
-      const fileName = req.file.originalname.replaceAll(' ', '-').toLowerCase();
+      const fileName = req.file.originalname.replaceAll(' ', '_');
       const blogfor = req.body.blogfor;
       const timestamp = new Date().getTime();
 
@@ -34,7 +34,6 @@ module.exports = (req, res) => {
         // Key: `ldcars_nextjs_images/blog_images/${fileName}`,
         // Key: `ldcars_nextjs_images/blog_images/${blogfor}/${timestamp}-${fileName}`,  // Adjust the folder structure if needed
         Key: `ldcars_nextjs_images/blog_images/${blogfor?`${blogfor}/`:''}${timestamp}-${fileName}`,  // Adjust the folder structure if needed
-
         Body: fileContent,
         ContentType: req.file.mimetype,
         ACL: 'public-read',
