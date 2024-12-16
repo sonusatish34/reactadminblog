@@ -73,7 +73,7 @@ app.post('/upload', upload.single('coverimages'), (req, res) => {
         return res.status(500).send('Error uploading file: ' + err);
       }
       // Send the file URL as a response
-      res.status(200).send({ fileUrl: data.Location });
+      res.status(200).send({ imageUrl: data.Location });
     });
   });
 
