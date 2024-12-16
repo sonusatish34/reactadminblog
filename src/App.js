@@ -11,12 +11,53 @@ import View from "./Admin/Posts/ViewPost";
 import UpdatePost from "./Admin/Posts/UpdatePost";
 import NotFound from "./layouts/PageNotFound";
 import DeletedPosts from "./Admin/Posts/deleteposts";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { useEffect } from "react";
 
 function App() {
   // const [authToken, setauthToken] = useState(false);
-  const authToken = localStorage.getItem("authToken");
   
   const ds=1;
+
+
+// Initialize Firestore
+const db = getFirestore();
+
+// Get the authToken from localStorage
+const authToken = localStorage.getItem("authToken");
+
+// Function to verify the authToken
+async function verifyAuthToken() {
+  if (!authToken) {
+    console.log("Auth token not found in localStorage.");
+    return;
+  }
+
+  try {
+    // Reference to the document in 'users' collection with the authToken as document ID
+    const userRef = doc(db, "users", authToken);
+    
+    // Fetch the document
+    const docSnapshot = await getDoc(userRef);
+    
+    if (docSnapshot.exists()) {
+      // Document exists, authentication successful
+      console.log(" user is valid. User data:");
+    } else {
+      // Document does not exist
+      console.log("Auth token is invalid.");
+    }
+  } catch (error) {
+    // Handle any errors
+    console.error("Error verifying auth token:", error);
+  }
+}
+
+// Call the verify function
+useEffect(()=>{
+  verifyAuthToken();
+},[])
+
 
   return (
     <BrowserRouter>
