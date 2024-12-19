@@ -8,7 +8,7 @@ function AdminLayout({ Content, children }) {
       <Nav />
       <div className="flex flex-1">
         {/* Sidebar on the left */}
-        <aside className="w-64 h-full border-r bg-white sticky top-0">
+        <aside className="xl:w-64 lg:w-44 h-full border-r bg-white sticky top-0">
           <SideBar />
         </aside>
         {/* Content area */}

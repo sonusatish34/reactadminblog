@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import Loading from "../../layouts/Loading";
+import { Link } from "react-router-dom";
 
 function View() {
   const { id } = useParams();
@@ -70,12 +71,21 @@ function Getpost({ postId }) {
 
   return (
     <>
-      <button
-        onClick={() => navigate(-1)}  // Navigates to the previous page
-        className="bg-gray-300 p-2 rounded-md text-gray-800"
-      >
-        &larr; Back
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={() => navigate(-1)}  // Navigates to the previous page
+          className="bg-gray-300 p-2 hover:scale-105 rounded-md text-gray-800"
+        >
+          &larr; Back
+        </button>
+        <Link
+          to={`/Admin/Posts/UpdatePost/${postId}`}
+          className="bg-orange-500 hover:scale-105 text-black px-4 py-2 rounded-md"
+        >
+          Edit this Post
+        </Link>
+      </div>
+
       {loading ? (
         <Loading />
       ) : (
@@ -138,7 +148,7 @@ function Getpost({ postId }) {
         //   }
         // </div>
         <div>
-          <div className='lg:mx-44 px-4'>
+          <div className='xl:mx-44 lg:mx-28 px-2'>
             <p className='lg:text-[40px] lg:leading-tight text-xl font-extrabold lg:py-4 py-2 helvetica-font tracking-tight'>{postData?.title}</p>
             <p className='helvetica-font text-[#6B6B6B] text-sm lg:text-xl lg:pb-6 py-2 lg:py-4'>{postData?.description}</p>
           </div>
@@ -150,7 +160,7 @@ function Getpost({ postId }) {
               height={1000}
             />
           </div>
-          <div className='flex lg:gap-6 gap-4 py-3 text-sm lg:text-lg lg:mx-44 px-4'>
+          <div className='flex lg:gap-6 gap-4 py-3 text-sm lg:text-lg xl:mx-44 lg:mx-28 px-4'>
             <p>{postData?.timetake} min read</p>
             {/* <p>{StaticData(postData?.time.seconds)}</p> */}
             <p className="flex items-center gap-1">
@@ -163,19 +173,19 @@ function Getpost({ postId }) {
             </p>
           </div>
           {/* Rest of your component */}
-          <ul className="py-2 flex  items-center justify-start gap-x-8 text-xs lg:text-base lg:mx-44 px-4">
+          <ul className="py-2 flex  items-center justify-start gap-x-8 text-xs lg:text-base xl:mx-44 lg:mx-28 px-4">
             <li className="flex items-center gap-5"><span>{<p>{(postData?.time.seconds)}</p>}</span>
               <p>{postData?.date}</p>
             </li>
           </ul>
           <div
-            className="text-[#242424] lg:text-justify text-base lg:text-[20px] leading-8 lg:leading-9 lg:tracking-wide pt-4 pb-4 px-1 lg:px-0  rounded-lg georgia-font lg:mx-44"
+            className="text-[#242424] lg:text-justify text-base lg:text-[20px] leading-8 lg:leading-9 lg:tracking-wide pt-4 pb-4 px-1 lg:px-0  rounded-lg georgia-font xl:mx-44 lg:mx-28"
             dangerouslySetInnerHTML={{ __html: postData?.content }}
           />
 
           {/* Display Related Posts */}
           {/* <div className="text-xs lg:text-[20px] leading-2 lg:leading-9 pt-6 georgia-font" dangerouslySetInnerHTML={{ __html: postData?.content }} /> */}
-          
+
         </div>
       )}
     </>

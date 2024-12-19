@@ -97,12 +97,43 @@ app.get('/list-images', (req, res) => {
     }
 
     // Extract the image URLs from the response
-    const imageUrls = data.Contents.map(item => `https://blr1.digitaloceanspaces.com/${item.Key}`);
-
+    const imageUrls = data;
+    
     // Return the list of image URLs
     res.json({
       success: true,
       images: imageUrls,
+    });
+  });
+});
+
+// Delete route for deleting an image from DigitalOcean Space
+app.delete('/deleteimage', (req, res) => {
+  // const { imageUrl } = req.body;  // The image URL to delete, or the path key
+
+  // if (!imageUrl) {
+  //   return res.status(400).json({ success: false, error: 'No image URL provided' });
+  // }
+
+  // Extract the file name (key) from the image URL
+  // const imageKey = imageUrl.replace('https://ldcars.blr1.cdn/', 'ldcars_nextjs_images/');  // Adjust to match your URL structure
+
+  const params = {
+    Bucket: 'ldcars',  // Your Space name
+    Key: 'ldcars_nextjs_images/blog_images/1734411920047-srisailam_blog_image.webp',  // The object key (file path) to delete
+  };
+
+  // Delete the file from DigitalOcean Space
+  s3.deleteObject(params, (err, data) => {
+    if (err) {
+      console.error('Error deleting file:', err);
+      return res.status(500).json({ success: false, error: 'Error deleting file' });
+    }
+
+    // Respond with success message
+    return res.json({
+      success: true,
+      message: 'Image deleted successfully',
     });
   });
 });

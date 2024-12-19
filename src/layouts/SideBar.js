@@ -29,7 +29,7 @@ function SideBar() {
   ];
 
   return (
-    <nav className="border-r bg-white h-screen p-4 w-64 pt-10">
+    <nav className="border-r bg-white h-screen p-4 xl:w-64 lg:w-44 pt-10">
       {links.map((link) => (
         <Link key={link.to} to={link.to} aria-label={link.label}>
           <div

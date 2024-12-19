@@ -25,6 +25,7 @@ function UpdatePost() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState(""); // For storing new uploaded image URL
   const [catgs, setCatgs] = useState([]); // Categories
   const [error, setError] = useState(null);
+  console.log(post, "posysys");
 
   // Fetch post data
   useEffect(() => {
@@ -61,7 +62,7 @@ function UpdatePost() {
     };
 
     fetchCategories();
-  }, []);
+  }, [post.blogfor]);
 
 
 
@@ -194,7 +195,7 @@ function UpdatePost() {
 
           try {
             // const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
-            const response = await fetch('http://localhost:5000/uploadei', formData2,{
+            const response = await fetch('http://localhost:5000/uploadei', formData2, {
               headers: {
                 'Content-Type': 'multipart/form-data',
               },
@@ -356,21 +357,71 @@ function UpdatePost() {
               <option value="SDC">SDC</option>
             </select>
           </div>
-          <div className="mb-4">
-            <label htmlFor="categoryname" className="block text-gray-700">Category</label>
+          {/* <div className="mb-4">
+            <label htmlFor="categoryname" className="block text-gray-700">Category <span className="text-blue-400">-{post.categoryname[0]}</span> </label>
+            <select
+              id="categoryname"
+              name="categoryname"
+              multiple
+              value={post.categoryname[0]}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded"
+            >
+              {catgs.map((catg, index) => (
+                <option
+                  key={index}
+                  value={catg.name}
+                  selected={post?.categoryname === catg.name} // Automatically select the matching category
+                >
+                  {post?.categoryname === catg.name
+                    ? <span className="bg-blue-400">{catg.name}</span>
+                    : <span className="bg-blue">{catg.name}</span>
+                  }
+                </option>
+              ))}
+
+            </select>
+          </div> */}
+          <div className="flex flex-col items gap-4 mb-6">
+            <p className="flex gap-7">
+              <label htmlFor="categoryname" className="text-lg pb-5">
+                Category Name Selected :
+              </label>
+            </p>
+            <label htmlFor="categoryname" className="text-lg font-semibold text-gray-700">Categories-<span className="flex gap-4">
+              {post?.categoryname?.length &&
+                post?.categoryname?.map((catn, index) => {
+                  return (
+                    <span key={index} className="text-blue-400">
+                      {catn}
+                    </span>
+                  );
+                })}
+            </span>{" "}</label>
+
             <select
               id="categoryname"
               name="categoryname"
               multiple
               value={post.categoryname}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="border-2 border-gray-300 rounded-lg p-3 w-64 h-40 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none shadow-md"
             >
-              {catgs.map((catg, index) => (
-                <option key={index} value={catg.name}>
-                  {catg.name}
+              {catgs.length ? (
+                catgs.map((item, index) => (
+                  <option
+                    className="text-black p-2 border-b-2 border-gray-200 hover:bg-blue-100 hover:text-blue-600 transition duration-150"
+                    key={index}
+                    value={item.name}
+                  >
+                    {item.name}
+                  </option>
+                ))
+              ) : (
+                <option className="text-red-500">
+                  please select blogfor
                 </option>
-              ))}
+              )}
             </select>
           </div>
           <button

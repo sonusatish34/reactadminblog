@@ -126,7 +126,7 @@ export default function AddPost() {
       await addDoc(blogRef, {
         ...newPost,
         time: Timestamp.now(),
-        postauthor: postauthor,
+        postauthor: localStorage.getItem('AdminName'),
         date: new Date().toLocaleString("en-US", {
           month: "short",
           day: "2-digit",

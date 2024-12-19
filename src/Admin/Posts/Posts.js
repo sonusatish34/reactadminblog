@@ -2,7 +2,7 @@ import AdminLayout from "../../layouts/AdminLayout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faSearch, faFilter, faEye, faTrash, faPen, faTimes, faUpload, faPenToSquare, faListCheck, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+  import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import Loading from "../../layouts/Loading";
 import { collection, getDocs, query, doc, updateDoc, where, orderBy } from "firebase/firestore";
@@ -277,7 +277,7 @@ function Posts() {
   const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
 
   const PostsContent = (
-    <div className="p-4">
+    <div className="p-">
       {loading ? (
         <Loading />
       ) : (
