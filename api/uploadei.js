@@ -36,7 +36,7 @@ module.exports = (req, res) => {
       const params = {
         Bucket: 'ldcars',
         // Key: `ldcars_nextjs_images/blog_images/${fileName}`,
-        Key: `ldcars_nextjs_images/blog_images/${blogfor?`${blogfor}/`:''}${timestamp}-${fileName}`,  // Adjust the folder structure if needed
+        Key: `ldcars_nextjs_images/blog_images/${blogfor?`${blogfor}-`:''}${timestamp}-${fileName}`,  // Adjust the folder structure if needed
         Body: fileContent,
         ContentType: req.file.mimetype,
         ACL: 'public-read',
