@@ -236,6 +236,10 @@ export default function AddPost() {
         input.onchange = async () => {
           if (!input.files || !input.files.length || !input.files[0]) return;
           const file = input.files[0];
+          if (file && file.type !== "image/webp") {
+            alert("Please upload a .webp image.");
+            return; // Exit the function if the file is not a .webp image
+          }
           const altText = prompt("Please enter alt text for the image:");
           const formData2 = new FormData();
           formData2.append("image", file);
