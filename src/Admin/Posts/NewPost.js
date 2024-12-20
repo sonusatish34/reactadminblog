@@ -156,6 +156,7 @@ export default function AddPost() {
         slug: "",
       });
       setEditorHtml("");
+      setUploadedImageUrl("");
       setLoading(false);
     } catch (error) {
       Swal.fire({
@@ -451,11 +452,11 @@ export default function AddPost() {
                     className="border rounded-lg p-2"
                     disabled={allowImg}
                   />
-                  <img
+                  {uploadedImageUrl.length?<img
                     src={uploadedImageUrl} // Adjust URL for public access
                     alt="Cover Preview"
                     className="w-32 h-32 object-cover rounded"
-                  />
+                  />:<p className="p-1 pt-4 text-red-500">No img uploaded</p>}
                   {/* {console.log(uploadedImageUrl, "uploadedImageUrl")} */}
                 </div>
                 <div className="flex flex-col">
