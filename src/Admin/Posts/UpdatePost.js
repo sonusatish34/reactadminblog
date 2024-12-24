@@ -194,8 +194,8 @@ function UpdatePost() {
           console.log("FormData blogfor:", post.blogfor);  // Debugging line
 
           try {
-            // const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
-            const response = await fetch('http://localhost:5000/uploadei', formData2, {
+            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
+            // const response = await fetch('http://localhost:5000/uploadei', formData2, {
               headers: {
                 'Content-Type': 'multipart/form-data',
               },

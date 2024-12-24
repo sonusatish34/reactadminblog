@@ -63,7 +63,7 @@ export default function AddPost() {
       // Set the uploaded image URL from the response
       console.log(response, "resp");
       setUploadedImageUrl(response?.data?.imageUrl);
-    } catch (error) {
+  } catch (error) {
       console.error("Error uploading image:", error);
     }
   };
