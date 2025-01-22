@@ -83,13 +83,23 @@ function UpdatePost() {
         ...prevFormData,
         categoryname: selectedCategories,
       }));
-    } else {
+    } 
+    else if (name === "slug") {
+      // Handle multi-selection for categories
+      
+      setPost((prevFormData) => ({
+        ...prevFormData,
+        slug: value.replaceAll(" ", "-").toLowerCase(),
+      }));
+    }
+    else {
       setPost((prevFormData) => ({
         ...prevFormData,
         [name]: value,
       }));
     }
   };
+console.log(post,"0000000000009");
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -287,7 +297,7 @@ function UpdatePost() {
               type="text"
               id="slug"
               name="slug"
-              value={post.slug.replaceAll(" ", "-").toLowerCase()}
+              value={post.slug}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="Optional"
@@ -310,8 +320,6 @@ function UpdatePost() {
               className="w-full h-screen"
             />
           </div>
-
-
           {/* Cover Image */}
           <div className="flex gap-4 pt-16">
             <div className="flex flex-col">
