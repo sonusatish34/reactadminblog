@@ -174,57 +174,57 @@ function UpdatePost() {
     // @ts-ignore
     quillRef.current
       .getEditor()
-      .getModule('toolbar')
-      .addHandler('image', () => {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
+      .getModule("toolbar")
+      .addHandler("image", () => {
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("accept", "image/*");
         input.click();
-
         input.onchange = async () => {
           if (!input.files || !input.files.length || !input.files[0]) return;
-
           const file = input.files[0];
+          if (file && file.type !== "image/webp") {
+            alert("Please upload a .webp image.");
+            return; // Exit the function if the file is not a .webp image
+          }
           const altText = prompt("Please enter alt text for the image:");
-
           const formData2 = new FormData();
-          formData2.append('image', file);
-          formData2.append('blogfor', post.blogfor);
-
-          console.log("FormData blogfor:", post.blogfor);  // Debugging line
-
+          formData2.append("image", file);
+          formData2.append("blogfor", post.blogfor);
+          console.log("FormData blogfor:", post.blogfor); // Debugging line
           try {
+            // const response = await axios.post(
+            //   "http://localhost:5000/uploadei",
+            //   formData2,
+            //   {
             const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
-            // const response = await fetch('http://localhost:5000/uploadei', formData2, {
               headers: {
-                'Content-Type': 'multipart/form-data',
+                "Content-Type": "multipart/form-data",
               },
-            });
+            }
+            );
 
             console.log(response, "response from image upload");
             const data = response.data;
-
             if (data.success) {
               console.log("Image uploaded successfully");
-
               // Insert the image URL into Quill editor
               const editor = quillRef.current.getEditor();
               const range = editor.getSelection(true);
-              editor.insertEmbed(range.index, 'image', data.imageUrl);
-
-              const imageElement = editor.container.querySelector('img');
+              editor.insertEmbed(range.index, "image", data.imageUrl);
+              const imageElement = editor.container.querySelector("img");
               if (imageElement) {
-                imageElement.setAttribute('alt', altText);
+                imageElement.setAttribute("alt", altText);
               }
             } else {
-              console.error('Upload failed:', data.error);
+              console.error("Upload failed:", data.error);
             }
           } catch (error) {
-            console.error('Error uploading image:', error);
+            console.error("Error uploading image:", error);
           }
         };
       });
-  }, []);
+  }, [post]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -287,11 +287,16 @@ function UpdatePost() {
               type="text"
               id="slug"
               name="slug"
-              value={post.slug}
+              value={post.slug.replaceAll(" ", "-").toLowerCase()}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="Optional"
             />
+          </div>
+          <div>
+            <p className="text-sm text-blue-600">
+              slug: {post.slug.replaceAll(" ", "-").toLowerCase()}
+            </p>
           </div>
 
           <div className="mb-4 pb-6">
