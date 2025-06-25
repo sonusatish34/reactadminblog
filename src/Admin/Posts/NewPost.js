@@ -63,7 +63,7 @@ export default function AddPost() {
       // Set the uploaded image URL from the response
       console.log(response, "resp");
       setUploadedImageUrl(response?.data?.imageUrl);
-  } catch (error) {
+    } catch (error) {
       console.error("Error uploading image:", error);
     }
   };
@@ -339,7 +339,8 @@ export default function AddPost() {
                 >
                   <option value="none">select from below</option>
                   <option value="LDC">LDC</option>
-                  <option value="Dozzy">Dozzy</option>
+                  <option value="Dozzy">Dozzy Hyderabad</option>
+                  <option value="DozzyBng">Dozzy Bangalore</option>
                 </select>
               </div>
               <div className="flex flex-col pt-4">
@@ -452,11 +453,11 @@ export default function AddPost() {
                     className="border rounded-lg p-2"
                     disabled={allowImg}
                   />
-                  {uploadedImageUrl.length?<img
+                  {uploadedImageUrl.length ? <img
                     src={uploadedImageUrl} // Adjust URL for public access
                     alt="Cover Preview"
                     className="w-32 h-32 object-cover rounded"
-                  />:<p className="p-1 pt-4 text-red-500">No img uploaded</p>}
+                  /> : <p className="p-1 pt-4 text-red-500">No img uploaded</p>}
                   {/* {console.log(uploadedImageUrl, "uploadedImageUrl")} */}
                 </div>
                 <div className="flex flex-col">
