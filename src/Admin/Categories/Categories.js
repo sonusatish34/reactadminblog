@@ -129,31 +129,7 @@ function Categories() {
       }
     });
   };
-
-  // const handleUpdateCat = async (cWant, postId, updatedData) => {
-  //   const stringifiedId = String(postId); // Make sure postId is a string
-  //   const postRef = doc(fireDb, `${cWant}`, stringifiedId);
-
-  //   Swal.fire({
-  //     icon: "warning",
-  //     title: "Are you sure you want to update this post?",
-  //     showCancelButton: true,
-  //     confirmButtonText: "Update",
-  //     confirmButtonColor: "#3085d6",
-  //     cancelButtonText: "Cancel",
-  //   }).then(async (result) => {
-  //     if (result.isConfirmed) {
-  //       try {
-  //         await updateDoc(postRef, updatedData); // Update the post with the new data
-  //         setOperation(operation + 1); // Assuming this triggers a re-render or refresh of the post list
-  //         Swal.fire("Updated!", "Your post has been updated.", "success");
-  //       } catch (error) {
-  //         Swal.fire("Error", "There was an issue updating the post.", "error");
-  //         console.error("Error updating post:", error);
-  //       }
-  //     }
-  //   });
-  // };
+ 
 
   const CategoriesContent = (
     <>
@@ -220,17 +196,37 @@ function Categories() {
               cWant == "catgfordozzy" ? "border-4 border-blue-500" : ""
             }`}
           >
-            Categories For Dozzy
+            Categories For Dozzy Hyd
           </button>
           <button
             onClick={(e) => {
-              setCWant("catgforldc");
+              setCWant("catgfordozzybng");
+            }}
+            className={`bg-gray-300 p-2 rounded ${
+              cWant == "catgfordozzybng" ? "border-4 border-blue-500" : ""
+            }`}
+          >
+            Categories For Dozzy Bng
+          </button>
+          <button
+            onClick={(e) => {
+              setCWant("catgforldc"); 
             }}
             className={`bg-gray-300 p-2 rounded ${
               cWant == "catgforldc" ? "border-4 border-blue-500" : ""
             }`}
           >
             Categories For LDC
+          </button>
+          <button
+            onClick={(e) => {
+              setCWant("tripcategories");
+            }}
+            className={`bg-gray-300 p-2 rounded ${
+              cWant == "tripcategories" ? "border-4 border-blue-500" : ""
+            }`}
+          >
+            Categories For Trips
           </button>
         </div>
 

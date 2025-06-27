@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import Login from "./Login/Login";
 import Dashboard from "./Admin/Dashboard/Dashboard";
+import TripAdvsior from "./Admin/TripAdvisor/TripAdvisor";
+import ImageTesting from "./Admin/TripAdvisor/ImageTesting";
 import Posts from "./Admin/Posts/Posts";
 import Categories from "./Admin/Categories/Categories";
 import Inbox from "./Admin/Inbox/Inbox";
@@ -15,48 +17,37 @@ import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { useEffect } from "react";
 
 function App() {
-  // const [authToken, setauthToken] = useState(false);
-  
-  const ds=1;
+
+  const ds = 1;
+  const db = getFirestore();
+
+  const authToken = localStorage.getItem("authToken");
 
 
-// Initialize Firestore
-const db = getFirestore();
-
-// Get the authToken from localStorage
-const authToken = localStorage.getItem("authToken");
-
-// Function to verify the authToken
-async function verifyAuthToken() {
-  if (!authToken) {
-    console.log("Auth token not found in localStorage.");
-    return;
-  }
-
-  try {
-    // Reference to the document in 'users' collection with the authToken as document ID
-    const userRef = doc(db, "users", authToken);
-    
-    // Fetch the document
-    const docSnapshot = await getDoc(userRef);
-    
-    if (docSnapshot.exists()) {
-      // Document exists, authentication successful
-      console.log(" user is valid. User data:");
-    } else {
-      // Document does not exist
-      console.log("Auth token is invalid.");
+  async function verifyAuthToken() {
+    if (!authToken) {
+      console.log("Auth token not found in localStorage.");
+      return;
     }
-  } catch (error) {
-    // Handle any errors
-    console.error("Error verifying auth token:", error);
-  }
-}
 
-// Call the verify function
-useEffect(()=>{
-  verifyAuthToken();
-},[])
+    try {
+      const userRef = doc(db, "users", authToken);
+
+      const docSnapshot = await getDoc(userRef);
+
+      if (docSnapshot.exists()) {
+        console.log(" user is valid. User data:");
+      } else {
+        console.log("Auth token is invalid.");
+      }
+    } catch (error) {
+      console.error("Error verifying auth token:", error);
+    }
+  }
+
+  useEffect(() => {
+    verifyAuthToken();
+  }, [])
 
 
   return (
@@ -66,6 +57,14 @@ useEffect(()=>{
         <Route
           path="/Login"
           element={authToken ? <Navigate to="/Admin/Dashboard" /> : <Login />}
+        />
+        <Route
+          path="/Admin/TripAdvisor"
+          element={<TripAdvsior />}
+        />
+        <Route
+          path="/Admin/ImageTesting"
+          element={<ImageTesting />}
         />
         <Route
           path="/"
@@ -101,16 +100,14 @@ useEffect(()=>{
         />
         <Route
           path="/Admin/Inbox"
-          element={<Inbox/>}
+          element={<Inbox />}
         />
         <Route
           path="/Admin/Accounts"
           element={authToken ? <Accounts /> : <Navigate to="/Login" />}
         />
-         <Route path="/Admin/DeletedPosts" element={<DeletedPosts />} />
+        <Route path="/Admin/DeletedPosts" element={<DeletedPosts />} />
 
-
-        {/* Catch all route for 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

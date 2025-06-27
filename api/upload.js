@@ -5,10 +5,10 @@ const path = require('path');
 const cors = require('cors');
 
 const s3 = new AWS.S3({
-  endpoint: new AWS.Endpoint('https://blr1.digitaloceanspaces.com'),  // Your DigitalOcean Space endpoint
-  accessKeyId: 'DO00EMW9VPKGYFANMCYQ',  // Your DigitalOcean Spaces Access Key ID
-  secretAccessKey: 'y+1iUnpYYwGZM0mq4O+vQEEWaNffAkKLKNQY9Y48IXQ',  // Your DigitalOcean Spaces Secret Access Key
-  region: 'blr1',  // Your DigitalOcean Space region
+  endpoint: new AWS.Endpoint('https://blr1.digitaloceanspaces.com'),
+  accessKeyId: 'DO00EMW9VPKGYFANMCYQ',
+  secretAccessKey: 'y+1iUnpYYwGZM0mq4O+vQEEWaNffAkKLKNQY9Y48IXQ',
+  region: 'blr1',
 });
 // Set up multer for file handling
 const storage = multer.memoryStorage();
@@ -31,9 +31,7 @@ module.exports = (req, res) => {
 
       const params = {
         Bucket: 'ldcars',
-        // Key: `ldcars_nextjs_images/blog_images/${fileName}`,
-        // Key: `ldcars_nextjs_images/blog_images/${blogfor}/${timestamp}-${fileName}`,  // Adjust the folder structure if needed
-        Key: `ldcars_nextjs_images/blog_images/${blogfor?`${blogfor}-`:''}${timestamp}-${fileName}`,  // Adjust the folder structure if needed
+        Key: `ldcars_nextjs_images/blog_images/${blogfor ? `${blogfor}-` : ''}${timestamp}-${fileName}`,  // Adjust the folder 
         Body: fileContent,
         ContentType: req.file.mimetype,
         ACL: 'public-read',
