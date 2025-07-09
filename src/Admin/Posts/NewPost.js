@@ -197,7 +197,7 @@ export default function AddPost() {
 
   const modules = {
     toolbar: [
-      [{ header: "1" }, { header: "2" }], // Adding custom font sizes
+      [{ header: "1" }, { header: "2" },{header: "3"}], // Adding custom font sizes
       [{ list: "ordered" }, { list: "bullet" }],
       ["bold", "italic", "underline", "strike"],
       ["blockquote"],

@@ -361,10 +361,7 @@ console.log(post,"0000000000009");
               name="blogfor"
               value={post.blogfor}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded"
-              disabled
-
-            >
+              className="w-full p-2 border border-gray-300 rounded">
               <option value="Dozzy">Dozzy</option>
               <option value="LDC">LDC</option>
               <option value="SDC">SDC</option>
