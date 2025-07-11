@@ -154,7 +154,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
                   <td className="py-2 pl-4">{post.categoryname}</td>
                   <td className="py-2 pl-4">{post.date}</td>
                   <td className="py-1 flex flex-col gap-1 px-1 justify-around">
-                    <div className="py-2 flex gap-4 px-2 justify-around">
+                    <div className="py-2 flex gap-4 items-center justify-center px-2 ">
                       <Link to={`/Admin/Posts/${post.id}`}>
                         <FontAwesomeIcon className="" icon={faEye} />
                       </Link>

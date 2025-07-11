@@ -220,10 +220,10 @@ function Categories() {
           </button>
           <button
             onClick={(e) => {
-              setCWant("tripcategories");
+              setCWant("catgfortrip");
             }}
             className={`bg-gray-300 p-2 rounded ${
-              cWant == "tripcategories" ? "border-4 border-blue-500" : ""
+              cWant == "catgfortrip" ? "border-4 border-blue-500" : ""
             }`}
           >
             Categories For Trips

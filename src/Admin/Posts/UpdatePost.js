@@ -24,6 +24,7 @@ function UpdatePost() {
   });
   const [uploadedImageUrl, setUploadedImageUrl] = useState(""); // For storing new uploaded image URL
   const [catgs, setCatgs] = useState([]); // Categories
+  const [subcatgs, setsubCatgs] = useState([]); // Categories
   const [error, setError] = useState(null);
   console.log(post, "posysys");
 
@@ -56,6 +57,10 @@ function UpdatePost() {
         const querySnapshot = await getDocs(categoryRef);
         const categories = querySnapshot.docs.map((doc) => doc.data());
         setCatgs(categories);
+        const subcategoryRef = collection(fireDb, 'catgfortrip');
+        const subquerySnapshot = await getDocs(subcategoryRef);
+        const subcategories = subquerySnapshot.docs.map((doc) => doc.data());
+        setsubCatgs(subcategories);
       } catch (err) {
         console.error("Error fetching categories:", err);
       }
@@ -64,6 +69,7 @@ function UpdatePost() {
     fetchCategories();
   }, [post.blogfor]);
 
+  console.log(subcatgs, 'subb');
 
 
 
@@ -71,6 +77,8 @@ function UpdatePost() {
   //   const { name, value } = e.target;
   //   setPost((prevPost) => ({ ...prevPost, [name]: value }));
   // };
+  const [selectedSubcat, setSelectedSubcat] = useState([]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "categoryname") {
@@ -83,10 +91,18 @@ function UpdatePost() {
         ...prevFormData,
         categoryname: selectedCategories,
       }));
-    } 
+    }
+    else if (name === "subcategoryname") {
+      const selectedSubcategories = Array.from(
+        e.target.selectedOptions,
+        (option) => option.value
+      );
+      setSelectedSubcat(selectedSubcategories); // store in new state
+    }
+
     else if (name === "slug") {
       // Handle multi-selection for categories
-      
+
       setPost((prevFormData) => ({
         ...prevFormData,
         slug: value.replaceAll(" ", "-").toLowerCase(),
@@ -99,7 +115,7 @@ function UpdatePost() {
       }));
     }
   };
-console.log(post,"0000000000009");
+  console.log(post, "0000000000009");
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -236,6 +252,13 @@ console.log(post,"0000000000009");
       });
   }, [post]);
 
+  useEffect(() => {
+    if (post?.subcat?.length > 0) {
+      setSelectedSubcat(post.subcat);
+    }
+  }, [post]);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -245,7 +268,9 @@ console.log(post,"0000000000009");
         ...post,
         coverimages: uploadedImageUrl || post.coverimages,
         updatedAt: new Date().toISOString(),
+        ...(selectedSubcat.length > 0 && { subcat: selectedSubcat }), // ✅ only add if selected
       });
+
 
       Swal.fire("Post Updated", "The post has been successfully updated.", "success");
       navigate("/Admin/Posts");
@@ -262,6 +287,9 @@ console.log(post,"0000000000009");
           &larr; Back
         </button>
         <h1 className="text-2xl font-bold mb-4">Update Post</h1>
+        <p onClick={() => {
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }}>scooll to bottom</p>
         {error && <p className="text-red-500">{error}</p>}
 
         <form onSubmit={handleSubmit}>
@@ -367,72 +395,92 @@ console.log(post,"0000000000009");
               <option value="SDC">SDC</option>
             </select>
           </div>
-          {/* <div className="mb-4">
-            <label htmlFor="categoryname" className="block text-gray-700">Category <span className="text-blue-400">-{post.categoryname[0]}</span> </label>
-            <select
-              id="categoryname"
-              name="categoryname"
-              multiple
-              value={post.categoryname[0]}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded"
-            >
-              {catgs.map((catg, index) => (
-                <option
-                  key={index}
-                  value={catg.name}
-                  selected={post?.categoryname === catg.name} // Automatically select the matching category
-                >
-                  {post?.categoryname === catg.name
-                    ? <span className="bg-blue-400">{catg.name}</span>
-                    : <span className="bg-blue">{catg.name}</span>
-                  }
-                </option>
-              ))}
+          <div className="flex gap-x-10">
 
-            </select>
-          </div> */}
-          <div className="flex flex-col items gap-4 mb-6">
-            <p className="flex gap-7">
-              <label htmlFor="categoryname" className="text-lg pb-5">
-                Category Name Selected :
-              </label>
-            </p>
-            <label htmlFor="categoryname" className="text-lg font-semibold text-gray-700">Categories-<span className="flex gap-4">
-              {post?.categoryname?.length &&
-                post?.categoryname?.map((catn, index) => {
-                  return (
-                    <span key={index} className="text-blue-400">
-                      {catn}
-                    </span>
-                  );
-                })}
-            </span>{" "}</label>
-
-            <select
-              id="categoryname"
-              name="categoryname"
-              multiple
-              value={post.categoryname}
-              onChange={handleInputChange}
-              className="border-2 border-gray-300 rounded-lg p-3 w-64 h-40 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none shadow-md"
-            >
-              {catgs.length ? (
-                catgs.map((item, index) => (
-                  <option
-                    className="text-black p-2 border-b-2 border-gray-200 hover:bg-blue-100 hover:text-blue-600 transition duration-150"
-                    key={index}
-                    value={item.name}
-                  >
-                    {item.name}
+            <div className="flex flex-col items gap-4 mb-6">
+              <p className="flex gap-7">
+                <label htmlFor="categoryname" className="text-lg pb-5">
+                  Category Name Selected :
+                </label>
+              </p>
+              <label htmlFor="categoryname" className="text-lg font-semibold text-gray-700">Categories<span className="flex gap-4">
+                {post?.categoryname?.length &&
+                  post?.categoryname?.map((catn, index) => {
+                    return (
+                      <span key={index} className="text-blue-400">
+                        {catn}
+                      </span>
+                    );
+                  })}
+              </span>{" "}</label>
+              <select
+                id="categoryname"
+                name="categoryname"
+                multiple
+                value={post.categoryname}
+                onChange={handleInputChange}
+                className="border-2 border-gray-300 rounded-lg p-3 w-64 h-40 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none shadow-md"
+              >
+                {catgs.length ? (
+                  catgs.map((item, index) => (
+                    <option
+                      className="text-black p-2 border-b-2 border-gray-200 hover:bg-blue-100 hover:text-blue-600 transition duration-150"
+                      key={index}
+                      value={item.name}
+                    >
+                      {item.name}
+                    </option>
+                  ))
+                ) : (
+                  <option className="text-red-500">
+                    please select blogfor
                   </option>
-                ))
-              ) : (
-                <option className="text-red-500">
-                  please select blogfor
-                </option>
-              )}
-            </select>
+                )}
+              </select>
+            </div>
+            <div className="flex flex-col items gap-4 mb-6">
+              <label htmlFor="subcategoryname" className="text-base font-semibold text-gray-700">
+                Sub Categories
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {selectedSubcat.length > 0 ? (
+                    selectedSubcat.map((catn, index) => (
+                      <span key={index} className="text-blue-400 bg-blue-100 px-2 py-1 rounded">
+                        {catn}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-gray-400 italic">No subcategories selected</span>
+                  )}
+                </div>
+              </label>
+
+              <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto border p-4 rounded-md shadow-sm bg-white">
+                {subcatgs.length ? (
+                  subcatgs.map((item, index) => (
+                    <label key={index} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        value={item.name}
+                        checked={selectedSubcat.includes(item.name)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setSelectedSubcat((prev) =>
+                            e.target.checked
+                              ? [...prev, value]
+                              : prev.filter((v) => v !== value)
+                          );
+                        }}
+                        className="form-checkbox text-blue-500"
+                      />
+                      <span className="text-gray-700">{item.name}</span>
+                    </label>
+                  ))
+                ) : (
+                  <p className="text-red-500">please select blogfor</p>
+                )}
+              </div>
+            </div>
+
           </div>
           <button
             type="submit"
@@ -440,6 +488,7 @@ console.log(post,"0000000000009");
           >
             Update Post
           </button>
+          <p onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); }}>go to top</p>
         </form>
       </div>
     </AdminLayout>
