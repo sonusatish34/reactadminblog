@@ -283,17 +283,26 @@ function UpdatePost() {
   return (
     <AdminLayout>
       <div className="container mx-auto p-4">
-        <button onClick={() => navigate(-1)} className="bg-gray-300 p-1 rounded-md text-red-600">
-          &larr; Back
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded hover:bg-red-200 transition duration-200 shadow-sm"
+        >
+          <span>&larr;</span>
+          <span>Back</span>
         </button>
         <h1 className="text-2xl font-bold mb-4">Update Post</h1>
-        <p onClick={() => {
-          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-        }}>scooll to bottom</p>
+        <button
+          onClick={() =>
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })
+          }
+          className="bg-blue-100 text-blue-700 px-4 py-2 rounded hover:bg-blue-200 transition duration-200 shadow-sm"
+        >
+          ↓ Scroll to Bottom
+        </button>
         {error && <p className="text-red-500">{error}</p>}
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+          <div className="my-4">
             <label htmlFor="title" className="block text-gray-700">Title</label>
             <input
               type="text"
@@ -488,9 +497,16 @@ function UpdatePost() {
           >
             Update Post
           </button>
-          <p onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); }}>go to top</p>
         </form>
       </div>
+          <button
+            onClick={() =>
+              window.scrollTo({ top: 0, behavior: "smooth" })
+            }
+            className="bg-green-100 text-green-700 px-4 py-2 rounded hover:bg-green-200 transition duration-200 shadow-sm"
+          >
+            ↑ Go to Top
+          </button>
     </AdminLayout>
   );
 }
