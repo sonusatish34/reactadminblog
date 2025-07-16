@@ -10,7 +10,6 @@ import { fireDb } from '../../firebase'; // Ensure fireDb is configured properly
 function UserAccountManager({ user, onUpdate, onDelete }) {
   const [updating, setUpdating] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({ ...user });
-
   const handleUpdate = () => {
     Swal.fire({
       title: 'Are you sure you want to update this user?',
@@ -34,6 +33,7 @@ function UserAccountManager({ user, onUpdate, onDelete }) {
   const handleClose = () => {
     setUpdating(false);
   };
+ 
 
   return (
     <>
@@ -87,6 +87,36 @@ function UserAccountManager({ user, onUpdate, onDelete }) {
 }
 
 function Accounts() {
+
+
+     const [carList, setCarList] = useState([])
+
+  useEffect(() => {
+    async function getCars() {
+      const requestOptions = {
+        method: "GET",
+        redirect: "follow"
+      };
+
+      fetch("https://api.longdrivecars.com/site/cars-info?location=hyderabad", requestOptions)
+        .then((response) => response.json())
+        .then((result) => setCarList(result?.data?.results))
+        .catch((error) => console.error(error));
+    }
+    getCars()
+  }, [])
+  const tataCars = carList.filter(car =>
+    !["2024", "2025", 'diesel', 'pe'].some(year => car.maker_model.toLowerCase().includes(year))
+  );
+  const sortedTataCars = carList.sort((a, b) => {
+    return a.maker_model.localeCompare(b.maker_model);
+  });
+
+  console.log(sortedTataCars, 'tt');
+
+
+
+
   const [usersData, setUsersData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -250,7 +280,7 @@ function Accounts() {
                   <th className="border p-2">Username</th>
                   <th className="border p-2">Email</th>
                   <th className="border p-2">Password</th>
-                  <th className="border p-2">Created</th>                
+                  <th className="border p-2">Created</th>
                   <th className="border p-2">Actions</th>
                 </tr>
               </thead>
@@ -268,6 +298,22 @@ function Accounts() {
           </div>
         </div>
       )}
+      <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Car Name</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {carList?.map((item, index) => (
+            <tr key={index}>
+              <td style={{ border: '1px solid black', padding: '8px' }}>{index+1} {item?.maker_model}</td>
+              <td style={{ border: '1px solid black', padding: '8px' }}>₹{item?.price_24_hours *24}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </AdminLayout>
   );
 }

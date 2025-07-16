@@ -399,13 +399,13 @@ function UpdatePost() {
               value={post.blogfor}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded">
-              <option value="Dozzy">Dozzy</option>
+              <option value="none">select from below</option>
               <option value="LDC">LDC</option>
-              <option value="SDC">SDC</option>
+              <option value="Dozzy">Dozzy Hyderabad</option>
+              <option value="DozzyBng">Dozzy Bangalore</option>
             </select>
           </div>
           <div className="flex gap-x-10">
-
             <div className="flex flex-col items gap-4 mb-6">
               <p className="flex gap-7">
                 <label htmlFor="categoryname" className="text-lg pb-5">
@@ -499,14 +499,14 @@ function UpdatePost() {
           </button>
         </form>
       </div>
-          <button
-            onClick={() =>
-              window.scrollTo({ top: 0, behavior: "smooth" })
-            }
-            className="bg-green-100 text-green-700 px-4 py-2 rounded hover:bg-green-200 transition duration-200 shadow-sm"
-          >
-            ↑ Go to Top
-          </button>
+      <button
+        onClick={() =>
+          window.scrollTo({ top: 0, behavior: "smooth" })
+        }
+        className="bg-green-100 text-green-700 px-4 py-2 rounded hover:bg-green-200 transition duration-200 shadow-sm"
+      >
+        ↑ Go to Top
+      </button>
     </AdminLayout>
   );
 }
