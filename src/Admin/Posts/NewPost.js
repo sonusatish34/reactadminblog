@@ -124,7 +124,7 @@ export default function AddPost() {
     const newPost = {
       title: formData.title,
       description: formData.description,
-      slug: formData.slug.replaceAll(" ", "-").toLowerCase(),
+      slug: formData.slug.replaceAll(" ", "-").toLowerCase().replace(/[;,]/g, ''),
       content: editorHtml,
       coverimages: uploadedImageUrl,
       blogfor: formData.blogfor,
@@ -432,7 +432,7 @@ export default function AddPost() {
               </div>
               <div>
                 <p className="text-sm text-blue-600">
-                  slug: {formData.slug.replaceAll(" ", "-").toLowerCase()}
+                  slug: {formData.slug.replaceAll(" ", "-").toLowerCase().replace(/[;,]/g, '')}
                 </p>
               </div>
               <div className="py-6">

@@ -105,7 +105,7 @@ function UpdatePost() {
 
       setPost((prevFormData) => ({
         ...prevFormData,
-        slug: value.replaceAll(" ", "-").toLowerCase(),
+        slug: value.replaceAll(" ", "-").toLowerCase().replace(/[;,]/g, ''),
       }));
     }
     else {
@@ -342,7 +342,7 @@ function UpdatePost() {
           </div>
           <div>
             <p className="text-sm text-blue-600">
-              slug: {post.slug.replaceAll(" ", "-").toLowerCase()}
+              slug = ({post.slug.replaceAll(" ", "-").toLowerCase().replace(/[;:,$%]/g, '')})
             </p>
           </div>
 

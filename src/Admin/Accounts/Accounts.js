@@ -301,6 +301,7 @@ function Accounts() {
       <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Serial No</th>
             <th style={{ border: '1px solid black', padding: '8px' }}>Car Name</th>
             <th style={{ border: '1px solid black', padding: '8px' }}>Price</th>
           </tr>
@@ -308,7 +309,8 @@ function Accounts() {
         <tbody>
           {carList?.map((item, index) => (
             <tr key={index}>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{index+1} {item?.maker_model}</td>
+              <td style={{ border: '1px solid black', padding: '8px' }}>{index+1}</td>
+              <td style={{ border: '1px solid black', padding: '8px' }}> {item?.maker_model}</td>
               <td style={{ border: '1px solid black', padding: '8px' }}>₹{item?.price_24_hours *24}</td>
             </tr>
           ))}
