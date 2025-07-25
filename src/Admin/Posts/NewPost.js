@@ -14,7 +14,8 @@ import {
 import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css"; // import styles
 import axios from "axios"; // for handling image upload
-
+import SunEditor from 'suneditor-react';
+import 'suneditor/dist/css/suneditor.min.css';
 import { fireDb } from "../../firebase";
 export default function AddPost() {
   const [catgs, setCatgs] = useState("");
@@ -26,7 +27,6 @@ export default function AddPost() {
   // console.log(catgs, "--catgs--");
 
   const [selectedFile, setSelectedFile] = useState(null);
-
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
 
   const handleImageUpload = async (event) => {
@@ -126,6 +126,7 @@ export default function AddPost() {
       description: formData.description,
       slug: formData.slug.replaceAll(" ", "-").toLowerCase().replace(/[;,]/g, ''),
       content: editorHtml,
+      contentTable: contentTable,
       coverimages: uploadedImageUrl,
       blogfor: formData.blogfor,
       categoryname: formData.categoryname,
@@ -329,6 +330,7 @@ export default function AddPost() {
     };
     fetchCatgs();
   }, [formData.blogfor]);
+  const [contentTable, setContentTable] = useState('');
 
   return (
     <AdminLayout>
@@ -435,164 +437,7 @@ export default function AddPost() {
                   slug: {formData.slug.replaceAll(" ", "-").toLowerCase().replace(/[;,]/g, '')}
                 </p>
               </div>
-              <div className="py-6">
-                <h3 className="text-xl font-semibold mb-2">Itinerary Details</h3>
 
-                <div className="flex flex-col mb-4">
-                  <label>Itinerary Title</label>
-                  <input
-                    type="text"
-                    value={itineraryData.title}
-                    onChange={(e) => setItineraryData({ ...itineraryData, title: e.target.value })}
-                    className="border p-2 rounded"
-                  />
-                </div>
-
-                <div className="flex flex-col mb-4">
-                  <label>Itinerary Summary</label>
-                  <textarea
-                    value={itineraryData.summary}
-                    onChange={(e) => setItineraryData({ ...itineraryData, summary: e.target.value })}
-                    className="border p-2 rounded"
-                  />
-                </div>
-
-                <div className="flex flex-col mb-4">
-                  <label>Cover Image URL</label>
-                  <input
-                    type="text"
-                    value={itineraryData.coverImage}
-                    onChange={(e) => setItineraryData({ ...itineraryData, coverImage: e.target.value })}
-                    className="border p-2 rounded"
-                  />
-                </div>
-
-                <h4 className="text-lg font-medium mt-4 mb-2">Plans</h4>
-                {itineraryData.plans.map((plan, planIndex) => (
-                  <div key={planIndex} className="border p-4 rounded mb-4 bg-gray-50">
-                    <div className="flex flex-col mb-2">
-                      <label>Type</label>
-                      <input
-                        type="text"
-                        value={plan.type}
-                        onChange={(e) => {
-                          const updatedPlans = [...itineraryData.plans];
-                          updatedPlans[planIndex].type = e.target.value;
-                          setItineraryData({ ...itineraryData, plans: updatedPlans });
-                        }}
-                        className="border p-2 rounded"
-                      />
-                    </div>
-                    <div className="flex flex-col mb-2">
-                      <label>Price</label>
-                      <input
-                        type="text"
-                        value={plan.price}
-                        onChange={(e) => {
-                          const updatedPlans = [...itineraryData.plans];
-                          updatedPlans[planIndex].price = e.target.value;
-                          setItineraryData({ ...itineraryData, plans: updatedPlans });
-                        }}
-                        className="border p-2 rounded"
-                      />
-                    </div>
-                    <div className="flex flex-col mb-2">
-                      <label>Duration</label>
-                      <input
-                        type="text"
-                        value={plan.duration}
-                        onChange={(e) => {
-                          const updatedPlans = [...itineraryData.plans];
-                          updatedPlans[planIndex].duration = e.target.value;
-                          setItineraryData({ ...itineraryData, plans: updatedPlans });
-                        }}
-                        className="border p-2 rounded"
-                      />
-                    </div>
-                    <div className="flex flex-col mb-2">
-                      <label>Note</label>
-                      <textarea
-                        value={plan.note}
-                        onChange={(e) => {
-                          const updatedPlans = [...itineraryData.plans];
-                          updatedPlans[planIndex].note = e.target.value;
-                          setItineraryData({ ...itineraryData, plans: updatedPlans });
-                        }}
-                        className="border p-2 rounded"
-                      />
-                    </div>
-
-                    <label className="font-semibold mb-1">Highlights</label>
-                    {plan.highlights.map((highlight, highlightIndex) => (
-                      <div key={highlightIndex} className="flex items-center mb-1 gap-2">
-                        <input
-                          type="text"
-                          value={highlight}
-                          onChange={(e) => {
-                            const updatedPlans = [...itineraryData.plans];
-                            updatedPlans[planIndex].highlights[highlightIndex] = e.target.value;
-                            setItineraryData({ ...itineraryData, plans: updatedPlans });
-                          }}
-                          className="border p-2 rounded flex-1"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const updatedPlans = [...itineraryData.plans];
-                            updatedPlans[planIndex].highlights.splice(highlightIndex, 1);
-                            setItineraryData({ ...itineraryData, plans: updatedPlans });
-                          }}
-                          className="text-red-500"
-                        >
-                          ❌
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updatedPlans = [...itineraryData.plans];
-                        updatedPlans[planIndex].highlights.push('');
-                        setItineraryData({ ...itineraryData, plans: updatedPlans });
-                      }}
-                      className="text-sm text-blue-600 mt-1"
-                    >
-                      + Add Highlight
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updatedPlans = [...itineraryData.plans];
-                        updatedPlans.splice(planIndex, 1);
-                        setItineraryData({ ...itineraryData, plans: updatedPlans });
-                      }}
-                      className="text-red-600 text-sm mt-2"
-                    >
-                      🗑️ Remove This Plan
-                    </button>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setItineraryData({
-                      ...itineraryData,
-                      plans: [...itineraryData.plans, {
-                        type: '',
-                        price: '',
-                        duration: '',
-                        highlights: [''],
-                        note: ''
-                      }]
-                    });
-                  }}
-                  className="bg-green-500 text-white px-3 py-1 rounded"
-                >
-                  + Add Plan
-                </button>
-              </div>
 
               <div className="flex flex-col">
                 <label htmlFor="description" className="text-lg">
@@ -664,6 +509,21 @@ export default function AddPost() {
                     placeholder="Write your content here..."
                     className="h-80"
                     readOnly={allowImg}
+                  />
+                </div>
+                <div className="pt-4 mt-8">
+                  <p className="py-3 text-xl font-bold">Table </p>
+                  <SunEditor
+                    setContents={contentTable}
+                    onChange={setContentTable}
+                    setOptions={{
+                      height: 300,
+                      buttonList: [
+
+                        ['align', 'list', 'table'], // ✅ Built-in table button
+
+                      ],
+                    }}
                   />
                 </div>
               </div>

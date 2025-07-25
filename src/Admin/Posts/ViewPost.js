@@ -182,7 +182,11 @@ function Getpost({ postId }) {
             className="text-[#242424] lg:text-justify text-base lg:text-[20px] leading-8 lg:leading-9 lg:tracking-wide pt-4 pb-4 px-1 lg:px-0  rounded-lg georgia-font xl:mx-44 lg:mx-28"
             dangerouslySetInnerHTML={{ __html: postData?.content }}
           />
-
+          <p>bekow cinrenre</p>
+          <div
+            className="text-[#242424] lg:text-justify text-base lg:text-[20px] leading-8 lg:leading-9 lg:tracking-wide pt-4 pb-4 px-1 lg:px-0  rounded-lg georgia-font xl:mx-44 lg:mx-28 "
+            dangerouslySetInnerHTML={{ __html: postData?.contentTable }}
+          />
           {/* Display Related Posts */}
           {/* <div className="text-xs lg:text-[20px] leading-2 lg:leading-9 pt-6 georgia-font" dangerouslySetInnerHTML={{ __html: postData?.content }} /> */}
 

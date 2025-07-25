@@ -358,7 +358,7 @@ function UpdatePost() {
             />
           </div>
           {/* Cover Image */}
-          <div className="flex gap-4 pt-16">
+            <div className="flex gap-4 pt-16">
             <div className="flex flex-col">
               <label htmlFor="coverimages" className="text-lg">Cover Image</label>
               <input
