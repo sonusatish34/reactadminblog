@@ -317,10 +317,13 @@ export default function AddPost() {
             ? "catgforldc"
             : formData.blogfor == "Dozzy"
               ? "catgfordozzy"
-              : "none"
+              : formData.blogfor == "DozzyBng"
+                ? "catgfordozzybng"
+                : "none"
           }`
         )
       );
+
       const catgs1 = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),

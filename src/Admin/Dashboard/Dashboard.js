@@ -101,38 +101,46 @@ function Dashboard() {
       </div>
       <div className='flex gap-x-10 pt-20'>
 
-      <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
-          </tr>
-        </thead>
-        <tbody>
-          {listDozzy?.map((item, index) => (
-            <tr key={index}>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
+        <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ border: '1px solid black', padding: '8px' }}>Sno</th>
+              <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
+              <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
+              <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
-          </tr>
-        </thead>
-        <tbody>
-          {listDozzyBng?.map((item, index) => (
-            <tr key={index}>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
+          </thead>
+          <tbody>
+            {listDozzy?.map((item, index) => (
+              <tr key={index} className='capitalize'>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{index+1}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr className='capitalize'>
+              <th style={{ border: '1px solid black', padding: '8px' }}>Sno</th>
+              <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
+              <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
+              <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {listDozzyBng?.map((item, index) => (
+              <tr key={index} className='capitalize'>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{index+1}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name.toLowerCase()}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
     </div>
