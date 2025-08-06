@@ -437,7 +437,7 @@ export default function AddPost() {
               </div>
               <div>
                 <p className="text-sm text-blue-600">
-                  slug: {formData.slug.replaceAll(" ", "-").toLowerCase().replace(/[;,]/g, '')}
+                  slug: {formData.slug.replaceAll(" ", "-").toLowerCase().replace(/[;,.]/g, '')}
                 </p>
               </div>
 
