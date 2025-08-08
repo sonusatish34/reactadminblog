@@ -35,7 +35,7 @@
 
 //             try {
 //                 const response = await axios.post(
-//                     "https://reactadminblog.vercel.app/api/upload",
+//                     "https://reactadminblog-git-dev-sumiths-projects-3ec80bf3.vercel.app/api/upload",
 //                     formData1,
 //                     {
 //                         headers: {
@@ -112,7 +112,7 @@
 //                     )}
 //                 </div>
 
-                
+
 //             </div>
 //         </form>
 //     );
@@ -153,8 +153,8 @@ export default function CategorySelector() {
         : [...prev, category]
     );
   };
-  console.log(selectedCategories,'selecudjsiodfud0');
-  
+  console.log(selectedCategories, 'selecudjsiodfud0');
+
 
   return (
     <div>

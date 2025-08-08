@@ -50,7 +50,7 @@ export default function AddPost() {
 
     try {
       const response = await axios.post(
-        "https://reactadminblog.vercel.app/api/upload",
+        "https://reactadminblog-git-dev-sumiths-projects-3ec80bf3.vercel.app/api/upload",
         formData1,
         {
           headers: {
@@ -185,10 +185,10 @@ export default function AddPost() {
         formData.blogfor === "LDC"
           ? "catgforldc"
           : formData.blogfor === "Dozzy"
-          ? "catgfordozzy"
-          : formData.blogfor === "DozzyBng"
-          ? "catgfordozzybng"
-          : "none";
+            ? "catgfordozzy"
+            : formData.blogfor === "DozzyBng"
+              ? "catgfordozzybng"
+              : "none";
 
       if (colName === "none") {
         setCatgs([]);
@@ -225,7 +225,7 @@ export default function AddPost() {
               data.append("blogfor", formData.blogfor);
 
               axios
-                .post("https://reactadminblog.vercel.app/api/uploadei", data, {
+                .post("https://reactadminblog-git-dev-sumiths-projects-3ec80bf3.vercel.app/api/uploadei", data, {
                   headers: { "Content-Type": "multipart/form-data" },
                 })
                 .then((res) => {

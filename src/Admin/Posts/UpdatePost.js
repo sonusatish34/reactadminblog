@@ -123,7 +123,7 @@ function UpdatePost() {
     formData.append("coverimages", file);
 
     try {
-      const response = await fetch("https://reactadminblog.vercel.app/api/upload", {
+      const response = await fetch("https://reactadminblog-git-dev-sumiths-projects-3ec80bf3.vercel.app/api/upload", {
         method: "POST",
         body: formData,
       });
@@ -223,7 +223,7 @@ function UpdatePost() {
             //   "http://localhost:5000/uploadei",
             //   formData2,
             //   {
-            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
+            const response = await axios.post('https://reactadminblog-git-dev-sumiths-projects-3ec80bf3.vercel.app/api/uploadei', formData2, {
               headers: {
                 "Content-Type": "multipart/form-data",
               },
@@ -358,7 +358,7 @@ function UpdatePost() {
             />
           </div>
           {/* Cover Image */}
-            <div className="flex gap-4 pt-16">
+          <div className="flex gap-4 pt-16">
             <div className="flex flex-col">
               <label htmlFor="coverimages" className="text-lg">Cover Image</label>
               <input
