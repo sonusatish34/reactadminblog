@@ -94,7 +94,7 @@ function Dashboard() {
     <div className="container mx-auto mt-8 px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <AnalyticsCard title="Total Posts" value={postcount} icon={faFileAlt} link="/Admin/Posts" />
-        <AnalyticsCard title="Total Categories" value={catgscount} icon={faFolder} link="/Admin/Categories" />
+        <AnalyticsCard title="Total Categories in dev" value={catgscount} icon={faFolder} link="/Admin/Categories" />
         <AnalyticsCard title="Total Users" value={usersCount} icon={faUser} link="/Admin/Accounts" />
         {console.log(listDozzy, 'dwdws')
         }
