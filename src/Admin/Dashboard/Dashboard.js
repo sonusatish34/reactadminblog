@@ -94,7 +94,7 @@ function Dashboard() {
     <div className="container mx-auto mt-8 px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <AnalyticsCard title="Total Posts" value={postcount} icon={faFileAlt} link="/Admin/Posts" />
-        <AnalyticsCard title="Total Categories" value={catgscount} icon={faFolder} link="/Admin/Categories" />
+        <AnalyticsCard title="Total Categories in dev" value={catgscount} icon={faFolder} link="/Admin/Categories" />
         <AnalyticsCard title="Total Users" value={usersCount} icon={faUser} link="/Admin/Accounts" />
         {console.log(listDozzy, 'dwdws')
         }
@@ -108,15 +108,17 @@ function Dashboard() {
               <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
               <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
               <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
+              <th style={{ border: '1px solid black', padding: '8px' }}>property_capacity</th>
             </tr>
           </thead>
           <tbody>
             {listDozzy?.map((item, index) => (
               <tr key={index} className='capitalize'>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{index+1}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{index + 1}</td>
                 <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
                 <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name}</td>
                 <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_capacity}</td>
               </tr>
             ))}
           </tbody>
@@ -128,15 +130,18 @@ function Dashboard() {
               <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
               <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
               <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
+              <th style={{ border: '1px solid black', padding: '8px' }}>property_capacity</th>
             </tr>
           </thead>
           <tbody>
             {listDozzyBng?.map((item, index) => (
               <tr key={index} className='capitalize'>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{index+1}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{index + 1}</td>
                 <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
                 <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name.toLowerCase()}</td>
                 <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
+                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_capacity}</td>
+
               </tr>
             ))}
           </tbody>
