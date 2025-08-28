@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileAlt, faFolder, faUser } from "@fortawesome/free-solid-svg-icons";
 import Loading from '../../layouts/Loading';
 import { getDocs, collection } from 'firebase/firestore';
+
 /* AnalyticsCard component */
 function AnalyticsCard({ title, value, icon, link }) {
   return (
@@ -18,136 +19,145 @@ function AnalyticsCard({ title, value, icon, link }) {
   );
 }
 
-/* Dashboard component */
 function Dashboard() {
   const [postcount, setPostcount] = useState(0);
   const [catgscount, setCatgscount] = useState(0);
   const [usersCount, setUsersCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true
-  const [listDozzy, setListDozzy] = useState(""); // Initialize loading state to true
-  const [listDozzyBng, setListDozzyBng] = useState(""); // Initialize loading state to true
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [listDozzy, setListDozzy] = useState([]);
+  const [listDozzyBng, setListDozzyBng] = useState([]);
+
+  const [hydSearch, setHydSearch] = useState('');
+  const [bngSearch, setBngSearch] = useState('');
+
+  const [hydShowAll, setHydShowAll] = useState(false);
+  const [bngShowAll, setBngShowAll] = useState(false);
 
   useEffect(() => {
-    async function jj() {
-      const requestOptions = {
-        method: "GET",
-        redirect: "follow"
-      };
-      const response = await fetch("https://api.dozzy.com/customer/approved_properties?lat=17&long=78&program_id=1&property_capacity=1000", requestOptions);
-      const result = await response.json();
-      console.log(result?.data?.results, 'bangalore dozzy');
-      setListDozzy(result?.data?.results)
+    async function fetchData() {
+      const hydResponse = await fetch("https://api.dozzy.com/customer/approved_properties?lat=17&long=78&program_id=1&property_capacity=1000");
+      const hydData = await hydResponse.json();
+      setListDozzy(hydData?.data?.results || []);
+
+      const bngResponse = await fetch("https://api.dozzy.com/customer/approved_properties?lat=12&long=77&program_id=1&property_capacity=1000");
+      const bngData = await bngResponse.json();
+      setListDozzyBng(bngData?.data?.results || []);
     }
-    jj()
-  }, [])
-  useEffect(() => {
-    async function jj() {
-      const requestOptions = {
-        method: "GET",
-        redirect: "follow"
-      };
-      const response = await fetch("https://api.dozzy.com/customer/approved_properties?lat=12&long=77&program_id=1&property_capacity=1000", requestOptions);
-      const result = await response.json();
-      console.log(result?.data?.results, 'bangalore dozzy');
-      setListDozzyBng(result?.data?.results)
-    }
-    jj()
-  }, [])
+
+    fetchData();
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true); // Set loading to true when fetching starts
-
+      setIsLoading(true);
       try {
-        const fetchPosts = async () => {
-          const querySnapshot = await getDocs(collection(fireDb, "blogPost"));
-          const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setPostcount(posts?.length);
-          const querySnapshotusers = await getDocs(collection(fireDb, "users"));
-          const users = querySnapshotusers.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setUsersCount(users?.length);
-        };
+        const posts = await getDocs(collection(fireDb, "blogPost"));
+        const users = await getDocs(collection(fireDb, "users"));
+        const catg1 = await getDocs(collection(fireDb, "catgfordozzy"));
+        const catg2 = await getDocs(collection(fireDb, "catgforldc"));
 
-        const fetchCatgs = async () => {
-          const querySnapshot = await getDocs(collection(fireDb, "catgfordozzy"));
-          const catgs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          const querySnapshot2 = await getDocs(collection(fireDb, "catgforldc"));
-          const catgs2 = querySnapshot2.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          // setCatgscount(catgs2?.length);
-          setCatgscount(catgs?.length + catgs2?.length);
-        };
-
-        await Promise.all([fetchPosts(), fetchCatgs()]); // Ensure both are fetched before stopping loading
-
+        setPostcount(posts.docs.length);
+        setUsersCount(users.docs.length);
+        setCatgscount(catg1.docs.length + catg2.docs.length);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setIsLoading(false); // Set loading to false once both data fetching is complete
+        setIsLoading(false);
       }
     };
-
     fetchData();
-  }, []); // Empty dependency array ensures this effect runs only once when the component mounts
+  }, []);
+
+  const filterData = (data, searchTerm) => {
+    return data.filter(item =>
+      [item?.property_name, item?.original_property_name, item?.area_name]
+        .some(val => val?.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  };
+
+  const displayedHydData = hydShowAll ? filterData(listDozzy, hydSearch) : filterData(listDozzy, hydSearch).slice(0, 10);
+  const displayedBngData = bngShowAll ? filterData(listDozzyBng, bngSearch) : filterData(listDozzyBng, bngSearch).slice(0, 10);
+
+  const renderTable = (data, title) => (
+    <div className="mt-10 w-full overflow-x-auto">
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
+      <table style={{ border: '1px solid black', borderCollapse: 'collapse', width: '100%' }}>
+        <thead>
+          <tr className='bg-gray-100'>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Sno</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Property Capacity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index} className='capitalize'>
+              <td style={{ border: '1px solid black', padding: '8px' }}>{index + 1}</td>
+              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
+              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name}</td>
+              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
+              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_capacity}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 
   const dashboardContent = isLoading ? (
     <Loading />
   ) : (
     <div className="container mx-auto mt-8 px-4">
+      {/* Top Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <AnalyticsCard title="Total Posts" value={postcount} icon={faFileAlt} link="/Admin/Posts" />
         <AnalyticsCard title="Total Categories in dev" value={catgscount} icon={faFolder} link="/Admin/Categories" />
         <AnalyticsCard title="Total Users" value={usersCount} icon={faUser} link="/Admin/Accounts" />
-        {console.log(listDozzy, 'dwdws')
-        }
-      </div>
-      <div className='flex gap-x-10 pt-20'>
-
-        <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ border: '1px solid black', padding: '8px' }}>Sno</th>
-              <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
-              <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
-              <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
-              <th style={{ border: '1px solid black', padding: '8px' }}>property_capacity</th>
-            </tr>
-          </thead>
-          <tbody>
-            {listDozzy?.map((item, index) => (
-              <tr key={index} className='capitalize'>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{index + 1}</td>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name}</td>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_capacity}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr className='capitalize'>
-              <th style={{ border: '1px solid black', padding: '8px' }}>Sno</th>
-              <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
-              <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
-              <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
-              <th style={{ border: '1px solid black', padding: '8px' }}>property_capacity</th>
-            </tr>
-          </thead>
-          <tbody>
-            {listDozzyBng?.map((item, index) => (
-              <tr key={index} className='capitalize'>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{index + 1}</td>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name.toLowerCase()}</td>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
-                <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_capacity}</td>
-
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
 
+      {/* Hyderabad Section */}
+      <div className="mt-10">
+        <input
+          type="text"
+          placeholder="Search Hyderabad properties..."
+          value={hydSearch}
+          onChange={(e) => setHydSearch(e.target.value)}
+          className="border px-4 py-2 rounded-md mb-4 w-full sm:w-1/2"
+        />
+        
+        {renderTable(displayedHydData, "Hyderabad Properties")}
+        {filterData(listDozzy, hydSearch).length > 10 && (
+          <button
+            onClick={() => setHydShowAll(prev => !prev)}
+            className="mt-2 text-blue-600 underline"
+          >
+            {hydShowAll ? "Show Less" : "View All"}
+          </button>
+        )}
+      </div>
+
+      {/* Bangalore Section */}
+      <div className="mt-10">
+        <input
+          type="text"
+          placeholder="Search Bangalore properties..."
+          value={bngSearch}
+          onChange={(e) => setBngSearch(e.target.value)}
+          className="border px-4 py-2 rounded-md mb-4 w-full sm:w-1/2"
+        />
+        {renderTable(displayedBngData, "Bangalore Properties")}
+        {filterData(listDozzyBng, bngSearch).length > 10 && (
+          <button
+            onClick={() => setBngShowAll(prev => !prev)}
+            className="mt-2 text-blue-600 underline"
+          >
+            {bngShowAll ? "Show Less" : "View All"}
+          </button>
+        )}
+      </div>
     </div>
   );
 
