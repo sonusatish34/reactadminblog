@@ -50,7 +50,7 @@ export default function AddPost() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/upload",
+        "https://reactadminblog.vercel.app/api/upload",
         formData1,
         {
           headers: {
@@ -225,7 +225,7 @@ export default function AddPost() {
               data.append("blogfor", formData.blogfor);
 
               axios
-                .post("http://localhost:5000/uploadei", data, {
+                .post("https://reactadminblog.vercel.app/api/uploadei", data, {
                   headers: { "Content-Type": "multipart/form-data" },
                 })
                 .then((res) => {
@@ -287,7 +287,7 @@ export default function AddPost() {
 
           <div className="flex flex-col pt-4">
             <label htmlFor="categoryname" className="text-lg">
-              Category--oo
+              Category
             </label>
             <select
               id="categoryname"
@@ -316,6 +316,19 @@ export default function AddPost() {
               onChange={handleChange}
               className="border rounded-lg p-2"
               required
+            />
+          </div>
+          <div className="flex flex-col pt-4">
+            <label htmlFor="description" className="text-lg">
+              Description (Meta)
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows="3"
+              className="border rounded-lg p-2"
             />
           </div>
 
@@ -460,8 +473,8 @@ export default function AddPost() {
                 onChange={(event, editor) => {
                   const data = editor.getData();
                   setEditorHtml(data);
-                  console.log(data,"data");
-                  
+                  console.log(data, "data");
+
                 }}
               />
 
@@ -469,19 +482,7 @@ export default function AddPost() {
 
           </div>
 
-          <div className="flex flex-col pt-4">
-            <label htmlFor="description" className="text-lg">
-              Description (Meta)----
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="3"
-              className="border rounded-lg p-2"
-            />
-          </div>
+          
 
           <div className="flex justify-between pt-6">
             <button
