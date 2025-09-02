@@ -199,3 +199,6 @@
   max-width: calc(100% - 310px); /* Optional: Limit the text width if needed */
 }
 /* Style all tables */
+.custom-editor .ck-editor__editable_inline {
+  min-height: 300px;
+}

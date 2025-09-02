@@ -6,132 +6,104 @@ import {
   Timestamp,
   addDoc,
   collection,
-  setDoc,
   getDocs,
-  query,
-  where,
 } from "firebase/firestore";
-import ReactQuill, { Quill } from "react-quill";
-import "react-quill/dist/quill.snow.css"; // import styles
-import axios from "axios"; // for handling image upload
-import SunEditor from 'suneditor-react';
-import 'suneditor/dist/css/suneditor.min.css';
 import { fireDb } from "../../firebase";
+
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
+import axios from "axios";
+
 export default function AddPost() {
-  const [catgs, setCatgs] = useState("");
-  const [addCatgs, setAddCatgs] = useState(false);
-  const [newCategory, setNewCategory] = useState(""); // Stores the new category name
+  const [catgs, setCatgs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [allowImg, setAllowImg] = useState(true);
 
-  // console.log(catgs, "--catgs--");
-
-  const [selectedFile, setSelectedFile] = useState(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+
+  const [formData, setFormData] = useState({
+    id: "",
+    title: "",
+    cialt: "",
+    content: "",
+    coverimages: "",
+    blogfor: "",
+    categoryname: [],
+    description: "",
+    slug: "",
+  });
+
+  const [editorHtml, setEditorHtml] = useState("");
+  const [contentTable, setContentTable] = useState(""); // Not needed separately now because CKEditor handles tables inline
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-
-    // Check if the file is of type 'image/webp'
     if (file && file.type !== "image/webp") {
       alert("Please upload a .webp image.");
-      return; // Exit the function if the file is not a .webp image
+      return;
     }
 
-    setSelectedFile(file);
-
-    // Create FormData object to send the file as multipart/form-data
     const formData1 = new FormData();
     formData1.append("coverimages", file);
     formData1.append("blogfor", formData.blogfor);
 
     try {
       const response = await axios.post(
-        "https://reactadminblog.vercel.app/api/upload",
+        "http://localhost:5000/upload",
         formData1,
         {
-          // const response = await axios.post(
-          //   "http://localhost:5000/upload",
-          //   formData1,
-          // {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      // Set the uploaded image URL from the response
-      console.log(response, "resp");
       setUploadedImageUrl(response?.data?.imageUrl);
     } catch (error) {
       console.error("Error uploading image:", error);
     }
   };
 
-  const [postauthor, setPostauthor] = useState("");
-  const [formData, setFormData] = useState({
-    id: "",
-    title: "",
-    cialt: "",
-    content: "",
-    coverimages: "", // This will store the base64 image string
-    blogfor: "",
-    categoryname: [],
-    description: "",
-    cialt: "",
-    slug: "",
-  });
-
-  const [itineraryData, setItineraryData] = useState({
-    title: '',
-    summary: '',
-    coverImage: '',
-    plans: [
-      {
-        type: '',
-        price: '',
-        duration: '',
-        highlights: [''],
-        note: ''
-      }
-    ]
-  });
-
-  const [editorData, setEditorData] = useState("");
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "categoryname") {
-      // Handle multi-selection for categories
       const selectedCategories = Array.from(
         e.target.selectedOptions,
         (option) => option.value
       );
-      setFormData((prevFormData) => ({
-        ...prevFormData,
+      setFormData((prev) => ({
+        ...prev,
         categoryname: selectedCategories,
       }));
     } else {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
+      setFormData((prev) => ({
+        ...prev,
         [name]: value,
       }));
     }
   };
+
+  const calculateReadTime = (text) => {
+    const words = text.split(/\s+/).filter((w) => w.length > 0);
+    const wordCount = words.length;
+    const wordsPerMinute = 183;
+    if (wordCount === 0) return 0;
+    return Math.ceil(wordCount / wordsPerMinute);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newPost = {
       title: formData.title,
       description: formData.description,
-      slug: formData.slug.replaceAll(" ", "-").toLowerCase().replace(/[;,]/g, ''),
+      slug: formData.slug.replaceAll(" ", "-").toLowerCase().replace(/[;,]/g, ""),
       content: editorHtml,
-      contentTable: contentTable,
       coverimages: uploadedImageUrl,
       blogfor: formData.blogfor,
       categoryname: formData.categoryname,
       createdAt: new Date().toISOString(),
-      itineraryData: itineraryData,
       cialt: formData.cialt,
       timetake: calculateReadTime(editorHtml),
       blog_state: "in-progress",
@@ -143,7 +115,7 @@ export default function AddPost() {
       await addDoc(blogRef, {
         ...newPost,
         time: Timestamp.now(),
-        postauthor: localStorage.getItem('AdminName'),
+        postauthor: localStorage.getItem("AdminName"),
         date: new Date().toLocaleString("en-US", {
           month: "short",
           day: "2-digit",
@@ -168,7 +140,7 @@ export default function AddPost() {
         content: "",
         coverimages: "",
         blogfor: "",
-        categoryname: "", // Ensure this is reset
+        categoryname: [],
         cialt: "",
         slug: "",
       });
@@ -184,383 +156,352 @@ export default function AddPost() {
     }
   };
 
-  // Handle form clear
   const handleClear = () => {
     setFormData({
       id: "",
       title: "",
       description: "",
       content: "",
-      coverimages: "", // This will store the base64 image string
+      coverimages: "",
       blogfor: "",
-      categoryname: "",
-      description: "",
+      categoryname: [],
+      cialt: "",
       slug: "",
     });
-    setEditorData(""); // Reset the CKEditor content
+    setEditorHtml("");
   };
-
-  const [editorHtml, setEditorHtml] = useState("");
-  const calculateReadTime = (text) => {
-    const words = text.split(/\s+/).filter((word) => word.length > 0); // Split by spaces
-    const wordCount = words.length;
-
-    const wordsPerMinute = 183;
-    if (wordCount == 0) return 0;
-    return Math.ceil(wordCount / wordsPerMinute);
-  };
-
-  const quillRef = useRef(null);
-
-  const modules = {
-    toolbar: [
-      [{ header: "1" }, { header: "2" }, { header: "3" }], // Adding custom font sizes
-      [{ list: "ordered" }, { list: "bullet" }],
-      ["bold", "italic", "underline", "strike"],
-      ["blockquote"],
-      ["link", "image"], // Add the image button in the toolbar
-      [{ align: [] }],
-      [{ color: [] }], // Color dropdown
-      [{ background: [] }], // Background color dropdown
-    ],
-  };
-
-  const formats = [
-    "header",
-    "size",
-    "list",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "blockquote",
-    "link",
-    "image",
-    "align",
-    "color",
-    "background",
-  ];
 
   useEffect(() => {
-    // @ts-ignore
-    quillRef.current
-      .getEditor()
-      .getModule("toolbar")
-      .addHandler("image", () => {
-        const input = document.createElement("input");
-        input.setAttribute("type", "file");
-        input.setAttribute("accept", "image/*");
-        input.click();
-        input.onchange = async () => {
-          if (!input.files || !input.files.length || !input.files[0]) return;
-          const file = input.files[0];
-          if (file && file.type !== "image/webp") {
-            alert("Please upload a .webp image.");
-            return; // Exit the function if the file is not a .webp image
-          }
-          const altText = prompt("Please enter alt text for the image:");
-          const formData2 = new FormData();
-          formData2.append("image", file);
-          formData2.append("blogfor", formData.blogfor);
-          console.log("FormData blogfor:", formData.blogfor); // Debugging line
-          try {
-            // const response = await axios.post(
-            //   "http://localhost:5000/uploadei",
-            //   formData2,
-            //   {
-            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-            );
-
-            console.log(response, "response from image upload");
-            const data = response.data;
-            if (data.success) {
-              console.log("Image uploaded successfully");
-              // Insert the image URL into Quill editor
-              const editor = quillRef.current.getEditor();
-              const range = editor.getSelection(true);
-              editor.insertEmbed(range.index, "image", data.imageUrl);
-              const imageElement = editor.container.querySelector("img");
-              if (imageElement) {
-                imageElement.setAttribute("alt", altText);
-              }
-            } else {
-              console.error("Upload failed:", data.error);
-            }
-          } catch (error) {
-            console.error("Error uploading image:", error);
-          }
-        };
-      });
-  }, [formData.blogfor, formData]);
-
-  useEffect(() => {
-    if (formData.blogfor == "Dozzy" || formData.blogfor == "LDC") {
+    if (formData.blogfor === "Dozzy" || formData.blogfor === "LDC") {
       setAllowImg(false);
     } else {
       setAllowImg(true);
     }
   }, [formData.blogfor]);
 
-  console.log(formData.blogfor, "formData.blogfor");
-
   useEffect(() => {
     const fetchCatgs = async () => {
-      // setLoading(true);
-      const querySnapshot = await getDocs(
-        collection(
-          fireDb,
-          `${formData.blogfor == "LDC"
-            ? "catgforldc"
-            : formData.blogfor == "Dozzy"
-              ? "catgfordozzy"
-              : formData.blogfor == "DozzyBng"
-                ? "catgfordozzybng"
-                : "none"
-          }`
-        )
-      );
+      const colName =
+        formData.blogfor === "LDC"
+          ? "catgforldc"
+          : formData.blogfor === "Dozzy"
+            ? "catgfordozzy"
+            : formData.blogfor === "DozzyBng"
+              ? "catgfordozzybng"
+              : "none";
 
-      const catgs1 = querySnapshot.docs.map((doc) => ({
+      if (colName === "none") {
+        setCatgs([]);
+        return;
+      }
+
+      const querySnapshot = await getDocs(collection(fireDb, colName));
+      const cats = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setCatgs(catgs1);
-      // setPostauthor(localStorage.getItem('AdminName'))
+      setCatgs(cats);
     };
+
     fetchCatgs();
   }, [formData.blogfor]);
-  const [contentTable, setContentTable] = useState('');
+
+  // Custom upload adapter for CKEditor
+  function CustomUploadAdapter(loader) {
+    return {
+      upload() {
+        return loader.file.then(
+          (file) =>
+            new Promise((resolve, reject) => {
+              // Validate file type
+              if (file.type !== "image/webp") {
+                reject("Please upload a .webp image.");
+                alert("Please upload a .webp image.");
+                return;
+              }
+
+              const data = new FormData();
+              data.append("image", file);
+              data.append("blogfor", formData.blogfor);
+
+              axios
+                .post("http://localhost:5000/uploadei", data, {
+                  headers: { "Content-Type": "multipart/form-data" },
+                })
+                .then((res) => {
+                  if (res.data.success) {
+                    resolve({
+                      default: res.data.imageUrl,
+                    });
+                  } else {
+                    reject("Upload failed");
+                    alert("Upload failed");
+                  }
+                })
+                .catch((err) => {
+                  console.error("Upload error", err);
+                  reject(err);
+                });
+            })
+        );
+      },
+      abort() {
+        // Handle abort if needed
+      },
+    };
+  }
+
+  function CustomUploadAdapterPlugin(editor) {
+    editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+      return CustomUploadAdapter(loader);
+    };
+  }
 
   return (
     <AdminLayout>
-      {
-        <div
-          style={{ width: "900px" }}
-          className="shadow-md flex-row px-1 mt-5 items-center pt-2 pb-2 mb-2 justify-center rounded-lg ml-10 bg-white"
-        >
-          <h2 className="text-2xl font-semibold mb-4 text-center hover:text-indigo-500">
-            Add New Post
-          </h2>
-          {
-            <form onSubmit={handleSubmit} className="space-y-4 w-full p-1">
-              <div className="flex flex-col pt-4">
-                <label htmlFor="blogfor" className="text-lg">
-                  Blog For
-                </label>
-                <select
-                  id="blogfor"
-                  name="blogfor"
-                  value={formData.blogfor}
-                  onChange={handleChange}
-                  className="border rounded-lg p-2"
-                >
-                  <option value="none">select from below</option>
-                  <option value="LDC">LDC</option>
-                  <option value="Dozzy">Dozzy Hyderabad</option>
-                  <option value="DozzyBng">Dozzy Bangalore</option>
-                </select>
-              </div>
-              <div className="flex flex-col pt-4">
-                <label htmlFor="categoryname" className="text-lg pb-5">
-                  Category Name Selected :
-                  <p className="flex gap-4">
-                    {formData?.categoryname?.length &&
-                      formData?.categoryname?.map((catn, index) => {
-                        return (
-                          <span key={index} className="text-blue-400">
-                            {catn}
-                          </span>
-                        );
-                      })}
-                  </p>{" "}
-                </label>
-                <div className="flex items-center gap-2"></div>
-                <div className="flex items-center gap-4">
-                  {/* <label htmlFor="categoryname" className="text-lg font-semibold text-gray-700">Select Categories</label> */}
-                  <select
-                    id="categoryname"
-                    name="categoryname"
-                    multiple
-                    value={formData.categoryname}
-                    onChange={handleChange}
-                    className="border-2 border-gray-300 rounded-lg p-3 w-64 h-40 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none shadow-md"
-                  >
-                    {catgs.length ? (
-                      catgs.map((item, index) => (
-                        <option
-                          className="text-black p-2 border-b-2 border-gray-200 hover:bg-blue-100 hover:text-blue-600 transition duration-150"
-                          key={index}
-                          value={item.name}
-                        >
-                          {item.name}
-                        </option>
-                      ))
-                    ) : (
-                      <option className="text-red-500">
-                        please select blogfor
-                      </option>
-                    )}
-                  </select>
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <label htmlFor="title" className="text-lg">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  required
-                  className="border rounded-lg p-2"
+      <div
+        style={{ width: "900px" }}
+        className="shadow-md flex-row px-1 mt-5 items-center pt-2 pb-2 mb-2 justify-center rounded-lg ml-10 bg-white"
+      >
+        <h2 className="text-2xl font-semibold mb-4 text-center hover:text-indigo-500">
+          Add New Post
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4 w-full p-1">
+          <div className="flex flex-col pt-4">
+            <label htmlFor="blogfor" className="text-lg">
+              Blog For
+            </label>
+            <select
+              id="blogfor"
+              name="blogfor"
+              value={formData.blogfor}
+              onChange={handleChange}
+              className="border rounded-lg p-2"
+            >
+              <option value="none">select from below</option>
+              <option value="LDC">LDC</option>
+              <option value="Dozzy">Dozzy</option>
+              <option value="DozzyBng">Dozzy Bangla</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col pt-4">
+            <label htmlFor="categoryname" className="text-lg">
+              Category--oo
+            </label>
+            <select
+              id="categoryname"
+              name="categoryname"
+              value={formData.categoryname}
+              onChange={handleChange}
+              multiple
+              className="border rounded-lg p-2"
+            >
+              {catgs.map((cat) => (
+                <option key={cat.id} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col pt-4">
+            <label htmlFor="title" className="text-lg">
+              Title
+            </label>
+            <input
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              className="border rounded-lg p-2"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col pt-4">
+            <label htmlFor="slug" className="text-lg">
+              Slug
+            </label>
+            <input
+              id="slug"
+              name="slug"
+              value={formData.slug}
+              onChange={handleChange}
+              className="border rounded-lg p-2"
+              required
+            />
+          </div>
+          <div className="flex gap-4 pt-4">
+            <div className="flex flex-col">
+              <label htmlFor="coverimages" className="text-lg">
+                Cover Image
+              </label>
+              <input
+                type="file"
+                id="coverimages"
+                name="coverimages"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="border rounded-lg p-2"
+                disabled={allowImg}
+              />
+              {uploadedImageUrl.length ? <img
+                src={uploadedImageUrl} // Adjust URL for public access
+                alt="Cover Preview"
+                className="w-32 h-32 object-cover rounded"
+              /> : <p className="p-1 pt-4 text-red-500">No img uploaded</p>}
+              {/* {console.log(uploadedImageUrl, "uploadedImageUrl")} */}
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="cialt" className="text-lg">
+                Cover image Alt text{" "}
+              </label>
+              <input
+                type="text"
+                id="cialt"
+                name="cialt"
+                value={formData.cialt}
+                onChange={handleChange}
+                required
+                className="border rounded-lg p-2"
+              />
+            </div>
+          </div>
+          {/* <div className="flex flex-col pt-4">
+            <label htmlFor="cialt" className="text-lg">
+              Cover Image ALT Text
+            </label>
+            <input
+              id="cialt"
+              name="cialt"
+              value={formData.cialt}
+              onChange={handleChange}
+              className="border rounded-lg p-2"
+            />
+          </div> */}
+
+          {allowImg && (
+            <div className="flex flex-col pt-4">
+              <label htmlFor="coverimages" className="text-lg">
+                Upload Cover Image (.webp only)
+              </label>
+              <input
+                type="file"
+                id="coverimages"
+                name="coverimages"
+                accept=".webp"
+                onChange={handleImageUpload}
+                className="border rounded-lg p-2"
+              />
+              {uploadedImageUrl && (
+                <img
+                  src={uploadedImageUrl}
+                  alt="Cover Preview"
+                  className="w-40 mt-2"
                 />
-              </div>
-              <div className="flex flex-col">
-                <label htmlFor="slug" className="text-lg">
-                  slug
-                </label>
-                <input
-                  type="text"
-                  id="slug"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleChange}
-                  required
-                  className="border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <p className="text-sm text-blue-600">
-                  slug: {formData.slug.replaceAll(" ", "-").toLowerCase().replace(/[;,.]/g, '')}
-                </p>
-              </div>
+              )}
+            </div>
+          )}
 
+          <div className="flex flex-col pt-4">
+            <label className="text-lg">Content</label>
+            <div className="custom-editor">
+              <CKEditor
+                editor={ClassicEditor}
+                data={editorHtml}
+                config={{
+                  extraPlugins: [CustomUploadAdapterPlugin],
+                  toolbar: [
+                    "heading",
+                    "|",
+                    "bold",
+                    "italic",
+                    "underline",
+                    "strikethrough",
+                    "link",
+                    "bulletedList",
+                    "numberedList",
+                    "|",
+                    "alignment",
+                    "outdent",
+                    "indent",
+                    "|",
+                    "blockQuote",
+                    "insertTable",
+                    "tableColumn",
+                    "tableRow",
+                    "mergeTableCells",
+                    "|",
+                    "imageUpload", // ✅ Add this
+                    "undo",
+                    "redo",
+                    "|",
+                    "fontColor",
+                    "fontBackgroundColor",
+                  ],
+                  image: {
+                    toolbar: [
+                      'imageTextAlternative',
+                      'imageStyle:full',
+                      'imageStyle:side'
+                    ]
+                  },
+                  table: {
+                    contentToolbar: [
+                      "tableColumn",
+                      "tableRow",
+                      "mergeTableCells",
+                      "tableProperties",
+                      "tableCellProperties",
+                    ],
+                  },
+                }}
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  setEditorHtml(data);
+                  console.log(data,"data");
+                  
+                }}
+              />
 
-              <div className="flex flex-col">
-                <label htmlFor="description" className="text-lg">
-                  {" "}
-                  Meta Description
-                </label>
-                <input
-                  type="text"
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  required
-                  className="border rounded-lg p-2"
-                />
-                <p className="pt-3">
-                  {" "}
-                  Character Count :{" "}
-                  {formData.description.replace(/\s+/g, "").length}
-                </p>
-              </div>
-              <div className="flex gap-4 pt-4">
-                <div className="flex flex-col">
-                  <label htmlFor="coverimages" className="text-lg">
-                    Cover Image
-                  </label>
-                  <input
-                    type="file"
-                    id="coverimages"
-                    name="coverimages"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="border rounded-lg p-2"
-                    disabled={allowImg}
-                  />
-                  {uploadedImageUrl.length ? <img
-                    src={uploadedImageUrl} // Adjust URL for public access
-                    alt="Cover Preview"
-                    className="w-32 h-32 object-cover rounded"
-                  /> : <p className="p-1 pt-4 text-red-500">No img uploaded</p>}
-                  {/* {console.log(uploadedImageUrl, "uploadedImageUrl")} */}
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="cialt" className="text-lg">
-                    Cover image Alt text{" "}
-                  </label>
-                  <input
-                    type="text"
-                    id="cialt"
-                    name="cialt"
-                    value={formData.cialt}
-                    onChange={handleChange}
-                    required
-                    className="border rounded-lg p-2"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <label htmlFor="content" className="text-lg">
-                  Content
-                </label>
-                <div>
-                  <ReactQuill
-                    value={editorHtml}
-                    onChange={setEditorHtml}
-                    modules={modules}
-                    formats={formats}
-                    ref={quillRef}
-                    placeholder="Write your content here..."
-                    className="h-80"
-                    readOnly={allowImg}
-                  />
-                </div>
-                <div className="pt-4 mt-8">
-                  <p className="py-3 text-xl font-bold">Table </p>
-                  <SunEditor
-                    setContents={contentTable}
-                    onChange={setContentTable}
-                    setOptions={{
-                      height: 300,
-                      buttonList: [
+            </div>
 
-                        ['align', 'list', 'table'], // ✅ Built-in table button
+          </div>
 
-                      ],
-                    }}
-                  />
-                </div>
-              </div>
+          <div className="flex flex-col pt-4">
+            <label htmlFor="description" className="text-lg">
+              Description (Meta)----
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows="3"
+              className="border rounded-lg p-2"
+            />
+          </div>
 
-              <div></div>
-              <p className="text-end pr-4">
-                {calculateReadTime(editorHtml)} min read
-              </p>
-              <button
-                type="submit"
-                className="bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-600 transition duration-300"
-              >
-                Submit
-              </button>
-              <button
-                type="button"
-                onClick={handleClear}
-                className="bg-indigo-500 text-white py-2 px-4 rounded-lg ml-3 hover:bg-indigo-600 transition duration-300"
-              >
-                Clear
-              </button>
-              <button type="button" className="">
-                {loading && (
-                  <div className="pl-7">
-                    <p className="text-blue-500 capitalize text-xl bg-blue-50 p-2 rounded-md">
-                      uploading please wait..
-                    </p>
-                  </div>
-                )}
-              </button>
-            </form>
-          }
-        </div>
-      }
+          <div className="flex justify-between pt-6">
+            <button
+              type="submit"
+              className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
+              disabled={loading}
+            >
+              {loading ? "Submitting..." : "Submit"}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleClear}
+              className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
+            >
+              Clear
+            </button>
+          </div>
+        </form>
+      </div>
     </AdminLayout>
   );
 }
