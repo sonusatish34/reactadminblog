@@ -2,13 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { doc, updateDoc } from "firebase/firestore";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
 import { getDoc, collection, getDocs } from "firebase/firestore";
 import axios from "axios"; // for handling image upload
 import { fireDb } from "../../firebase"; // Import Firebase DB
 import AdminLayout from "../../layouts/AdminLayout";
-
+import EditPostEditor from "./EditPostEditor";
 function UpdatePost() {
   const { id } = useParams(); // Get the post ID from the route
   const navigate = useNavigate();
@@ -134,9 +132,6 @@ function UpdatePost() {
     }
   };
 
-  const handleQuillChange = (content) => {
-    setPost((prevPost) => ({ ...prevPost, content }));
-  };
 
   const handleImageAltUpdate = async (imgElement) => {
     try {
@@ -160,21 +155,6 @@ function UpdatePost() {
     }
   };
 
-  const attachImageClickHandler = () => {
-    const editor = document.querySelector(".ql-editor"); // Quill editor's content container
-    if (editor) {
-      editor.addEventListener("click", (e) => {
-        if (e.target.tagName === "IMG") {
-          handleImageAltUpdate(e.target);
-        }
-      });
-    }
-  };
-
-  useEffect(() => {
-    attachImageClickHandler();
-  }, []);
-  const quillRef = useRef(null);
 
   const modules = {
     toolbar: [
@@ -196,61 +176,7 @@ function UpdatePost() {
     'blockquote', 'link', 'image', 'align', 'color', 'background'
   ];
 
-  useEffect(() => {
-    // @ts-ignore
-    quillRef.current
-      .getEditor()
-      .getModule("toolbar")
-      .addHandler("image", () => {
-        const input = document.createElement("input");
-        input.setAttribute("type", "file");
-        input.setAttribute("accept", "image/*");
-        input.click();
-        input.onchange = async () => {
-          if (!input.files || !input.files.length || !input.files[0]) return;
-          const file = input.files[0];
-          if (file && file.type !== "image/webp") {
-            alert("Please upload a .webp image.");
-            return; // Exit the function if the file is not a .webp image
-          }
-          const altText = prompt("Please enter alt text for the image:");
-          const formData2 = new FormData();
-          formData2.append("image", file);
-          formData2.append("blogfor", post.blogfor);
-          console.log("FormData blogfor:", post.blogfor); // Debugging line
-          try {
-            // const response = await axios.post(
-            //   "http://localhost:5000/uploadei",
-            //   formData2,
-            //   {
-            const response = await axios.post('https://reactadminblog.vercel.app/api/uploadei', formData2, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-            );
 
-            console.log(response, "response from image upload");
-            const data = response.data;
-            if (data.success) {
-              console.log("Image uploaded successfully");
-              // Insert the image URL into Quill editor
-              const editor = quillRef.current.getEditor();
-              const range = editor.getSelection(true);
-              editor.insertEmbed(range.index, "image", data.imageUrl);
-              const imageElement = editor.container.querySelector("img");
-              if (imageElement) {
-                imageElement.setAttribute("alt", altText);
-              }
-            } else {
-              console.error("Upload failed:", data.error);
-            }
-          } catch (error) {
-            console.error("Error uploading image:", error);
-          }
-        };
-      });
-  }, [post]);
 
   useEffect(() => {
     if (post?.subcat?.length > 0) {
@@ -348,17 +274,17 @@ function UpdatePost() {
 
           <div className="mb-4 pb-6">
             <label htmlFor="content" className="block text-gray-700">Content</label>
-            <ReactQuill
-              value={post.content}
-              onChange={handleQuillChange}
-              modules={modules}
-              formats={formats}
-              ref={quillRef}
-              className="w-full h-screen"
+            <EditPostEditor
+              existingContent={post.content}
+              onContentChange={(updatedContent) =>
+                setPost((prev) => ({ ...prev, content: updatedContent }))
+              }
             />
+
+
           </div>
           {/* Cover Image */}
-            <div className="flex gap-4 pt-16">
+          <div className="flex gap-4 pt-16">
             <div className="flex flex-col">
               <label htmlFor="coverimages" className="text-lg">Cover Image</label>
               <input
