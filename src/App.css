@@ -200,5 +200,10 @@
 }
 /* Style all tables */
 .custom-editor .ck-editor__editable_inline {
-  min-height: 300px;
+  min-height: 500px;
+}
+
+.custom-editor .ck-content ol,
+.custom-editor .ck-content ul {
+  padding-left: 10px !important; /* adds space so numbers are fully visible */
 }

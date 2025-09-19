@@ -89,6 +89,7 @@ function Dashboard() {
             <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
             <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
             <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
+            <th style={{ border: '1px solid black', padding: '8px' }}>Full Address</th>
             <th style={{ border: '1px solid black', padding: '8px' }}>Property Capacity</th>
           </tr>
         </thead>
@@ -99,6 +100,7 @@ function Dashboard() {
               <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
               <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name}</td>
               <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
+              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_location}</td>
               <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_capacity}</td>
             </tr>
           ))}

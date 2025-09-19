@@ -419,7 +419,7 @@ export default function AddPost() {
 
           <div className="flex flex-col pt-4">
             <label className="text-lg">Content</label>
-            <div className="custom-editor">
+            <div className="custom-editor pl-">
               <CKEditor
                 editor={ClassicEditor}
                 data={editorHtml}
@@ -473,10 +473,8 @@ export default function AddPost() {
                 onChange={(event, editor) => {
                   const data = editor.getData();
                   setEditorHtml(data);
-                  console.log(data, "data");
-
                 }}
-              />
+                              />
 
             </div>
 
