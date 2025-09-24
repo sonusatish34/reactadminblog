@@ -8,9 +8,9 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import Loading from "../../layouts/Loading";
 import { Link } from "react-router-dom";
-import { BiCategory } from "react-icons/bi";
-
+// import { BiCategory } from "react-icons/bi";
 import Image from "@tiptap/extension-image";
+
 function View() {
   const { id } = useParams();
   return (
@@ -111,7 +111,7 @@ function Getpost({ postId }) {
                 <p>{postData?.timetake} min read</p>
                 {/* <p>{StaticData(postData?.time.seconds)}</p> */}
                 <p className="flex items-center gap-1">
-                  <BiCategory className="text-blue-400" />
+                  {/* <BiCategory className="text-blue-400" /> */}
                   <span>
                     {Array.isArray(postData?.categoryname)
                       ? postData.categoryname.join(", ")
