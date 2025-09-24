@@ -121,7 +121,7 @@ function Getpost({ postId }) {
                
               </div>
               <ul className="py-2 flex  items-center justify-start gap-x-8 text-xs lg:text-base xl:mx-96 lg:mx-56 mx-6 ">
-                <li className="flex items-center gap-5"><span>{postData?.time}}</span>
+                <li className="flex items-center gap-5"><span>{postData?.time}</span>
                   <p>{postData?.date.slice(0, 12)}</p>
                 </li>
               </ul>
