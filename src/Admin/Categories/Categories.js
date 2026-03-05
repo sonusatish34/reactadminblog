@@ -228,6 +228,26 @@ function Categories() {
           >
             Categories For Trips
           </button>
+          <button
+            onClick={(e) => {
+              setCWant("catgforzuget");
+            }}
+            className={`bg-gray-300 p-2 rounded ${
+              cWant == "catgforzuget" ? "border-4 border-blue-500" : ""
+            }`}
+          >
+            Categories For Zuget
+          </button>
+          <button
+            onClick={(e) => {
+              setCWant("catgforcrocto");
+            }}
+            className={`bg-gray-300 p-2 rounded ${
+              cWant == "catgforcrocto" ? "border-4 border-blue-500" : ""
+            }`}
+          >
+            Categories For Crocto
+          </button>
         </div>
 
         <table className="w-[600px]  divide-y divide-gray-200 pt-10 border-2">

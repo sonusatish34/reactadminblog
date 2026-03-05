@@ -188,7 +188,11 @@ export default function AddPost() {
             ? "catgfordozzy"
             : formData.blogfor === "DozzyBng"
               ? "catgfordozzybng"
-              : "none";
+              : formData.blogfor === "zuget"
+                ? "catgforzuget"
+                : formData.blogfor === "crocto"
+                  ? "catgforcrocto"
+                  : "none";
 
       if (colName === "none") {
         setCatgs([]);
@@ -281,7 +285,9 @@ export default function AddPost() {
               <option value="none">select from below</option>
               <option value="LDC">LDC</option>
               <option value="Dozzy">Dozzy</option>
-              <option value="DozzyBng">Dozzy Bangla</option>
+              <option value="DozzyBng">Dozzy Bangalore</option>
+              <option value="zuget">Zuget</option>
+              <option value="crocto">Crocto</option>
             </select>
           </div>
 
@@ -474,13 +480,13 @@ export default function AddPost() {
                   const data = editor.getData();
                   setEditorHtml(data);
                 }}
-                              />
+              />
 
             </div>
 
           </div>
 
-          
+
 
           <div className="flex justify-between pt-6">
             <button
