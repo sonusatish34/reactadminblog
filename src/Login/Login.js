@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Ensure you import from react-router-dom
 import { getDocs, collection } from "firebase/firestore";
 import { fireDb } from "../firebase"; // Your Firebase config file
-import { Navigate } from 'react-router-dom';
-import { Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState(null);

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faPlus, faFileAlt, faTrash, faFolder, faInbox, faUser, faCog, faSignOutAlt, faHillRockslide } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faPlus, faFileAlt, faTrash, faFolder, faUser, faSignOutAlt, faHillRockslide } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "react-router-dom";
 
 function SideBar() {
   const location = useLocation();
-  const [islogout, setIsLogout] = useState(false);
   function handleLogout() {
     localStorage.clear()
     window.location.reload(false);

@@ -1,6 +1,3 @@
-import { useState } from "react";
-import { Navigate } from "react-router-dom";
-
 /* this is the backend url */
 function Domain() {
   const port = "http://127.0.0.1:8000/api";
