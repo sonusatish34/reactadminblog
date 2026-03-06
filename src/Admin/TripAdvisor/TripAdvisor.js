@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import CryptoJS from "crypto-js";
 import AdminLayout from "../../layouts/AdminLayout";
 import SunEditor from 'suneditor-react'
 import 'suneditor/dist/css/suneditor.min.css'
-import { Timestamp, addDoc, collection, setDoc, getDocs, query, doc, updateDoc, where, orderBy } from "firebase/firestore";
+import { Timestamp, addDoc, collection } from "firebase/firestore";
 import axios from "axios"; // for handling image upload
 
 import { fireDb } from "../../firebase";
@@ -15,9 +14,6 @@ export default function AddPost() {
         const fetchPosts = async () => {
             setLoading(true);
 
-            const qActive = query(collection(fireDb, "trips"));
-            const querySnapshotActive = await getDocs(qActive);
-            const activePosts = querySnapshotActive.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
             setLoading(false);
         };
 
@@ -32,14 +28,12 @@ export default function AddPost() {
         setMainContentBest(content)
     }
     const [localPreviews, setLocalPreviews] = useState([]);
-    const [catgs, setCatgs] = useState("");
 
     const [loading, setLoading] = useState(false);
 
 
     const [uploadedImageUrl, setUploadedImageUrl] = useState("");
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
 
 
 
@@ -231,8 +225,6 @@ export default function AddPost() {
                 longitude: "",
                 besttime: "",
                 populartags: "",
-                besttime: '',
-                content: '',
             });
             setMainContent('');
             setMainContentBest('');
@@ -256,18 +248,9 @@ export default function AddPost() {
             description: "",
             content: "",
             coverimages: "",
-            description: "",
             slug: "",
         });
     };
-
-
-    useEffect(() => {
-        console.log(formData, "0000000000000");
-    }, [formData])
-
-
-
 
 
     return (
@@ -398,7 +381,7 @@ export default function AddPost() {
 
 
                             <div className="flex flex-col">
-                                <label htmlFor="besttime" className="text-lg">
+                                <label className="text-lg">
                                     Content
                                 </label>
                                 <div className=" p-4 border rounded">
@@ -420,6 +403,7 @@ export default function AddPost() {
 
                                 <div className="flex flex-col mb-4">
                                     <label>Itinerary Title</label>
+                                    {uploadedImageUrl&& <p>.</p>}
                                     <input
                                         type="text"
                                         value={itineraryData.title}

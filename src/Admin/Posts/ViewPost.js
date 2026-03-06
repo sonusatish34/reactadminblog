@@ -1,11 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import AdminLayout from "../../layouts/AdminLayout";
 import { useState, useEffect } from 'react';
-import { collection, doc, getDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { fireDb } from "../../firebase"; // Adjust this import according to your setup
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import Swal from "sweetalert2";
 import Loading from "../../layouts/Loading";
 import { Link } from "react-router-dom";
 // import { BiCategory } from "react-icons/bi";
@@ -38,38 +35,6 @@ function Getpost({ postId }) {
     fetchPost();
   }, [postId]);
 
-  const handleDeleteComment = async (commentId) => {
-    const commentToDelete = postData?.comments.find((comment) => comment.id === commentId);
-
-    if (commentToDelete) {
-      Swal.fire({
-        title: 'Delete Comment',
-        text: 'Are you sure you want to delete this comment?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        cancelButtonText: 'Cancel',
-        html: `
-          <p><strong>Username:</strong> ${commentToDelete.username}</p>
-          <p><strong>Comment Body:</strong> ${commentToDelete.body}</p>
-          <p><strong>Created At:</strong> ${commentToDelete.created_at}</p>
-        `,
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          // Assuming comments are stored in a separate collection, you'll need to modify this part according to your structure
-          const commentRef = doc(fireDb, "comments", commentId); // Adjust the path to where your comments are stored
-
-          await deleteDoc(commentRef); // Delete comment from Firestore
-
-          // Update local postData state
-          const updatedComments = postData?.comments.filter((comment) => comment.id !== commentId);
-          setPostData({ ...postData, comments: updatedComments });
-
-          Swal.fire('Comment Deleted', 'The comment has been deleted.', 'success');
-        }
-      });
-    }
-  };
 
   return (
     <>

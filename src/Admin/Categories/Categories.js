@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
-import Loading from "../../layouts/Loading";
-import Domain from "../../Api/Api";
-import { AuthToken } from "../../Api/Api";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import {
-  Timestamp,
   getDocs,
   collection,
   query,
@@ -56,7 +53,7 @@ function Categories() {
 
     try {
       const categoryRef = collection(fireDb, `${cWant ? cWant : "categories"}`);
-      const q = query(categoryRef, where("name", "==", newCategory));
+      const q = query(categoryRef, where("name", "===", newCategory));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
@@ -193,7 +190,7 @@ function Categories() {
               setCWant("catgfordozzy");
             }}
             className={`bg-gray-300 p-2 rounded ${
-              cWant == "catgfordozzy" ? "border-4 border-blue-500" : ""
+              cWant === "catgfordozzy" ? "border-4 border-blue-500" : ""
             }`}
           >
             Categories For Dozzy Hyd
@@ -203,7 +200,7 @@ function Categories() {
               setCWant("catgfordozzybng");
             }}
             className={`bg-gray-300 p-2 rounded ${
-              cWant == "catgfordozzybng" ? "border-4 border-blue-500" : ""
+              cWant === "catgfordozzybng" ? "border-4 border-blue-500" : ""
             }`}
           >
             Categories For Dozzy Bng
@@ -213,7 +210,7 @@ function Categories() {
               setCWant("catgforldc"); 
             }}
             className={`bg-gray-300 p-2 rounded ${
-              cWant == "catgforldc" ? "border-4 border-blue-500" : ""
+              cWant === "catgforldc" ? "border-4 border-blue-500" : ""
             }`}
           >
             Categories For LDC
@@ -223,7 +220,7 @@ function Categories() {
               setCWant("catgfortrip");
             }}
             className={`bg-gray-300 p-2 rounded ${
-              cWant == "catgfortrip" ? "border-4 border-blue-500" : ""
+              cWant === "catgfortrip" ? "border-4 border-blue-500" : ""
             }`}
           >
             Categories For Trips
@@ -233,7 +230,7 @@ function Categories() {
               setCWant("catgforzuget");
             }}
             className={`bg-gray-300 p-2 rounded ${
-              cWant == "catgforzuget" ? "border-4 border-blue-500" : ""
+              cWant === "catgforzuget" ? "border-4 border-blue-500" : ""
             }`}
           >
             Categories For Zuget
@@ -243,7 +240,7 @@ function Categories() {
               setCWant("catgforcrocto");
             }}
             className={`bg-gray-300 p-2 rounded ${
-              cWant == "catgforcrocto" ? "border-4 border-blue-500" : ""
+              cWant === "catgforcrocto" ? "border-4 border-blue-500" : ""
             }`}
           >
             Categories For Crocto

@@ -1,33 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
-import Domain from '../../Api/Api';
-import { AuthToken } from '../../Api/Api';
-import ViewMessage from './ViewMessage';
-import Swal from 'sweetalert2';
 import { faTrash,faEye } from '@fortawesome/free-solid-svg-icons'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Route } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { Navigate,useNavigate } from 'react-router-dom';
-import Loading from '../../layouts/Loading';
 
 function ContactMessage({ message, onDelete }) {
-  const [deleting, setDeleting] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [read, setRead] = useState(message.read);
 
 
 
   
-  const closeMessage = () => {
-    setSelectedMessage(null);
-  };
-
+ 
 
   return (
     <tr
-      className={` items-center p-2 mb-2 mt-2 justify-center gap-9 rounded-lg ml-10 hover:shadow-md hover:bg-gray-200 cursor-pointer ${
-        message.read || read ? 'bg-white' : 'bg-gray-100'
+      className={` items-center p-2 mb-2 mt-2 justify-center gap-9 rounded-lg ml-10 hover:shadow-md hover:bg-gray-200 cursor-pointer'
 
       }`}
       onClick={() => {''}} // Handle click event to open the message
@@ -55,8 +41,6 @@ function ContactMessage({ message, onDelete }) {
 
 function Inbox() {
   const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   const deleteMessage = (messageId) => {
     const updatedMessages = messages.filter((message) => message.id !== messageId);
@@ -65,9 +49,7 @@ function Inbox() {
   
   return (
     <AdminLayout>
-    {loading ? (
-      <Loading/>
-    ) : (
+    {(
       <div className="container mx-auto mt-8 px-10 bg-white ml-5 pb-4 mb-5 rounded">
         <div className="max-w-screen-lg">
           <h1 className="text-3xl font-bold mb-4">Contact Messages</h1>

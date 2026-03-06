@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import CryptoJS from "crypto-js";
+import axios from "axios";
 import AdminLayout from "../../layouts/AdminLayout";
 import {
   Timestamp,
@@ -13,7 +13,6 @@ import { fireDb } from "../../firebase";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-import axios from "axios";
 
 export default function AddPost() {
   const [catgs, setCatgs] = useState([]);
@@ -35,7 +34,6 @@ export default function AddPost() {
   });
 
   const [editorHtml, setEditorHtml] = useState("");
-  const [contentTable, setContentTable] = useState(""); // Not needed separately now because CKEditor handles tables inline
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];

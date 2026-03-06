@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPen, faPlus } from '@fortawesome/free-solid-svg-icons';
+import {  faPen, faPlus } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 import Loading from '../../layouts/Loading';
 import { Timestamp, collection, getDocs, setDoc, doc, deleteDoc } from 'firebase/firestore';
@@ -105,9 +105,7 @@ function Accounts() {
     }
     getCars()
   }, [])
-  const tataCars = carList.filter(car =>
-    !["2024", "2025", 'diesel', 'pe'].some(year => car.maker_model.toLowerCase().includes(year))
-  );
+  
   const sortedTataCars = carList.sort((a, b) => {
     return a.maker_model.localeCompare(b.maker_model);
   });

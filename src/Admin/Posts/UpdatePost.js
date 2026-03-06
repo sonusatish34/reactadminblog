@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { doc, updateDoc } from "firebase/firestore";
 import { getDoc, collection, getDocs } from "firebase/firestore";
-import axios from "axios"; // for handling image upload
 import { fireDb } from "../../firebase"; // Import Firebase DB
 import AdminLayout from "../../layouts/AdminLayout";
 import EditPostEditor from "./EditPostEditor";
@@ -51,7 +50,7 @@ function UpdatePost() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categoryRef = collection(fireDb, `${post.blogfor == 'Dozzy' ? 'catgfordozzy' : 'catgforldc'}`);
+        const categoryRef = collection(fireDb, `${post.blogfor === 'Dozzy' ? 'catgfordozzy' : 'catgforldc'}`);
         const querySnapshot = await getDocs(categoryRef);
         const categories = querySnapshot.docs.map((doc) => doc.data());
         setCatgs(categories);
@@ -132,49 +131,6 @@ function UpdatePost() {
     }
   };
 
-
-  const handleImageAltUpdate = async (imgElement) => {
-    try {
-      const { value: newAltText } = await Swal.fire({
-        title: "Update Alt Text",
-        input: "text",
-        inputLabel: "Enter new alt text for the image",
-        inputValue: imgElement.alt || "",
-        showCancelButton: true,
-        confirmButtonText: "Update",
-        cancelButtonText: "Cancel",
-      });
-
-      if (newAltText) {
-        imgElement.alt = newAltText; // Update the alt attribute in the DOM
-        Swal.fire("Alt Text Updated", "The alt text has been successfully updated.", "success");
-      }
-    } catch (error) {
-      console.error("Error updating alt text:", error);
-      Swal.fire("Error", "An error occurred while updating the alt text.", "error");
-    }
-  };
-
-
-  const modules = {
-    toolbar: [
-      [{ 'header': '1' }, { 'header': '2' },], // Adding custom font sizes
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote',],
-      ['link', 'image'], // Add the image button in the toolbar
-      ['clean'] // Add a clean button to clear the content
-      [{ 'color': [] }], // Color dropdown
-      [{ 'background': [] }], // Background color dropdown
-      [{ 'align': 'center' }, { 'align': 'right' }, { 'align': 'left' }],
-
-    ],
-  };
-
-  const formats = [
-    'header', 'list', 'bold', 'italic', 'underline', 'strike',
-    'blockquote', 'link', 'image', 'align', 'color', 'background'
-  ];
 
 
 

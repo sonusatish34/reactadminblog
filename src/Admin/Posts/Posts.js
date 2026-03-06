@@ -1,6 +1,6 @@
 import AdminLayout from "../../layouts/AdminLayout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSearch, faFilter, faEye, faTrash, faPen, faTimes, faUpload, faPenToSquare, faListCheck, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faSearch, faFilter, faEye, faTrash, faUpload, faPenToSquare, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
   import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -147,7 +147,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
             {filteredPosts.length > 0 ? (
               filteredPosts.map((post) => (
                 <tr key={post.id} className="border-b">
-                  <td className="p-2"><span className="text-blue-600 text-xl">{post?.blog_state == 'active' ? '*' : ''}</span><span>{post.title}</span></td>
+                  <td className="p-2"><span className="text-blue-600 text-xl">{post?.blog_state === 'active' ? '*' : ''}</span><span>{post.title}</span></td>
                   {/* <td className="py-2">{post.description}</td> */}
                   <td className="p-2">{post?.description && post?.description.slice(0, 100)}...</td>
                   <td className="py-2 pl-4">{post.blogfor}</td>
@@ -167,7 +167,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
                         <FontAwesomeIcon className="text-yellow-400" icon={faPenToSquare} />
                       </Link>
                       <div>
-                        {post?.blog_state == 'in-progress' && (
+                        {post?.blog_state === 'in-progress' && (
                           <button
                             className="hover:"
                             onClick={() => handlePublish(post.id)}
@@ -177,7 +177,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
                               className="text-blue-600" icon={faUpload} />
                           </button>
                         )}
-                        {post?.blog_state == 'active' && (
+                        {post?.blog_state === 'active' && (
                           <button
                             className="hover:"
                             onClick={() => handlePublish(post.id)}
