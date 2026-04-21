@@ -6,8 +6,8 @@ const multer = require('multer');
 
 const s3 = new AWS.S3({
     endpoint: new AWS.Endpoint('https://blr1.digitaloceanspaces.com'),  // Your DigitalOcean Space endpoint
-    accessKeyId: 'DO00EMW9VPKGYFANMCYQ',  // Your DigitalOcean Spaces Access Key ID
-    secretAccessKey: 'y+1iUnpYYwGZM0mq4O+vQEEWaNffAkKLKNQY9Y48IXQ',  // Your DigitalOcean Spaces Secret Access Key
+    accessKeyId: 'DO00P8WADRMBALYWJK8N',  // Your DigitalOcean Spaces Access Key ID
+    secretAccessKey: 'eBfnNGxeZJ2h+sCx9PgawLORNZJVtzi80JMmp+SWaMQ',  // Your DigitalOcean Spaces Secret Access Key
     region: 'blr1',  // Your DigitalOcean Space region
   });
 // Set up multer for file handling

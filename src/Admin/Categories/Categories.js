@@ -53,7 +53,7 @@ function Categories() {
 
     try {
       const categoryRef = collection(fireDb, `${cWant ? cWant : "categories"}`);
-      const q = query(categoryRef, where("name", "===", newCategory));
+      const q = query(categoryRef, where("name", "==", newCategory));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {

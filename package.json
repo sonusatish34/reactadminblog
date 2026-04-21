@@ -25,6 +25,7 @@
     "@tiptap/starter-kit": "^3.0.9",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.9.0",
+    "caniuse-lite": "^1.0.30001787",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",

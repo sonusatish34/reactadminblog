@@ -34,19 +34,19 @@ function Dashboard() {
   const [hydShowAll, setHydShowAll] = useState(false);
   const [bngShowAll, setBngShowAll] = useState(false);
 
-  useEffect(() => {
-    async function fetchData() {
-      const hydResponse = await fetch("https://api.dozzy.com/customer/approved_properties?lat=17&long=78&program_id=1&property_capacity=1000");
-      const hydData = await hydResponse.json();
-      setListDozzy(hydData?.data?.results || []);
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     const hydResponse = await fetch("https://api.dozzy.com/customer/approved_properties?lat=17&long=78&program_id=1&property_capacity=1000");
+  //     const hydData = await hydResponse.json();
+  //     setListDozzy(hydData?.data?.results || []);
 
-      const bngResponse = await fetch("https://api.dozzy.com/customer/approved_properties?lat=12&long=77&program_id=1&property_capacity=1000");
-      const bngData = await bngResponse.json();
-      setListDozzyBng(bngData?.data?.results || []);
-    }
+  //     const bngResponse = await fetch("https://api.dozzy.com/customer/approved_properties?lat=12&long=77&program_id=1&property_capacity=1000");
+  //     const bngData = await bngResponse.json();
+  //     setListDozzyBng(bngData?.data?.results || []);
+  //   }
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,38 +76,38 @@ function Dashboard() {
     );
   };
 
-  const displayedHydData = hydShowAll ? filterData(listDozzy, hydSearch) : filterData(listDozzy, hydSearch).slice(0, 10);
-  const displayedBngData = bngShowAll ? filterData(listDozzyBng, bngSearch) : filterData(listDozzyBng, bngSearch).slice(0, 10);
+  // const displayedHydData = hydShowAll ? filterData(listDozzy, hydSearch) : filterData(listDozzy, hydSearch).slice(0, 10);
+  // const displayedBngData = bngShowAll ? filterData(listDozzyBng, bngSearch) : filterData(listDozzyBng, bngSearch).slice(0, 10);
 
-  const renderTable = (data, title) => (
-    <div className="mt-10 w-full overflow-x-auto">
-      <h2 className="text-xl font-semibold mb-4">{title}</h2>
-      <table style={{ border: '1px solid black', borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr className='bg-gray-100'>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Sno</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Full Address</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Property Capacity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, index) => (
-            <tr key={index} className='capitalize'>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{index + 1}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_location}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_capacity}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  // const renderTable = (data, title) => (
+  //   <div className="mt-10 w-full overflow-x-auto">
+  //     <h2 className="text-xl font-semibold mb-4">{title}</h2>
+  //     <table style={{ border: '1px solid black', borderCollapse: 'collapse', width: '100%' }}>
+  //       <thead>
+  //         <tr className='bg-gray-100'>
+  //           <th style={{ border: '1px solid black', padding: '8px' }}>Sno</th>
+  //           <th style={{ border: '1px solid black', padding: '8px' }}>Property Name</th>
+  //           <th style={{ border: '1px solid black', padding: '8px' }}>Property Org Name</th>
+  //           <th style={{ border: '1px solid black', padding: '8px' }}>Location</th>
+  //           <th style={{ border: '1px solid black', padding: '8px' }}>Full Address</th>
+  //           <th style={{ border: '1px solid black', padding: '8px' }}>Property Capacity</th>
+  //         </tr>
+  //       </thead>
+  //       <tbody>
+  //         {data.map((item, index) => (
+  //           <tr key={index} className='capitalize'>
+  //             <td style={{ border: '1px solid black', padding: '8px' }}>{index + 1}</td>
+  //             <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_name}</td>
+  //             <td style={{ border: '1px solid black', padding: '8px' }}>{item?.original_property_name}</td>
+  //             <td style={{ border: '1px solid black', padding: '8px' }}>{item?.area_name}</td>
+  //             <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_location}</td>
+  //             <td style={{ border: '1px solid black', padding: '8px' }}>{item?.property_capacity}</td>
+  //           </tr>
+  //         ))}
+  //       </tbody>
+  //     </table>
+  //   </div>
+  // );
 
   const dashboardContent = isLoading ? (
     <Loading />
@@ -120,46 +120,7 @@ function Dashboard() {
         <AnalyticsCard title="Total Users" value={usersCount} icon={faUser} link="/Admin/Accounts" />
       </div>
 
-      {/* Hyderabad Section */}
-      <div className="mt-10">
-        <input
-          type="text"
-          placeholder="Search Hyderabad properties..."
-          value={hydSearch}
-          onChange={(e) => setHydSearch(e.target.value)}
-          className="border px-4 py-2 rounded-md mb-4 w-full sm:w-1/2"
-        />
-        
-        {renderTable(displayedHydData, "Hyderabad Properties")}
-        {filterData(listDozzy, hydSearch).length > 10 && (
-          <button
-            onClick={() => setHydShowAll(prev => !prev)}
-            className="mt-2 text-blue-600 underline"
-          >
-            {hydShowAll ? "Show Less" : "View All"}
-          </button>
-        )}
-      </div>
-
-      {/* Bangalore Section */}
-      <div className="mt-10">
-        <input
-          type="text"
-          placeholder="Search Bangalore properties..."
-          value={bngSearch}
-          onChange={(e) => setBngSearch(e.target.value)}
-          className="border px-4 py-2 rounded-md mb-4 w-full sm:w-1/2"
-        />
-        {renderTable(displayedBngData, "Bangalore Properties")}
-        {filterData(listDozzyBng, bngSearch).length > 10 && (
-          <button
-            onClick={() => setBngShowAll(prev => !prev)}
-            className="mt-2 text-blue-600 underline"
-          >
-            {bngShowAll ? "Show Less" : "View All"}
-          </button>
-        )}
-      </div>
+      
     </div>
   );
 

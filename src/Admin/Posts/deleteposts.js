@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, updateDoc, where, doc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, query, updateDoc, where, doc, deleteDoc,orderBy } from "firebase/firestore";
 import { fireDb } from "../../firebase"; // Adjust based on your setup
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
@@ -18,7 +18,7 @@ const DeletedPosts = () => {
   useEffect(() => {
     const fetchDeletedPosts = async () => {
       try {
-        const q = query(collection(fireDb, "blogPost"), where("blog_state", "==", "deleted"));
+        const q = query(collection(fireDb, "blogPost"), where("blog_state", "==", "deleted"),orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
         const posts = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setDeletedPosts(posts);
@@ -31,7 +31,8 @@ const DeletedPosts = () => {
 
     fetchDeletedPosts();
   }, []);
-
+  console.log(deletedPosts,'llllllllllllll');
+  
   const handleRestore = async (postId) => {
     const postRef = doc(fireDb, "blogPost", postId);
 
@@ -90,6 +91,7 @@ const DeletedPosts = () => {
               <tr>
                 <th className="w-1/5 py-2">Title</th>
                 <th className="w-1/5 py-2">Description</th>
+                <th className="w-1/5 py-2">createdAt</th>
                 <th className="w-1/5 py-2">blogFor</th>
                 <th className="w-1/5 py-2">Category</th>
                 <th className="w-1/5 py-2">Actions</th>
@@ -100,6 +102,7 @@ const DeletedPosts = () => {
                 <tr key={post.id} className="border-b">
                   <td className="py-2">{post.title}</td>
                   <td className="py-2">{post.description}</td>
+                  <td className="py-2">{post.date}</td>
                   <td className="py-2">{post.blogfor}</td>
                   <td className="py-2">{post.categoryname}</td>
                   <td className="py-2 flex justify-around">

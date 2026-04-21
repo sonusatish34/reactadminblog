@@ -40,6 +40,9 @@ function Login() {
       console.error("Error fetching users:", error);
       setError("An error occurred while verifying credentials.");
     }
+    finally{
+      window.location.reload()
+    }
   };
 
   useEffect(() => {
