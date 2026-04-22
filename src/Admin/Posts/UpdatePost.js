@@ -120,6 +120,8 @@ function UpdatePost() {
     formData.append("coverimages", file);
 
     try {
+      console.log("indide -----------");
+      
       const response = await fetch("https://reactadminblog.vercel.app/api/upload", {
         method: "POST",
         body: formData,

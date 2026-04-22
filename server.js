@@ -54,6 +54,8 @@ app.post('/uploadei', upload.single('image'), (req, res) => {
   });
 });
 app.post('/upload', upload.single('coverimages'), (req, res) => {
+  console.log("in server-----------");
+  
   const file = req.file;
   const blogfor = req.body.blogfor;
   if (!file) {

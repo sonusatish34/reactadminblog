@@ -7,7 +7,9 @@ const cors = require('cors');
 const s3 = new AWS.S3({
   endpoint: new AWS.Endpoint('https://blr1.digitaloceanspaces.com'),
   accessKeyId: 'DO00P8WADRMBALYWJK8N',
+  
   secretAccessKey: 'eBfnNGxeZJ2h+sCx9PgawLORNZJVtzi80JMmp+SWaMQ',
+  
   region: 'blr1',
 });
 // Set up multer for file handling
