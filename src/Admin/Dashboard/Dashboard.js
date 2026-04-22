@@ -25,14 +25,14 @@ function Dashboard() {
   const [usersCount, setUsersCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [listDozzy, setListDozzy] = useState([]);
-  const [listDozzyBng, setListDozzyBng] = useState([]);
+  // const [listDozzy, setListDozzy] = useState([]);
+  // const [listDozzyBng, setListDozzyBng] = useState([]);
 
-  const [hydSearch, setHydSearch] = useState('');
-  const [bngSearch, setBngSearch] = useState('');
+  // const [hydSearch, setHydSearch] = useState('');
+  // const [bngSearch, setBngSearch] = useState('');
 
-  const [hydShowAll, setHydShowAll] = useState(false);
-  const [bngShowAll, setBngShowAll] = useState(false);
+  // const [hydShowAll, setHydShowAll] = useState(false);
+  // const [bngShowAll, setBngShowAll] = useState(false);
 
   // useEffect(() => {
   //   async function fetchData() {
@@ -69,12 +69,12 @@ function Dashboard() {
     fetchData();
   }, []);
 
-  const filterData = (data, searchTerm) => {
-    return data.filter(item =>
-      [item?.property_name, item?.original_property_name, item?.area_name]
-        .some(val => val?.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  };
+  // const filterData = (data, searchTerm) => {
+  //   return data.filter(item =>
+  //     [item?.property_name, item?.original_property_name, item?.area_name]
+  //       .some(val => val?.toLowerCase().includes(searchTerm.toLowerCase()))
+  //   );
+  // };
 
   // const displayedHydData = hydShowAll ? filterData(listDozzy, hydSearch) : filterData(listDozzy, hydSearch).slice(0, 10);
   // const displayedBngData = bngShowAll ? filterData(listDozzyBng, bngSearch) : filterData(listDozzyBng, bngSearch).slice(0, 10);
