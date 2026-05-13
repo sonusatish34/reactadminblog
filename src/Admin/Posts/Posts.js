@@ -237,7 +237,7 @@ function Posts() {
       const querySnapshotInProgress = await getDocs(qInProgress);
       const inProgressPosts = querySnapshotInProgress.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-      const allPosts = [...activePosts, ...inProgressPosts];
+      const allPosts = [...inProgressPosts, ...activePosts];
       setPostsData(allPosts);
       setLoading(false);
     };
