@@ -190,6 +190,8 @@ export default function AddPost() {
                 ? "catgforzuget"
                 : formData.blogfor === "crocto"
                   ? "catgforcrocto"
+                    : formData.blogfor === "ldcattachments"
+                  ? "catgforldcattachment"
                   : "none";
 
       if (colName === "none") {
@@ -286,6 +288,7 @@ export default function AddPost() {
               <option value="DozzyBng">Dozzy Bangalore</option>
               <option value="zuget">Zuget</option>
               <option value="crocto">Crocto</option>
+              <option value="ldcattachments">LDC - Attachments</option>
             </select>
           </div>
 

@@ -245,6 +245,16 @@ function Categories() {
           >
             Categories For Crocto
           </button>
+          <button
+            onClick={(e) => {
+              setCWant("catgforldcattachment");
+            }}
+            className={`bg-gray-300 p-2 rounded ${
+              cWant === "catgforldcattachment" ? "border-4 border-blue-500" : ""
+            }`}
+          >
+            Categories For LDC Attachments
+          </button>
         </div>
 
         <table className="w-[600px]  divide-y divide-gray-200 pt-10 border-2">

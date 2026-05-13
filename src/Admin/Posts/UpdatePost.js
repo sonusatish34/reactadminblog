@@ -112,7 +112,7 @@ function UpdatePost() {
       }));
     }
   };
-  console.log(post, "0000000000009");
+  // console.log(post, "0000000000009");
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
