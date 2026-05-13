@@ -191,7 +191,7 @@ export default function AddPost() {
                 : formData.blogfor === "crocto"
                   ? "catgforcrocto"
                     : formData.blogfor === "ldcattachments"
-                  ? "catgforldcattachment"
+                  ? "catgforldcattachments"
                   : "none";
 
       if (colName === "none") {

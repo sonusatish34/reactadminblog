@@ -247,10 +247,10 @@ function Categories() {
           </button>
           <button
             onClick={(e) => {
-              setCWant("catgforldcattachment");
+              setCWant("catgforldcattachments");
             }}
             className={`bg-gray-300 p-2 rounded ${
-              cWant === "catgforldcattachment" ? "border-4 border-blue-500" : ""
+              cWant === "catgforldcattachments" ? "border-4 border-blue-500" : ""
             }`}
           >
             Categories For LDC Attachments
