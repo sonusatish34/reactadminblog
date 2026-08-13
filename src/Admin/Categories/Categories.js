@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "../../layouts/AdminLayout";
-
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
@@ -12,37 +11,57 @@ import {
   addDoc,
   doc,
   deleteDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { fireDb } from "../../firebase";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import AdminLayout from "../../layouts/AdminLayout";
+
+const CATEGORY_TABS = [
+  { id: "catgfordozzy", label: "Categories For Dozzy Hyd" },
+  { id: "catgfordozzybng", label: "Categories For Dozzy Bng" },
+  { id: "catgforldc", label: "Categories For LDC" },
+  { id: "catgfortrip", label: "Categories For Trips" },
+  { id: "catgforzuget", label: "Categories For Zuget" },
+  { id: "catgforcrocto", label: "Categories For Crocto" },
+  { id: "catgforldcattachments", label: "Categories For LDC Attachments" },
+  { id: "catgforcrocto", label: "Categories For Crorcto" },
+];
 
 function Categories() {
   const [addCatgsDialog, setAddCatgsDialog] = useState(false);
-  const [newCategory, setNewCategory] = useState(""); // Stores the new category name
-  const [cList, setCList] = useState();
-  const [cWant, setCWant] = useState('catgfordozzy');
-  const [operation, setOperation] = useState(1);
+  const [newCategory, setNewCategory] = useState("");
+  const [cList, setCList] = useState([]);
+  const [cWant, setCWant] = useState("catgfordozzy");
+  const [loading, setLoading] = useState(false);
 
-  // Use the navigate hook
   const navigate = useNavigate();
-  console.log(cWant, "cw");
 
+  // Fetch categories when selected tab changes
   useEffect(() => {
     const fetchCat = async () => {
-      const querySnapshot = await getDocs(collection(fireDb, `${cWant}`));
-      const cs = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCList(cs);
+      setLoading(true);
+      try {
+        const querySnapshot = await getDocs(collection(fireDb, cWant));
+        const cs = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCList(cs);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchCat();
-  }, [cWant, operation]);
+  }, [cWant]);
 
   const handleCategorySubmit = async (e) => {
     e.preventDefault();
-    if (!newCategory) {
+    const formattedName = newCategory.trim().toLowerCase();
+
+    if (!formattedName) {
       Swal.fire({
         icon: "warning",
         title: "Category name is required",
@@ -52,8 +71,8 @@ function Categories() {
     }
 
     try {
-      const categoryRef = collection(fireDb, `${cWant ? cWant : "categories"}`);
-      const q = query(categoryRef, where("name", "==", newCategory));
+      const categoryRef = collection(fireDb, cWant);
+      const q = query(categoryRef, where("name", "==", formattedName));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
@@ -65,32 +84,20 @@ function Categories() {
         return;
       }
 
-      await addDoc(collection(fireDb, `${cWant ? cWant : "categories"}`), {
-        name: newCategory,
-        // createdAt: formattedDateTime,
-        createdAt: new Date().toLocaleString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: true,
-        }),
-        date: new Date().toLocaleString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: true,
-        }),
+      const docRef = await addDoc(categoryRef, {
+        name: formattedName,
+        createdAt: serverTimestamp(),
       });
-      alert("Category added successfully!");
-      setOperation(operation + 1);
-      setAddCatgsDialog(false); // Close the dialog
-      setNewCategory(""); // Clear the input field
+
+      // Update local state directly instead of refetching
+      setCList((prev) => [
+        ...prev,
+        { id: docRef.id, name: formattedName, createdAt: "Just now" },
+      ]);
+
+      Swal.fire("Success", "Category added successfully!", "success");
+      setAddCatgsDialog(false);
+      setNewCategory("");
     } catch (error) {
       console.error("Error adding category:", error);
       Swal.fire({
@@ -100,218 +107,170 @@ function Categories() {
       });
     }
   };
-  console.log(cList, "cl");
 
-  const handleDeleteCat = async (cWant, postId) => {
-    const stringifiedId = String(postId); // Make sure postId is a string
-    const postRef = doc(fireDb, `${cWant}`, stringifiedId);
-
-    Swal.fire({
+  const handleDeleteCat = async (catId) => {
+    const result = await Swal.fire({
       icon: "warning",
-      title: "Are you sure you want to delete this post?",
+      title: "Are you sure you want to delete this category?",
       showCancelButton: true,
       confirmButtonText: "Delete",
       confirmButtonColor: "#d33",
       cancelButtonText: "Cancel",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await deleteDoc(postRef);
-          setOperation(operation + 1);
-          Swal.fire("Deleted!", "Your post has been deleted.", "success");
-        } catch (error) {
-          Swal.fire("Error", "There was an issue deleting the post.", "error");
-          console.error("Error deleting post:", error);
-        }
-      }
     });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteDoc(doc(fireDb, cWant, String(catId)));
+        
+        // Optimistically update state
+        setCList((prev) => prev.filter((item) => item.id !== catId));
+        
+        Swal.fire("Deleted!", "The category has been deleted.", "success");
+      } catch (error) {
+        console.error("Error deleting category:", error);
+        Swal.fire("Error", "There was an issue deleting the category.", "error");
+      }
+    }
   };
- 
 
-  const CategoriesContent = (
-    <>
-      <div
-        style={{ width: "900px" }}
-        className="shadow-md px-1 space-x-8 mt-2 pt-2 pb-2 mb-2 justify-center gap-9 rounded-lg ml-10 bg-white"
-      >
-        <div className="flex flex-row gap-4 m-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-300 p-1 rounded-md text-red-600"
-          >
-            &larr; Back
-          </button>
+  const formatDate = (dateValue) => {
+    if (!dateValue) return "N/A";
+    if (typeof dateValue === "string") return dateValue;
+    if (dateValue?.seconds) {
+      return new Date(dateValue.seconds * 1000).toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      });
+    }
+    return "N/A";
+  };
 
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              setAddCatgsDialog(true);
-            }}
-            className="rounded-md bg-gray-200 p-1 flex items-center"
-          >
-            + Add Category
-          </button>
+  return (
+    <AdminLayout
+      Content={
+        <div className="w-[900px] shadow-md px-4 py-2 mt-2 mb-2 rounded-lg ml-10 bg-white">
+          {/* Header Controls */}
+          <div className="flex flex-row gap-4 my-4 relative">
+            <button
+              onClick={() => navigate(-1)}
+              className="bg-gray-300 px-3 py-1 rounded-md text-red-600 font-medium"
+            >
+              &larr; Back
+            </button>
 
-          {addCatgsDialog && (
-            <div className="absolute bg-white border rounded-lg p-4 mt-2 shadow-lg">
-              <h3 className="text-lg mb-4">Add New Category</h3>
-              <input
-                type="text"
-                value={newCategory}
-                onChange={(e) =>
-                  setNewCategory(e.target.value.trim().toLowerCase())
-                }
-                placeholder="Enter category name"
-                className="border rounded-lg p-2 w-64 mb-4"
-              />
-              <div className="flex gap-4">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setAddCatgsDialog(false);
-                  }}
-                  className="bg-gray-300 p-2 rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCategorySubmit}
-                  className="bg-blue-500 text-white p-2 rounded"
-                >
-                  Add Category
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="flex gap-2 pb-5">
-          <button
-            onClick={(e) => {
-              setCWant("catgfordozzy");
-            }}
-            className={`bg-gray-300 p-2 rounded ${
-              cWant === "catgfordozzy" ? "border-4 border-blue-500" : ""
-            }`}
-          >
-            Categories For Dozzy Hyd
-          </button>
-          <button
-            onClick={(e) => {
-              setCWant("catgfordozzybng");
-            }}
-            className={`bg-gray-300 p-2 rounded ${
-              cWant === "catgfordozzybng" ? "border-4 border-blue-500" : ""
-            }`}
-          >
-            Categories For Dozzy Bng
-          </button>
-          <button
-            onClick={(e) => {
-              setCWant("catgforldc"); 
-            }}
-            className={`bg-gray-300 p-2 rounded ${
-              cWant === "catgforldc" ? "border-4 border-blue-500" : ""
-            }`}
-          >
-            Categories For LDC
-          </button>
-          <button
-            onClick={(e) => {
-              setCWant("catgfortrip");
-            }}
-            className={`bg-gray-300 p-2 rounded ${
-              cWant === "catgfortrip" ? "border-4 border-blue-500" : ""
-            }`}
-          >
-            Categories For Trips
-          </button>
-          <button
-            onClick={(e) => {
-              setCWant("catgforzuget");
-            }}
-            className={`bg-gray-300 p-2 rounded ${
-              cWant === "catgforzuget" ? "border-4 border-blue-500" : ""
-            }`}
-          >
-            Categories For Zuget
-          </button>
-          <button
-            onClick={(e) => {
-              setCWant("catgforcrocto");
-            }}
-            className={`bg-gray-300 p-2 rounded ${
-              cWant === "catgforcrocto" ? "border-4 border-blue-500" : ""
-            }`}
-          >
-            Categories For Crocto
-          </button>
-          <button
-            onClick={(e) => {
-              setCWant("catgforldcattachments");
-            }}
-            className={`bg-gray-300 p-2 rounded ${
-              cWant === "catgforldcattachments" ? "border-4 border-blue-500" : ""
-            }`}
-          >
-            Categories For LDC Attachments
-          </button>
-        </div>
+            <button
+              onClick={() => setAddCatgsDialog(true)}
+              className="rounded-md bg-blue-500 text-white px-3 py-1 flex items-center hover:bg-blue-600"
+            >
+              + Add Category
+            </button>
 
-        <table className="w-[600px]  divide-y divide-gray-200 pt-10 border-2">
-          <thead>
-            <tr>
-              <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                CreatedAt
-              </th>
-
-              <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Delete
-              </th>
-              {/* <th className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Modify
-              </th> */}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200 text-ce">
-            {console.log(cList, "ljijio")}
-            {cList?.length &&
-              cList.map((category, index) => (
-                <tr key={index}>
-                  <td className="px-5 py-3  w-25 truncate w-60 block overflow-hidden overflow-ellipsis">
-                    {category?.name}
-                  </td>
-                  <td className="px-5 py-3 ">
-                    <td className="px-5 py-3  w-25 truncate w-60 block overflow-hidden overflow-ellipsis">
-                      {category?.createdAt?.seconds
-                        ? category?.createdAt?.seconds
-                        : category?.createdAt}
-                    </td>
-                  </td>
-                  <td className="px-5 py-3 ">
-                    <FontAwesomeIcon
-                      onClick={() => handleDeleteCat(cWant, category?.id)}
-                      className="text-indigo-500 cursor-pointer hover:text-indigo-700"
-                      icon={faTrash}
-                    />
-                  </td>
-                  {/* <td className="px-6 py-4 ">
-                  <FontAwesomeIcon
-                    className="text-indigo-500 cursor-pointer hover:text-indigo-700"
-                    icon={faPen}
+            {/* Add Category Dialog */}
+            {addCatgsDialog && (
+              <div className="absolute top-10 left-0 bg-white border rounded-lg p-4 z-10 shadow-xl w-80">
+                <h3 className="text-lg font-semibold mb-3">Add New Category</h3>
+                <form onSubmit={handleCategorySubmit}>
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    placeholder="Enter category name"
+                    className="border rounded-lg p-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    autoFocus
                   />
-                </td> */}
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
-    </>
-  );
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAddCatgsDialog(false)}
+                      className="bg-gray-300 px-3 py-1.5 rounded text-gray-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
 
-  return <AdminLayout Content={CategoriesContent} />;
+          {/* Category Tabs */}
+          <div className="flex flex-wrap gap-2 pb-5">
+            {CATEGORY_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setCWant(tab.id)}
+                className={`p-2 rounded text-sm transition-all ${
+                  cWant === tab.id
+                    ? "bg-blue-500 text-white font-medium"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Table */}
+          <table className="w-full divide-y divide-gray-200 border-2">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Created At
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {loading ? (
+                <tr>
+                  <td colSpan="3" className="text-center py-4 text-gray-500">
+                    Loading...
+                  </td>
+                </tr>
+              ) : cList.length > 0 ? (
+                cList.map((category) => (
+                  <tr key={category.id}>
+                    <td className="px-6 py-3 text-sm text-gray-900 truncate max-w-xs">
+                      {category.name}
+                    </td>
+                    <td className="px-6 py-3 text-sm text-gray-500">
+                      {formatDate(category.createdAt)}
+                    </td>
+                    <td className="px-6 py-3 text-sm">
+                      <button
+                        onClick={() => handleDeleteCat(category.id)}
+                        className="text-red-500 hover:text-red-700 transition-colors"
+                        title="Delete Category"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="text-center py-4 text-gray-500">
+                    No categories found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      }
+    />
+  );
 }
 
 export default Categories;

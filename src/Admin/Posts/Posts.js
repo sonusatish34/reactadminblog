@@ -1,210 +1,270 @@
-import AdminLayout from "../../layouts/AdminLayout";
+import React, { useState, useEffect, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSearch, faFilter, faEye, faTrash, faUpload, faPenToSquare, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
-import { useState, useEffect } from "react";
-  import { Link } from "react-router-dom";
+import {
+  faPlus,
+  faSearch,
+  faEye,
+  faTrash,
+  faUpload,
+  faPenToSquare,
+  faCircleCheck,
+  faArrowLeft,
+  faChevronLeft,
+  faChevronRight,
+  faFilter,
+} from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
+import {
+  collection,
+  getDocs,
+  query,
+  doc,
+  updateDoc,
+  where,
+  orderBy,
+} from "firebase/firestore";
+import { fireDb } from "../../firebase";
+import AdminLayout from "../../layouts/AdminLayout";
 import Loading from "../../layouts/Loading";
-import { collection, getDocs, query, doc, updateDoc, where, orderBy } from "firebase/firestore";
-import { fireDb } from "../../firebase"; // Adjust this import according to your setup
-import { useNavigate } from "react-router-dom";
 
 function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const postsToDisplay = postsData.slice(startIndex, endIndex);
-  console.log(postsData, "postsData");
-
-  const uniqueBlogForOptions = Array.from(new Set(postsData.map((post) => post.blogfor)));
-  // const uniqueCategoryOptions = Array.from(new Set(postsData.map((post) => post.categoryname)));
-  const allCategories = postsData.flatMap(item => item.categoryname);
-  const uniqueCategoryOptions = [...new Set(allCategories)];
-  console.log(uniqueCategoryOptions, "uniqueCategoryOptions");
   const [selectedBlogFor, setSelectedBlogFor] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
+  // Extract unique options for dropdowns dynamically
+  const uniqueBlogForOptions = useMemo(
+    () => Array.from(new Set(postsData.map((post) => post.blogfor).filter(Boolean))),
+    [postsData]
+  );
+
+  const uniqueCategoryOptions = useMemo(() => {
+    const allCategories = postsData.flatMap((item) =>
+      Array.isArray(item.categoryname) ? item.categoryname : [item.categoryname]
+    );
+    return Array.from(new Set(allCategories.filter(Boolean)));
+  }, [postsData]);
+
+  // Handle post deletion (Soft delete by setting status to "deleted")
   const handleDelete = async (postId) => {
     const stringifiedId = String(postId);
     const postRef = doc(fireDb, "blogPost", stringifiedId);
 
-    Swal.fire({
+    const result = await Swal.fire({
+      title: "Delete Post?",
+      text: "This action will archive the post.",
       icon: "warning",
-      title: "Are you sure you want to delete this post?",
       showCancelButton: true,
-      confirmButtonText: "Delete",
-      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, Delete",
+      confirmButtonColor: "#ef4444",
       cancelButtonText: "Cancel",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          // Update the blog_state to "deleted"
-          await updateDoc(postRef, {
-            blog_state: "deleted",
-          });
-          // Update the UI by filtering out the deleted post from the posts list
-          const updatedPostsData = postsData.filter((post) => String(post.id) !== stringifiedId);
-          setPostsData(updatedPostsData);
-          Swal.fire("Deleted!", "Your post has been deleted.", "success");
-        } catch (error) {
-          Swal.fire("Error", "There was an issue deleting the post.", "error");
-          console.error("Error deleting post:", error);
-        }
-      }
+      customClass: { confirmButton: "rounded-md", cancelButton: "rounded-md" },
     });
+
+    if (result.isConfirmed) {
+      try {
+        await updateDoc(postRef, { blog_state: "deleted" });
+        setPostsData((prev) => prev.filter((post) => String(post.id) !== stringifiedId));
+        Swal.fire("Deleted!", "The post has been deleted.", "success");
+      } catch (error) {
+        console.error("Error deleting post:", error);
+        Swal.fire("Error", "There was an issue deleting the post.", "error");
+      }
+    }
   };
 
+  // Handle post state publishing
   const handlePublish = async (postId) => {
     const stringifiedId = String(postId);
     const postRef = doc(fireDb, "blogPost", stringifiedId);
 
-    Swal.fire({
-      icon: "warning",
-      title: "Are you sure you want to publish this post?",
+    const result = await Swal.fire({
+      title: "Publish Post?",
+      text: "Make this post live on the platform.",
+      icon: "info",
       showCancelButton: true,
-      confirmButtonText: "Publish",
-      confirmButtonColor: "#d33",
+      confirmButtonText: "Publish Now",
+      confirmButtonColor: "#2563eb",
       cancelButtonText: "Cancel",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await updateDoc(postRef, {
-            blog_state: "active",
-          });
-          const updatedPostsData = postsData.filter((post) => String(post.id) !== stringifiedId);
-          setPostsData(updatedPostsData);
-          Swal.fire("Published!", "Your post has been published.", "success");
-        } catch (error) {
-          Swal.fire("Error", "There was an issue publishing the post.", "error");
-          console.error("Error publishing post:", error);
-        }
-      }
+      customClass: { confirmButton: "rounded-md", cancelButton: "rounded-md" },
     });
+
+    if (result.isConfirmed) {
+      try {
+        await updateDoc(postRef, { blog_state: "active" });
+        setPostsData((prev) =>
+          prev.map((post) =>
+            String(post.id) === stringifiedId ? { ...post, blog_state: "active" } : post
+          )
+        );
+        Swal.fire("Published!", "The post is now live.", "success");
+      } catch (error) {
+        console.error("Error publishing post:", error);
+        Swal.fire("Error", "Failed to publish the post.", "error");
+      }
+    }
   };
 
-  // Normalize the selected category before filtering
-  const normalizedSelectedCategory = selectedCategory.trim().toLowerCase();
+  // Filter posts based on selected BlogFor and Category
+  const filteredPosts = useMemo(() => {
+    const normCategory = selectedCategory.trim().toLowerCase();
 
-  // Apply filters for category and blogFor
-  const filteredPosts = postsToDisplay.filter((post) => {
-    // Ensure categoryname is an array and check if selectedCategory is present
-    const categoryname = Array.isArray(post.categoryname) ? post.categoryname.map(name => name.toLowerCase()) : [];
+    return postsData.filter((post) => {
+      const categories = Array.isArray(post.categoryname)
+        ? post.categoryname.map((c) => String(c).toLowerCase())
+        : [String(post.categoryname || "").toLowerCase()];
 
-    // Log the categoryname and the selected category to debug
-    console.log('Selected Category:', normalizedSelectedCategory);
-    console.log('Post Categories:', categoryname);
+      const isCategoryMatch = !normCategory || categories.includes(normCategory);
+      const isBlogForMatch = !selectedBlogFor || post.blogfor === selectedBlogFor;
 
-    const isCategoryMatch =
-      !normalizedSelectedCategory || categoryname.includes(normalizedSelectedCategory.toLowerCase());
+      return isCategoryMatch && isBlogForMatch;
+    });
+  }, [postsData, selectedBlogFor, selectedCategory]);
 
-    const isBlogForMatch = !selectedBlogFor || post.blogfor === selectedBlogFor;
-
-    return isCategoryMatch && isBlogForMatch; // Return posts matching both criteria
-  });
+  // Paginate filtered results
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedPosts = filteredPosts.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Posts</h1>
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full bg-white">
-          <thead className="bg-gray-800 text-white">
-            <tr>
-              <th className="w-1/5 py-2">Title</th>
-              <th className="w-1/5 py-2">Description</th>
-              <th className="w-28 py-2">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-4">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-gray-50/80 text-gray-600 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
+              <th className="px-6 py-4 w-1/4">Title</th>
+              <th className="px-6 py-4 w-1/4">Description</th>
+              <th className="px-4 py-4 w-36">
                 <select
-                  className="w-full p-1 bg-gray-800 border rounded"
+                  className="w-full bg-white border border-gray-200 text-gray-700 text-xs rounded-lg p-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={selectedBlogFor}
                   onChange={(e) => setSelectedBlogFor(e.target.value)}
                 >
-                  <option value="">Blog for</option>
-                  {uniqueBlogForOptions.map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
+                  <option value="">All Platforms</option>
+                  {uniqueBlogForOptions.map((opt, i) => (
+                    <option key={i} value={opt}>
+                      {opt}
                     </option>
                   ))}
                 </select>
               </th>
-              <th className="w-32 py-2">
+              <th className="px-4 py-4 w-40">
                 <select
-                  className="w-full p-1 bg-gray-800 border rounded"
+                  className="w-full bg-white border border-gray-200 text-gray-700 text-xs rounded-lg p-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)} // Handle category filter change
+                  onChange={(e) => setSelectedCategory(e.target.value)}
                 >
-                  <option value="">Category</option>
-                  {uniqueCategoryOptions.map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
+                  <option value="">All Categories</option>
+                  {uniqueCategoryOptions.map((opt, i) => (
+                    <option key={i} value={opt}>
+                      {opt}
                     </option>
                   ))}
                 </select>
               </th>
-              <th className="w-1/5 py-2">Created At</th>
-              <th className="w-1/5 py-2">Actions</th>
+              <th className="px-6 py-4">Status & Date</th>
+              <th className="px-6 py-4 text-center">Actions</th>
             </tr>
           </thead>
 
-          <tbody>
-            {filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => (
-                <tr key={post.id} className="border-b">
-                  <td className="p-2"><span className="text-blue-600 text-xl">{post?.blog_state === 'active' ? '*' : ''}</span><span>{post.title}</span></td>
-                  {/* <td className="py-2">{post.description}</td> */}
-                  <td className="p-2">{post?.description && post?.description.slice(0, 100)}...</td>
-                  <td className="py-2 pl-4">{post.blogfor}</td>
-                  <td className="py-2 pl-4">{post.categoryname}</td>
-                  <td className="py-2 pl-4">{post.date}</td>
-                  <td className="py-1 flex flex-col gap-1 px-1 justify-around">
-                    <div className="py-2 flex gap-4 items-center justify-center px-2 ">
-                      <Link to={`/Admin/Posts/${post.id}`}>
-                        <FontAwesomeIcon className="" icon={faEye} />
-                      </Link>
-                      <FontAwesomeIcon
-                        onClick={() => handleDelete(post.id)}
-                        className="text-red-500 cursor-pointer"
-                        icon={faTrash}
-                      />
-                      <Link to={`/Admin/Posts/UpdatePost/${post.id}`}>
-                        <FontAwesomeIcon className="text-yellow-400" icon={faPenToSquare} />
-                      </Link>
-                      <div>
-                        {post?.blog_state === 'in-progress' && (
-                          <button
-                            className="hover:"
-                            onClick={() => handlePublish(post.id)}
-                            title="Ready to Publish" // Tooltip text on hover
-                          >
-                            <FontAwesomeIcon style={{ fontSize: '20px' }}
-                              className="text-blue-600" icon={faUpload} />
-                          </button>
-                        )}
-                        {post?.blog_state === 'active' && (
-                          <button
-                            className="hover:"
-                            onClick={() => handlePublish(post.id)}
-                            title="Published" // Tooltip text on hover
-                          >
-                            <FontAwesomeIcon size={40} className="text-green-600" icon={faCircleCheck} />
-                          </button>
-                        )}
-                        {/* {post?.blog_state == 'active' && <button
-                          className=" rounded"
-                        >
-                          <FontAwesomeIcon size={40} className="text-green-600" icon={faCircleCheck} />
+          <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+            {paginatedPosts.length > 0 ? (
+              paginatedPosts.map((post) => (
+                <tr key={post.id} className="hover:bg-gray-50/50 transition-colors">
+                  {/* Title */}
+                  <td className="px-6 py-4 font-medium text-gray-900">
+                    <p className="line-clamp-2" title={post.title}>
+                      {post.title}
+                    </p>
+                  </td>
 
-                        </button>} */}
-                      </div>
+                  {/* Description */}
+                  <td className="px-6 py-4 text-gray-500">
+                    <p className="line-clamp-2 text-xs">
+                      {post.description || "No description available."}
+                    </p>
+                  </td>
+
+                  {/* Target Platform */}
+                  <td className="px-4 py-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                      {post.blogfor || "General"}
+                    </span>
+                  </td>
+
+                  {/* Category */}
+                  <td className="px-4 py-4 text-xs text-gray-600">
+                    {Array.isArray(post.categoryname)
+                      ? post.categoryname.join(", ")
+                      : post.categoryname || "—"}
+                  </td>
+
+                  {/* Date & Status */}
+                  <td className="px-6 py-4 text-xs text-gray-500 whitespace-nowrap">
+                    <div className="flex flex-col gap-1">
+                      <span>{post.date || "N/A"}</span>
+                      {post.blog_state === "active" ? (
+                        <span className="w-max px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                          Published
+                        </span>
+                      ) : (
+                        <span className="w-max px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800">
+                          In Progress
+                        </span>
+                      )}
                     </div>
-                    {/* <div>
-                      <p className="px-1 bg-blue-400 w-fit rounded">
-                        {post?.blog_state ? post?.blog_state : ""}
-                      </p>
-                    </div> */}
+                  </td>
+
+                  {/* Action Buttons */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Link
+                        to={`/Admin/Posts/${post.id}`}
+                        title="View Post"
+                        className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faEye} />
+                      </Link>
+
+                      <Link
+                        to={`/Admin/Posts/UpdatePost/${post.id}`}
+                        title="Edit Post"
+                        className="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      </Link>
+
+                      {post?.blog_state === "in-progress" && (
+                        <button
+                          onClick={() => handlePublish(post.id)}
+                          title="Publish Post"
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                          <FontAwesomeIcon icon={faUpload} />
+                        </button>
+                      )}
+
+                      {post?.blog_state === "active" && (
+                        <span title="Published" className="p-1.5 text-emerald-600">
+                          <FontAwesomeIcon icon={faCircleCheck} />
+                        </span>
+                      )}
+
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        title="Delete Post"
+                        className="p-1.5 text-gray-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="py-4">No posts found for the selected filters.</td>
+                <td colSpan="6" className="text-center py-12 text-gray-400">
+                  No matching posts found.
+                </td>
               </tr>
             )}
           </tbody>
@@ -213,8 +273,6 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
     </div>
   );
 }
-
-
 
 function Posts() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -225,155 +283,167 @@ function Posts() {
   const [selectedSort, setSelectedSort] = useState("newest");
   const navigate = useNavigate();
 
+  // Fetch posts from Firestore
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
+      try {
+        const qActive = query(
+          collection(fireDb, "blogPost"),
+          where("blog_state", "==", "active"),
+          orderBy("createdAt", "desc")
+        );
+        const qInProgress = query(
+          collection(fireDb, "blogPost"),
+          where("blog_state", "==", "in-progress"),
+          orderBy("createdAt", "desc")
+        );
 
-      const qActive = query(collection(fireDb, "blogPost"), where("blog_state", "==", "active"),orderBy("createdAt", "desc"));
-      const querySnapshotActive = await getDocs(qActive);
-      const activePosts = querySnapshotActive.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const [snapActive, snapInProgress] = await Promise.all([
+          getDocs(qActive),
+          getDocs(qInProgress),
+        ]);
 
-      const qInProgress = query(collection(fireDb, "blogPost"), where("blog_state", "==", "in-progress"),orderBy("createdAt", "desc"));
-      const querySnapshotInProgress = await getDocs(qInProgress);
-      const inProgressPosts = querySnapshotInProgress.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const activePosts = snapActive.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const inProgressPosts = snapInProgress.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }));
 
-      const allPosts = [...inProgressPosts, ...activePosts];
-      setPostsData(allPosts);
-      setLoading(false);
+        setPostsData([...inProgressPosts, ...activePosts]);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchPosts();
   }, []);
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
+  // Filter & Sort Logic
+  const processedPosts = useMemo(() => {
+    let result = postsData.filter((post) =>
+      post?.title?.toLowerCase().includes(searchQuery.toLowerCase().trim())
+    );
 
-  const filteredPosts = postsData.filter((post) =>
-    post?.title?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    return result.sort((a, b) => {
+      if (selectedSort === "newest") {
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      }
+      if (selectedSort === "oldest") {
+        return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+      }
+      if (selectedSort === "likes") {
+        return (b.likes || 0) - (a.likes || 0);
+      }
+      if (selectedSort === "comments") {
+        return (b.comment_count || 0) - (a.comment_count || 0);
+      }
+      return 0;
+    });
+  }, [postsData, searchQuery, selectedSort]);
 
-  const handleFilter = () => {
-    let sortedPosts = [...postsData];
-    switch (selectedSort) {
-      case "newest":
-        sortedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        break;
-      case "oldest":
-        sortedPosts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        break;
-      case "likes":
-        sortedPosts.sort((a, b) => b.likes - a.likes);
-        break;
-      case "comments":
-        sortedPosts.sort((a, b) => b.comment_count - a.comment_count);
-        break;
-      default:
-        break;
-    }
-    setPostsData(sortedPosts);
-  };
-
-  const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
-
-  const PostsContent = (
-    <div className="p-">
-      {loading ? (
-        <Loading />
-      ) : (
-        <>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex gap-3">
-              <button
-                onClick={() => navigate(-1)}
-                className="bg-gray-300 p-2 rounded-md text-gray-800"
-              >
-                &larr; Back
-              </button>
-              <Link
-                to="/Admin/Post/New"
-                className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-              >
-                <FontAwesomeIcon icon={faPlus} /> Add Post
-              </Link>
-            </div>
-            <div className="flex items-center gap-2">
-              <div>
-                <input
-                  className="p-2 border rounded-md"
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                />
-                <FontAwesomeIcon className="relative right-8" icon={faSearch} />
-              </div>
-
-              <div className="flex items-center bg-white border rounded-lg shadow-md px-4 py-2 w-72 ">
-                <FontAwesomeIcon icon={faFilter} className="text-indigo-500 mr-2" />
-                <select
-                  value={selectedSort}
-                  onChange={(e) => setSelectedSort(e.target.value)}
-                  className="outline-none bg-transparent"
-                >
-                  <option value="default">Default</option>
-                  <option value="newest">Newest</option>
-                  <option value="oldest">Oldest</option>
-                  <option value="likes">Likes</option>
-                  <option value="comments">Comments</option>
-                </select>
-                <button
-                  onClick={handleFilter}
-                  className="ml-2 bg-indigo-500 text-white px-4 py-1 rounded-lg hover:bg-indigo-600"
-                >
-                  Filter
-                </button>
-              </div>
-            </div>
-            {/* {searchQuery && (
-              <FontAwesomeIcon
-                icon={faTimes}
-                onClick={() => setSearchQuery("")}
-                className="text-gray-400 ml-2 cursor-pointer"
-              />
-            )} */}
-          </div>
-
-          <PostsData
-            postsData={filteredPosts}
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            setPostsData={setPostsData}
-          />
-          <div className="flex items-center justify-center mt-4">
-            {totalPages > 1 && currentPage > 1 && (
-              <button
-                onClick={() => setCurrentPage(currentPage - 1)}
-                className="mr-2 bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400"
-              >
-                Previous
-              </button>
-            )}
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            {totalPages > 1 && currentPage < totalPages && (
-              <button
-                onClick={() => setCurrentPage(currentPage + 1)}
-                className="ml-2 bg-gray-300 text-gray-800 p-2 rounded-lg hover:bg-gray-400"
-              >
-                Next
-              </button>
-            )}
-          </div>
-        </>
-      )}
-    </div>
-  );
+  const totalPages = Math.ceil(processedPosts.length / itemsPerPage) || 1;
 
   return (
     <AdminLayout>
-      {PostsContent}
+      <div className="p-6 max-w-7xl mx-auto">
+        {loading ? (
+          <Loading />
+        ) : (
+          <>
+            {/* Header & Controls */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition-colors flex items-center gap-2"
+                >
+                  <FontAwesomeIcon icon={faArrowLeft} /> Back
+                </button>
+                <h1 className="text-xl font-bold text-gray-900">Posts Directory</h1>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Search Input */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search posts..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64 bg-white"
+                  />
+                  <FontAwesomeIcon
+                    icon={faSearch}
+                    className="absolute left-3 top-3 text-gray-400 text-xs"
+                  />
+                </div>
+
+                {/* Sort Dropdown */}
+                <div className="flex items-center bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600">
+                  <FontAwesomeIcon icon={faFilter} className="text-indigo-500 mr-2 text-xs" />
+                  <select
+                    value={selectedSort}
+                    onChange={(e) => setSelectedSort(e.target.value)}
+                    className="bg-transparent border-none outline-none text-sm text-gray-700 cursor-pointer"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="likes">Most Liked</option>
+                    <option value="comments">Most Commented</option>
+                  </select>
+                </div>
+
+                {/* Add Post Button */}
+                <Link
+                  to="/Admin/Post/New"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+                >
+                  <FontAwesomeIcon icon={faPlus} /> Add Post
+                </Link>
+              </div>
+            </div>
+
+            {/* Table Component */}
+            <PostsData
+              postsData={processedPosts}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              setPostsData={setPostsData}
+            />
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 px-2">
+                <span className="text-xs text-gray-500">
+                  Showing page <strong className="text-gray-800">{currentPage}</strong> of{" "}
+                  <strong className="text-gray-800">{totalPages}</strong>
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                    className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faChevronLeft} className="mr-1" /> Previous
+                  </button>
+
+                  <button
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                    className="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next <FontAwesomeIcon icon={faChevronRight} className="ml-1" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </AdminLayout>
   );
 }
