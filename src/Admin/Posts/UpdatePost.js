@@ -139,16 +139,12 @@ const handleImageUpload = async (event) => {
   if (!file) return;
 
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("coverimages", file);
+  formData.append("blogfor", post.blogfor);
 
   try {
-    const response = await fetch("/api-proxy/l-s3-dc/image-file", {
+    const response = await fetch("https://reactadminblog.vercel.app/api/upload", {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3Bob25lIjoiNzk4OTAzMDc0MSIsImFsdGVybmF0ZV9waG9uZSI6IiIsImlzX2NpdHlfbWFuYWdlciI6ZmFsc2UsImJyYW5jaF9jYXJfb3duZXIiOmZhbHNlLCJhbGxfY2Fyc19pbmZvIjpmYWxzZX0.51tF-4cEb0mDXY94Ow7f_NRKu5hmcTA_sUK3bPQd7hc",
-      },
       body: formData,
     });
 
@@ -158,8 +154,8 @@ const handleImageUpload = async (event) => {
 
     const result = await response.json();
 
-    if (result?.status === "success" && result?.data?.image_link) {
-      setUploadedImageUrl(result.data.image_link);
+    if (result?.imageUrl) {
+      setUploadedImageUrl(result.imageUrl);
     } else {
       console.error("Upload error response:", result?.message || "Unknown error");
     }
