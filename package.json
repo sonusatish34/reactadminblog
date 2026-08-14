@@ -71,6 +71,7 @@
     ]
   },
   "devDependencies": {
+    "http-proxy-middleware": "^4.2.0",
     "react-router-dom": "^6.16.0"
   }
 }

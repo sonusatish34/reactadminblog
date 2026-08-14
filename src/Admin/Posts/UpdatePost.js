@@ -114,27 +114,59 @@ function UpdatePost() {
   };
   // console.log(post, "0000000000009");
 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    const formData = new FormData();
-    formData.append("coverimages", file);
+  // const handleImageUpload = async (event) => {
+  //   const file = event.target.files[0];
+  //   const formData = new FormData();
+  //   formData.append("coverimages", file);
 
-    try {
-      console.log("indide -----------");
+  //   try {
+  //     console.log("indide -----------");
       
-      const response = await fetch("https://reactadminblog.vercel.app/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      setUploadedImageUrl(data?.imageUrl || "");
-    } catch (err) {
-      console.error("Error uploading image:", err);
+  //     const response = await fetch("https://reactadminblog.vercel.app/api/upload", {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+  //     const data = await response.json();
+  //     setUploadedImageUrl(data?.imageUrl || "");
+  //   } catch (err) {
+  //     console.error("Error uploading image:", err);
+  //   }
+  // };.
+
+
+const handleImageUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch("/api-proxy/l-s3-dc/image-file", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3Bob25lIjoiNzk4OTAzMDc0MSIsImFsdGVybmF0ZV9waG9uZSI6IiIsImlzX2NpdHlfbWFuYWdlciI6ZmFsc2UsImJyYW5jaF9jYXJfb3duZXIiOmZhbHNlLCJhbGxfY2Fyc19pbmZvIjpmYWxzZX0.51tF-4cEb0mDXY94Ow7f_NRKu5hmcTA_sUK3bPQd7hc",
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed with status: ${response.status}`);
     }
-  };
 
+    const result = await response.json();
 
-
+    if (result?.status === "success" && result?.data?.image_link) {
+      setUploadedImageUrl(result.data.image_link);
+    } else {
+      console.error("Upload error response:", result?.message || "Unknown error");
+    }
+  } catch (err) {
+    console.error("Error uploading image:", err);
+  }
+};
 
   useEffect(() => {
     if (post?.subcat?.length > 0) {
@@ -211,36 +243,6 @@ function UpdatePost() {
               required
             />
           </div>
-
-          <div className="mb-4">
-            <label htmlFor="slug" className="block text-gray-700">Slug</label>
-            <input
-              type="text"
-              id="slug"
-              name="slug"
-              value={post.slug}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded"
-              placeholder="Optional"
-            />
-          </div>
-          <div>
-            <p className="text-sm text-blue-600">
-              slug = ({post.slug.replaceAll(" ", "-").toLowerCase().replace(/[;:,$%]/g, '')})
-            </p>
-          </div>
-
-          <div className="mb-4 pb-6">
-            <label htmlFor="content" className="block text-gray-700">Content</label>
-            <EditPostEditor
-              existingContent={post.content}
-              onContentChange={(updatedContent) =>
-                setPost((prev) => ({ ...prev, content: updatedContent }))
-              }
-            />
-
-
-          </div>
           {/* Cover Image */}
           <div className="flex gap-4 pt-16">
             <div className="flex flex-col">
@@ -274,6 +276,37 @@ function UpdatePost() {
               />
             </div>
           </div>
+
+          <div className="mb-4">
+            <label htmlFor="slug" className="block text-gray-700">Slug</label>
+            <input
+              type="text"
+              id="slug"
+              name="slug"
+              value={post.slug}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded"
+              placeholder="Optional"
+            />
+          </div>
+          <div>
+            <p className="text-sm text-blue-600">
+              slug = ({post.slug.replaceAll(" ", "-").toLowerCase().replace(/[;:,$%]/g, '')})
+            </p>
+          </div>
+
+          <div className="mb-4 pb-6">
+            <label htmlFor="content" className="block text-gray-700">Content</label>
+            <EditPostEditor
+              existingContent={post.content}
+              onContentChange={(updatedContent) =>
+                setPost((prev) => ({ ...prev, content: updatedContent }))
+              }
+            />
+
+
+          </div>
+          
           {/* Blog For */}
           <div className="mb-4">
             <label htmlFor="blogfor" className="block text-gray-700">Blog For</label>
