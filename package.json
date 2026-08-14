@@ -1,6 +1,7 @@
 {
   "name": "blog-admin",
   "version": "0.1.0",
+  "proxy": "https://dev.longdrivecars.com",
   "private": true,
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^41.4.2",
@@ -32,6 +33,7 @@
     "draftjs-to-html": "^0.9.1",
     "express": "^4.21.1",
     "firebase": "^9.9.4",
+    "http-proxy-middleware": "^4.2.0",
     "install": "^0.13.0",
     "multer": "^1.4.5-lts.1",
     "npm": "^10.9.0",
@@ -71,7 +73,6 @@
     ]
   },
   "devDependencies": {
-    "http-proxy-middleware": "^4.2.0",
     "react-router-dom": "^6.16.0"
   }
 }

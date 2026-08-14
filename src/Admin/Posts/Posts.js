@@ -31,7 +31,6 @@ import Loading from "../../layouts/Loading";
 function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
   const [selectedBlogFor, setSelectedBlogFor] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  console.log(postsData,"postsData");
   
   // Extract unique options for dropdowns dynamically
   const uniqueBlogForOptions = useMemo(
