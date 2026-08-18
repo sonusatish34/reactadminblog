@@ -36,32 +36,38 @@ export default function AddPost() {
   const [editorHtml, setEditorHtml] = useState("");
 
   const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (file && file.type !== "image/webp") {
-      alert("Please upload a .webp image.");
-      return;
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch("/api-proxy/l-s3-dc/image-file", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3Bob25lIjoiNzk4OTAzMDc0MSIsImFsdGVybmF0ZV9waG9uZSI6IiIsImlzX2NpdHlfbWFuYWdlciI6ZmFsc2UsImJyYW5jaF9jYXJfb3duZXIiOmZhbHNlLCJhbGxfY2Fyc19pbmZvIjpmYWxzZX0.51tF-4cEb0mDXY94Ow7f_NRKu5hmcTA_sUK3bPQd7hc",
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed with status: ${response.status}`);
     }
 
-    const formData1 = new FormData();
-    formData1.append("coverimages", file);
-    formData1.append("blogfor", formData.blogfor);
+    const result = await response.json();
 
-    try {
-      const response = await axios.post(
-        "https://reactadminblog.vercel.app/api/upload",
-        formData1,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      setUploadedImageUrl(response?.data?.imageUrl);
-    } catch (error) {
-      console.error("Error uploading image:", error);
+    if (result?.status === "success" && result?.data?.image_link) {
+      setUploadedImageUrl(result.data.image_link);
+    } else {
+      console.error("Upload error response:", result?.message || "Unknown error");
     }
-  };
+  } catch (err) {
+    console.error("Error uploading image:", err);
+  }
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -338,21 +344,7 @@ export default function AddPost() {
               className="border rounded-lg p-2"
             />
           </div>
-
-          <div className="flex flex-col pt-4">
-            <label htmlFor="slug" className="text-lg">
-              Slug
-            </label>
-            <input
-              id="slug"
-              name="slug"
-              value={formData.slug}
-              onChange={handleChange}
-              className="border rounded-lg p-2"
-              required
-            />
-          </div>
-          <div className="flex gap-4 pt-4">
+           <div className="flex gap-4 pt-4">
             <div className="flex flex-col">
               <label htmlFor="coverimages" className="text-lg">
                 Cover Image
@@ -423,6 +415,21 @@ export default function AddPost() {
               )}
             </div>
           )}
+
+          <div className="flex flex-col pt-4">
+            <label htmlFor="slug" className="text-lg">
+              Slug
+            </label>
+            <input
+              id="slug"
+              name="slug"
+              value={formData.slug}
+              onChange={handleChange}
+              className="border rounded-lg p-2"
+              required
+            />
+          </div>
+         
 
           <div className="flex flex-col pt-4">
             <label className="text-lg">Content</label>
