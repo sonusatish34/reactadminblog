@@ -1,15 +1,12 @@
-const { createProxyMiddleware } = require("http-proxy-middleware");
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
-module.exports = function (app) {
+module.exports = function(app) {
   app.use(
-    "/api-proxy",
+    '/l-s3-dc',
     createProxyMiddleware({
-      target: "https://dev.longdrivecars.com",
+      target: 'https://dev.longdrivecars.com',
       changeOrigin: true,
-      pathRewrite: {
-        "^/api-proxy": "",
-      },
-      secure: false, // Ensures SSL/HTTPS handshake passes smoothly
+      secure: false,
     })
   );
 };

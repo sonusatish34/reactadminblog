@@ -13,7 +13,6 @@ import { fireDb } from "../../firebase";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-
 export default function AddPost() {
   const [catgs, setCatgs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,38 +35,42 @@ export default function AddPost() {
   const [editorHtml, setEditorHtml] = useState("");
 
   const handleImageUpload = async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
+    const file = event.target.files[0];
+    if (!file) return;
 
-  const formData = new FormData();
-  formData.append("file", file);
+    const payload = new FormData();
+    // The API expects the field key to be 'file', not 'image'
+    payload.append("file", file);
 
-  try {
-    const response = await fetch("/api-proxy/l-s3-dc/image-file", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3Bob25lIjoiNzk4OTAzMDc0MSIsImFsdGVybmF0ZV9waG9uZSI6IiIsImlzX2NpdHlfbWFuYWdlciI6ZmFsc2UsImJyYW5jaF9jYXJfb3duZXIiOmZhbHNlLCJhbGxfY2Fyc19pbmZvIjpmYWxzZX0.51tF-4cEb0mDXY94Ow7f_NRKu5hmcTA_sUK3bPQd7hc",
-      },
-      body: formData,
-    });
+    // Retrieve token from storage, context, or auth state
+    const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3Bob25lIjoiNzk4OTAzMDc0MSIsImFsdGVybmF0ZV9waG9uZSI6IiIsImlzX2NpdHlfbWFuYWdlciI6ZmFsc2UsImJyYW5jaF9jYXJfb3duZXIiOmZhbHNlLCJhbGxfY2Fyc19pbmZvIjpmYWxzZSwiZXhwIjoiMTc4ODM3NDQ1MiIsInJvbGVfaWQiOjN9.yoSfQLHVw4aTYWlFCJY_d3rzQ8m78WSpeHh0e97DJ9U"
 
-    if (!response.ok) {
-      throw new Error(`Upload failed with status: ${response.status}`);
+    try {
+      const response = await fetch("/api-proxy/l-s3-dc/image-file", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Authorization: `${token}`,
+        },
+        body: payload,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Check against the API response format: result.status === "success"
+      if (result?.status === "success" && result?.data?.image_link) {
+        setUploadedImageUrl(result.data.image_link);
+      } else {
+        console.error("Upload error response:", result?.message || "Unknown error");
+      }
+    } catch (err) {
+      console.error("Error uploading image:", err);
     }
-
-    const result = await response.json();
-
-    if (result?.status === "success" && result?.data?.image_link) {
-      setUploadedImageUrl(result.data.image_link);
-    } else {
-      console.error("Upload error response:", result?.message || "Unknown error");
-    }
-  } catch (err) {
-    console.error("Error uploading image:", err);
-  }
-};
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -196,9 +199,9 @@ export default function AddPost() {
                 ? "catgforzuget"
                 : formData.blogfor === "crocto"
                   ? "catgforcrocto"
-                    : formData.blogfor === "ldcattachments"
-                  ? "catgforldcattachments"
-                  : "none";
+                  : formData.blogfor === "ldcattachments"
+                    ? "catgforldcattachments"
+                    : "none";
 
       if (colName === "none") {
         setCatgs([]);
@@ -344,7 +347,7 @@ export default function AddPost() {
               className="border rounded-lg p-2"
             />
           </div>
-           <div className="flex gap-4 pt-4">
+          <div className="flex gap-4 pt-4">
             <div className="flex flex-col">
               <label htmlFor="coverimages" className="text-lg">
                 Cover Image
@@ -429,7 +432,7 @@ export default function AddPost() {
               required
             />
           </div>
-         
+
 
           <div className="flex flex-col pt-4">
             <label className="text-lg">Content</label>
