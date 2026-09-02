@@ -142,7 +142,7 @@ const handleImageUpload = async (event) => {
   formData.append("file", file);
 
   try {
-    const response = await fetch("/api-proxy/l-s3-dc/image-file", {
+    const response = await fetch("/l-s3-dc/image-file", {
       method: "POST",
       headers: {
         Accept: "application/json",

@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/l-s3-dc/:match*",
+      "destination": "https://dev.longdrivecars.com/l-s3-dc/:match*"
+    }
+  ]
+}

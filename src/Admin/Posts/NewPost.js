@@ -46,7 +46,7 @@ export default function AddPost() {
     const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3Bob25lIjoiNzk4OTAzMDc0MSIsImFsdGVybmF0ZV9waG9uZSI6IiIsImlzX2NpdHlfbWFuYWdlciI6ZmFsc2UsImJyYW5jaF9jYXJfb3duZXIiOmZhbHNlLCJhbGxfY2Fyc19pbmZvIjpmYWxzZSwiZXhwIjoiMTc4ODM3NDQ1MiIsInJvbGVfaWQiOjN9.yoSfQLHVw4aTYWlFCJY_d3rzQ8m78WSpeHh0e97DJ9U"
 
     try {
-      const response = await fetch("/api-proxy/l-s3-dc/image-file", {
+      const response = await fetch("/l-s3-dc/image-file", {
         method: "POST",
         headers: {
           Accept: "application/json",
