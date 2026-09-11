@@ -16,6 +16,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 export default function AddPost() {
   const [catgs, setCatgs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [coverImageUploading, setCoverImageUploading] = useState(false);
   const [allowImg, setAllowImg] = useState(true);
 
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
@@ -38,12 +39,15 @@ export default function AddPost() {
     const file = event.target.files[0];
     if (!file) return;
 
+    setUploadedImageUrl("");
+    setCoverImageUploading(true);
+
     const payload = new FormData();
     // The API expects the field key to be 'file', not 'image'
     payload.append("file", file);
 
     // Retrieve token from storage, context, or auth state
-    const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3Bob25lIjoiNzk4OTAzMDc0MSIsImFsdGVybmF0ZV9waG9uZSI6IiIsImlzX2NpdHlfbWFuYWdlciI6ZmFsc2UsImJyYW5jaF9jYXJfb3duZXIiOmZhbHNlLCJhbGxfY2Fyc19pbmZvIjpmYWxzZSwiZXhwIjoiMTc4ODM3NDQ1MiIsInJvbGVfaWQiOjN9.yoSfQLHVw4aTYWlFCJY_d3rzQ8m78WSpeHh0e97DJ9U"
+    const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3Bob25lIjoiNzk4OTAzMDc0MSIsImFsdGVybmF0ZV9waG9uZSI6IiIsImlzX2NpdHlfbWFuYWdlciI6ZmFsc2UsImJyYW5jaF9jYXJfb3duZXIiOmZhbHNlLCJhbGxfY2Fyc19pbmZvIjpmYWxzZX0.51tF-4cEb0mDXY94Ow7f_NRKu5hmcTA_sUK3bPQd7hc"
 
     try {
       const response = await fetch("/l-s3-dc/image-file", {
@@ -69,6 +73,8 @@ export default function AddPost() {
       }
     } catch (err) {
       console.error("Error uploading image:", err);
+    } finally {
+      setCoverImageUploading(false);
     }
   };
 
@@ -359,8 +365,14 @@ export default function AddPost() {
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="border rounded-lg p-2"
-                disabled={allowImg}
+                disabled={allowImg || coverImageUploading}
               />
+              {coverImageUploading && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-indigo-600">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
+                  Uploading cover image...
+                </div>
+              )}
               {uploadedImageUrl.length ? <img
                 src={uploadedImageUrl} // Adjust URL for public access
                 alt="Cover Preview"
