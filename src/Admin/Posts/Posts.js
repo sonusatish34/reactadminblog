@@ -171,14 +171,15 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
               paginatedPosts.map((post) => (
                 <tr key={post.id} className="hover:bg-gray-50/50 transition-colors">
                   {/* Title */}
-                  <td className="px-6 py-4 font-medium text-gray-900">
+                  <td className="px-6 py-4 font-medium text-xs text-gray-900 flex gap-x-2">
                     <p className="line-clamp-2" title={post.title}>
-                      {post.title}
+                      {post.title.slice(0,40)}
                     </p>
+                    <img src={post.coverimages || 'https://sefuateurope.vtexassets.com/assets/vtex.file-manager-graphql/images/00d7afb6-4b37-4e22-8f4e-7ba1eb5f8d93___abcae94d543f1ddcc418317b979f6354.jpeg'} height={50} width={50}/>
                   </td>
 
                   {/* Description */}
-                  <td className="px-6 py-4 text-gray-500">
+                  <td className="px-6 py-4 text-gray-500 w-44 ">
                     <p className="line-clamp-2 text-xs">
                       {post.description || "No description available."}
                     </p>
