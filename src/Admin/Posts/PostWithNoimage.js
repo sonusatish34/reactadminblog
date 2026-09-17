@@ -169,7 +169,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
           <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
             {paginatedPosts.length > 0 ? (
               paginatedPosts
-    .filter((post) =>  post.coverimages == '').map((post) => (
+    .filter((post) =>  post.coverimages === '').map((post) => (
                 <tr key={post.id} className="hover:bg-gray-50/50 transition-colors">
                   {/* Title */}
                   <td className="px-6 py-4 font-medium text-xs text-gray-900 flex gap-x-2">
