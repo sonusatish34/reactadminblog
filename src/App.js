@@ -11,6 +11,7 @@ import Accounts from "./Admin/Accounts/Accounts";
 import Add from "./Admin/Posts/NewPost";
 import View from "./Admin/Posts/ViewPost";
 import UpdatePost from "./Admin/Posts/UpdatePost";
+import PostWithNoimage from "./Admin/Posts/PostWithNoimage";
 import NotFound from "./layouts/PageNotFound";
 import DeletedPosts from "./Admin/Posts/deleteposts";
 
@@ -95,6 +96,11 @@ function App() {
         <Route
           path="/Admin/Posts/UpdatePost/:id"
           element={authToken ? <UpdatePost /> : <Navigate to="/Login" />}
+        />
+
+        <Route
+          path="/Admin/PostWithNoimage"
+          element={authToken ? <PostWithNoimage /> : <Navigate to="/Admin/PostWithNoimage" />}
         />
 
         <Route

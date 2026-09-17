@@ -14,6 +14,7 @@ function SideBar() {
     { to: "/Admin/Accounts", icon: faUser, label: "Accounts" },
     { to: "/Admin/Post/New", icon: faPlus, label: "Create Post" },
     { to: "/Admin/Posts", icon: faFileAlt, label: "All Posts" },
+    { to: "/Admin/PostWithNoimage", icon: faFileAlt, label: "Images Without Posts" },
     { to: "/Admin/Categories", icon: faFolder, label: "Categories" },
     { to: "/Admin/DeletedPosts", icon: faTrash, label: "Deleted Posts" },
     { to: "/Admin/TripAdvisor", icon: faHillRockslide, label: "TripAdvisor" },
