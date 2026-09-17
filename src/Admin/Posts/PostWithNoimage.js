@@ -122,7 +122,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
   }, [postsData, selectedBlogFor, selectedCategory]);
 
   // Paginate filtered results
-  const startIndex = (currentPage - 1) * itemsPerPage;
+//   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedPosts = filteredPosts;
 
   return (
@@ -176,7 +176,7 @@ function PostsData({ postsData, currentPage, itemsPerPage, setPostsData }) {
                     <p className="line-clamp-2" title={post.title}>
                       {post.title.slice(0,40)}
                     </p>
-                    <img src={post.coverimages || 'https://sefuateurope.vtexassets.com/assets/vtex.file-manager-graphql/images/00d7afb6-4b37-4e22-8f4e-7ba1eb5f8d93___abcae94d543f1ddcc418317b979f6354.jpeg'} height={50} width={50}/>
+                    <img alt="jij" src={post.coverimages || 'https://sefuateurope.vtexassets.com/assets/vtex.file-manager-graphql/images/00d7afb6-4b37-4e22-8f4e-7ba1eb5f8d93___abcae94d543f1ddcc418317b979f6354.jpeg'} height={50} width={50}/>
                   </td>
 
                   {/* Description */}
